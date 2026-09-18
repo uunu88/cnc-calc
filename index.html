@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CNC / MCT 현장 가공 도구</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0f172a" />
+
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #131b2e;
+      --border: #1f2d4a;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --accent: #38bdf8;
+      --yellow: #facc15;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+    
+    header {
+      background: #0f172a; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; gap: 8px;
+    }
+    header h1 {
+      font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.6px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;
+    }
+    header h1 span { color: var(--accent); }
+
+    .header-biz-card {
+      background: #ffffff; color: #1e293b; border-radius: 6px;
+      padding: 5px 8px 5px 12px; position: relative; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 2px;
+      flex-shrink: 0; width: 220px;
+    }
+    .header-biz-card::before { content: ""; position: absolute; left: 0; top: 0; width: 5px; height: 75%; background: #1e293b; }
+    .header-biz-card::after { content: ""; position: absolute; left: 0; bottom: 0; width: 5px; height: 25%; background: #dc2626; }
+    .hbc-top { display: flex; justify-content: space-between; align-items: center; }
+    .hbc-name { font-size: 11.5px; font-weight: 800; color: #0f172a; line-height: 1; }
+    .hbc-role { font-size: 8px; font-weight: 600; color: #475569; margin-top: 1px; }
+
+    .duracarb-logo-micro {
+      border: 1px solid #1e293b; border-radius: 2px; display: flex; align-items: center;
+      background: #fff; transform: scale(0.78); transform-origin: right center;
+    }
+    .d-box { background: #1e293b; color: #fff; font-weight: 900; font-size: 10px; padding: 1px 3px; }
+    .d-text-wrap { display: flex; flex-direction: column; padding: 1px 3px; }
+    .d-sub { font-size: 5px; color: #dc2626; font-weight: 700; line-height: 1; }
+    .d-main { font-size: 9.5px; font-weight: 900; color: #dc2626; letter-spacing: -0.3px; line-height: 1; }
+
+    .hbc-bottom {
+      border-top: 1px solid #f1f5f9; padding-top: 2px; font-size: 8px; color: #475569;
+      display: flex; flex-direction: column; gap: 1px; font-weight: 600;
+    }
+    .hbc-row { display: flex; justify-content: space-between; }
+    .hbc-row a { color: inherit; text-decoration: none; }
+
+    header button.btn-back {
+      background: #1e293b; border: 1px solid var(--border); color: #fff;
+      padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0;
+    }
+
+    .container { flex: 1; padding: 12px; display: flex; flex-direction: column; }
+
+    .main-grid { 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 12px; 
+      padding-bottom: 20px;
+    }
+    .menu-btn {
+      background: linear-gradient(145deg, #131b2e, #0e1626); border: 2px solid var(--border); border-radius: 14px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px; font-weight: 700; text-align: center; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.35); transition: all 0.15s; line-height: 1.4; padding: 16px 12px; min-height: 86px;
+    }
+    .menu-btn:active { border-color: var(--accent); transform: scale(0.97); }
+    .menu-btn span { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-weight: normal; }
+
+    .sub-view { display: none; flex-direction: column; gap: 8px; height: 100%; }
+    .card { background: var(--card-bg); border-radius: 10px; padding: 10px; border: 1px solid var(--border); }
+    .card-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    label { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    
+    .btn-file-load {
+      background: #1e293b; border: 1px solid var(--border); color: var(--accent);
+      padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .btn-file-load:active { background: #334155; }
+    
+    input, textarea, select {
+      width: 100%; background: #090d16; border: 1px solid var(--border); border-radius: 6px;
+      color: #fff; padding: 8px; font-size: 13px; margin-bottom: 5px; outline: none;
+    }
+    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    textarea { height: 90px; font-family: monospace; font-size: 11px; resize: none; white-space: pre; transition: border-color 0.2s; }
+    textarea.dragover { border-color: var(--accent); background: #16243d; }
+
+    .input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    .btn-row { display: flex; gap: 6px; }
+    .btn-run {
+      flex: 1; background: var(--primary); color: #fff; border: none; border-radius: 6px;
+      padding: 9px; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-sub {
+      background: #334155; color: #fff; border: none; border-radius: 6px;
+      padding: 9px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-run:active { background: var(--primary-hover); }
+    
+    .viewport {
+      width: 100%; height: 280px; border: 1px solid var(--border);
+      border-radius: 8px; position: relative; overflow: hidden; touch-action: none; cursor: grab;
+    }
+    .viewport:active { cursor: grabbing; }
+    canvas { width: 100%; height: 100%; display: block; }
+    
+    .player-bar {
+      background: #0f172a; border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .player-controls { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .btn-player {
+      background: #1e293b; border: 1px solid var(--border); color: #fff;
+      padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;
+    }
+    .btn-player.active { background: var(--primary); border-color: var(--accent); }
+    .speed-select {
+      width: 70px; padding: 3px 5px; font-size: 11px; margin-bottom: 0;
+      background: #1e293b; border: 1px solid var(--border); border-radius: 5px;
+    }
+    .seek-slider {
+      width: 100%; margin: 0; padding: 0; -webkit-appearance: none; height: 4px;
+      background: #334155; border-radius: 2px; outline: none;
+    }
+    .seek-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--accent); cursor: pointer;
+    }
+
+    .info-box {
+      background: #090d16; border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px; font-family: monospace; font-size: 11px; color: var(--accent);
+      max-height: 130px; overflow-y: auto; white-space: pre-wrap; line-height: 1.45;
+    }
+    .legend { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); justify-content: flex-end; flex-wrap: wrap; }
+    .legend span { display: flex; align-items: center; gap: 3px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1 id="headerTitle">CNC / MCT <span>현장 가공 도구</span></h1>
+
+    <div class="header-biz-card" id="headerBizCard">
+      <div class="hbc-top">
+        <div>
+          <div class="hbc-name">Ryu Yun-hu</div>
+          <div class="hbc-role">Application Engineer</div>
+        </div>
+        <div class="duracarb-logo-micro">
+          <div class="d-box">D</div>
+          <div class="d-text-wrap">
+            <span class="d-sub">Member IMC Group</span>
+            <span class="d-main">uracarb</span>
+          </div>
+        </div>
+      </div>
+      <div class="hbc-bottom">
+        <div class="hbc-row">
+          <span>📱 <a href="tel:010-6599-2582">010-6599-2582</a></span>
+          <span>☎ 053-851-8370</span>
+        </div>
+        <div class="hbc-row">
+          <span>✉ <a href="mailto:ryh88@taegutec.co.kr"><strong>ryh88@taegutec.co.kr</strong></a></span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-back" id="btnHome" onclick="goHome()" style="display: none;">‹ 홈으로</button>
+  </header>
+
+  <div class="container">
+    <div id="view-main" class="main-grid">
+      <div class="menu-btn" onclick="openView('lathe-path')">
+        CNC 선반 경로
+        <span>2축 가공 & C/T 시뮬레이터</span>
+      </div>
+      <div class="menu-btn" onclick="openView('mct-path')">
+        MCT 밀링 경로
+        <span>3축 가공 & C/T 시뮬레이터</span>
+      </div>
+
+      <div class="menu-btn" onclick="openView('lathe-calc')">
+        선반 절삭조건 계산
+        <span>Vc ↔ RPM & 조도(Rz)</span>
+      </div>
+      <div class="menu-btn" onclick="openView('mct-calc')">
+        밀링 절삭조건 계산
+        <span>피드(F) & 공출량(Q) 연동</span>
+      </div>
+
+      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">
+        Duracarb 터닝
+      </div>
+      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">
+        Duracarb 밀링
+      </div>
+
+      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
+        Duracarb 절단 및 홈 가공
+      </div>
+      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
+        Duracarb 드릴링
+      </div>
+    </div>
+
+    <!-- 1. CNC 선반 화면 -->
+    <div id="view-lathe-path" class="sub-view">
+      <div class="card">
+        <div class="card-head-row">
+          <label>선반 G코드 (파일 드롭 및 클릭 연동 지원)</label>
+          <button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">📁 NC 파일 열기</button>
+          <input type="file" id="latheFileInput" style="display:none;" accept=".nc,.txt,.tap,.gcode" onchange="loadFileContent(event, 'latheGcode')" />
+        </div>
+        <textarea id="latheGcode" placeholder="선반 G코드를 붙여넣거나 NC 파일을 드래그해 놓으세요..." onkeyup="debouncedSyncLathe(this)" onclick="debouncedSyncLathe(this)"></textarea>
+
+        <div class="btn-row" style="margin-top: 4px;">
+          <button class="btn-run" onclick="parseAndDrawLathe()">경로 생성</button>
+          <button class="btn-sub" onclick="resetLatheView()">화면 맞춤</button>
+        </div>
+        <div class="legend" style="margin-top:5px;">
+          <span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
+          <span><span class="dot" style="background:#ffffff;"></span>절삭</span>
+          <span><span class="dot" style="background:#00ffff;"></span>선택블록</span>
+          <span style="color:#94a3b8;">휠/핀치: 줌, 드래그: 이동</span>
+        </div>
+      </div>
+      
+      <div class="viewport" id="latheBox"><canvas id="latheCanvas"></canvas></div>
+
+      <div class="player-bar">
+        <input type="range" id="latheSeek" class="seek-slider" min="0" max="100" value="100" oninput="onLatheSeek(this.value)" />
+        <div class="player-controls">
+          <div style="display:flex; gap:5px;">
+            <button class="btn-player" id="btnLathePlay" onclick="toggleLathePlay()">재생 ▶</button>
+            <button class="btn-player" onclick="stopLathePlay()">정지 ■</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
+            <span>속도</span>
+            <select id="latheSpeed" class="speed-select">
+              <option value="2">2 배속</option>
+              <option value="5">5 배속</option>
+              <option value="10" selected>10 배속</option>
+              <option value="20">20 배속</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box" id="latheReport">G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.</div>
+    </div>
+
+    <!-- 2. MCT 밀링 화면 -->
+    <div id="view-mct-path" class="sub-view">
+      <div class="card">
+        <div class="card-head-row">
+          <label>MCT 3축 G코드 (3D 가공 경로 & 정밀 C/T 연산)</label>
+          <button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">📁 NC 파일 열기</button>
+          <input type="file" id="mctFileInput" style="display:none;" accept=".nc,.txt,.tap,.gcode" onchange="loadFileContent(event, 'mctGcode')" />
+        </div>
+        <textarea id="mctGcode" placeholder="MCT 3축 G코드를 붙여넣거나 파일을 드래그해 놓으세요..." onkeyup="debouncedSyncMct(this)" onclick="debouncedSyncMct(this)"></textarea>
+
+        <div class="btn-row" style="margin-top: 4px;">
+          <button class="btn-run" onclick="parseAndDrawMCT()">3D 경로 생성</button>
+          <button class="btn-sub" onclick="resetMctView()">뷰 리셋</button>
+        </div>
+        <div class="legend" style="margin-top:5px;">
+          <span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
+          <span><span class="dot" style="background:#ffffff;"></span>G01/원호(절삭)</span>
+          <span><span class="dot" style="background:#00ffff;"></span>선택선</span>
+          <span style="color:#94a3b8;">1손가락: 궤도회전 / 2손가락: 줌</span>
+        </div>
+      </div>
+
+      <div class="viewport" id="mctBox"><canvas id="mctCanvas"></canvas></div>
+
+      <div class="player-bar">
+        <input type="range" id="mctSeek" class="seek-slider" min="0" max="100" value="100" oninput="onMctSeek(this.value)" />
+        <div class="player-controls">
+          <div style="display:flex; gap:5px;">
+            <button class="btn-player" id="btnMctPlay" onclick="toggleMctPlay()">재생 ▶</button>
+            <button class="btn-player" onclick="stopMctPlay()">정지 ■</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
+            <span>속도</span>
+            <select id="mctSpeed" class="speed-select">
+              <option value="2">2 배속</option>
+              <option value="5">5 배속</option>
+              <option value="10" selected>10 배속</option>
+              <option value="20">20 배속</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
+    </div>
+
+    <!-- 3. CNC 선반 계산기 -->
+    <div id="view-lathe-calc" class="sub-view">
+      <div class="card">
+        <label>가공 직경 Φ (mm)</label>
+        <input type="number" id="l_dia" placeholder="예: 86.95" oninput="calcLathe(1)" />
+        <label>절삭속도 Vc (m/min)</label>
+        <input type="number" id="l_vc" placeholder="예: 250" oninput="calcLathe(1)" />
+        <label>주축 회전수 N (RPM)</label>
+        <input type="number" id="l_rpm" placeholder="예: 915" oninput="calcLathe(2)" />
+        <label>회전당 이송 f (mm/rev)</label>
+        <input type="number" id="l_feed" value="0.35" step="0.01" oninput="calcLathe(1)" />
+        <label>인서트 노즈 R (mm)</label>
+        <input type="number" id="l_nr" value="0.8" step="0.4" oninput="calcLathe(1)" />
+      </div>
+      <div class="info-box" id="latheCalcReport">파라미터를 입력하면 실시간 상호 산출됩니다.</div>
+    </div>
+
+    <!-- 4. 밀링 계산기 -->
+    <div id="view-mct-calc" class="sub-view">
+      <div class="card">
+        <div class="input-grid-2">
+          <div>
+            <label>직경 Φ (mm)</label>
+            <input type="number" id="m_dia" placeholder="예: 10" value="10" oninput="calcMctParam(1)" />
+          </div>
+          <div>
+            <label>날 수 (Z)</label>
+            <input type="number" id="m_teeth" placeholder="예: 4" value="4" oninput="calcMctParam(1)" />
+          </div>
+        </div>
+
+        <div class="input-grid-2">
+          <div>
+            <label>주축 회전수 N (RPM)</label>
+            <input type="number" id="m_rpm" placeholder="예: 3820" oninput="calcMctParam(2)" />
+          </div>
+          <div>
+            <label>절삭속도 Vc (m/min)</label>
+            <input type="number" id="m_vc" placeholder="예: 120" value="120" oninput="calcMctParam(1)" />
+          </div>
+        </div>
+        
+        <div class="input-grid-2">
+          <div>
+            <label>이송 FEED (F mm/min)</label>
+            <input type="number" id="m_feed" placeholder="예: 764" oninput="calcMctFeed(2)" />
+          </div>
+          <div>
+            <label>날당 이송 Fz (mm/t)</label>
+            <input type="number" id="m_fz" placeholder="예: 0.05" value="0.05" step="0.005" oninput="calcMctFeed(1)" />
+          </div>
+        </div>
+
+        <div class="input-grid-2">
+          <div>
+            <label>절삭 폭 ae (mm)</label>
+            <input type="number" id="m_ae" placeholder="예: 5" value="5" oninput="calcMctFeed(1)" />
+          </div>
+          <div>
+            <label>절삭 깊이 ap (mm)</label>
+            <input type="number" id="m_ap" placeholder="예: 2" value="2" oninput="calcMctFeed(1)" />
+          </div>
+        </div>
+      </div>
+      <div class="info-box" id="mctCalcReport">절삭 조건 및 ae, ap를 넣으면 공출량(Q)이 자동 계산됩니다.</div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------------- 공통 유틸 및 드래그앤드롭 ---------------- */
+    function loadFileContent(event, targetId) {
+      const file = event.target.files[0];
+      if (!file) return;
+      readFile(file, targetId);
+    }
+
+    function readFile(file, targetId) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(targetId).value = e.target.result;
+        if (targetId === 'latheGcode') parseAndDrawLathe();
+        if (targetId === 'mctGcode') parseAndDrawMCT();
+      };
+      reader.readAsText(file);
+    }
+
+    function setupDragAndDrop(elementId, targetInputId) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      ['dragenter', 'dragover'].forEach(name => {
+        el.addEventListener(name, e => {
+          e.preventDefault();
+          el.classList.add('dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        el.addEventListener(name, e => {
+          e.preventDefault();
+          el.classList.remove('dragover');
+        });
+      });
+      el.addEventListener('drop', e => {
+        const dt = e.dataTransfer;
+        if (dt.files && dt.files.length > 0) {
+          readFile(dt.files[0], targetInputId);
+        }
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setupDragAndDrop('latheGcode', 'latheGcode');
+      setupDragAndDrop('latheBox', 'latheGcode');
+      setupDragAndDrop('mctGcode', 'mctGcode');
+      setupDragAndDrop('mctBox', 'mctGcode');
+    });
+
+    function goHome() {
+      document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
+      document.getElementById('view-main').style.display = 'grid';
+      document.getElementById('headerBizCard').style.display = 'flex';
+      document.getElementById('btnHome').style.display = 'none';
+      document.getElementById('headerTitle').innerHTML = 'CNC / MCT <span>현장 가공 도구</span>';
+      stopLathePlay();
+      stopMctPlay();
+    }
+
+    function openView(name) {
+      document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
+      document.getElementById('view-main').style.display = 'none';
+      document.getElementById('headerBizCard').style.display = 'none';
+      document.getElementById('btnHome').style.display = 'block';
+      const titles = {
+        'lathe-path': 'CNC 선반 2축 시뮬레이터',
+        'mct-path': 'MCT 밀링 3축 뷰어',
+        'lathe-calc': '선반 절삭조건 계산',
+        'mct-calc': '밀링 절삭조건 계산'
+      };
+      document.getElementById('headerTitle').innerText = titles[name];
+      document.getElementById('view-' + name).style.display = 'flex';
+
+      if (name === 'lathe-path') setTimeout(() => { resizeLathe(); resetLatheView(); }, 60);
+      if (name === 'mct-path') setTimeout(() => { resizeMCT(); resetMctView(); }, 60);
+      if (name === 'mct-calc') calcMctParam(1);
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    /* =========================================================
+       1. CNC 선반 시뮬레이터 (원호 호 길이 C/T 정밀화)
+       ========================================================= */
+    let latheSegments = [];
+    let latheScale = 2.5, lathePanX = 0, lathePanY = 0;
+    const lCanvas = document.getElementById('latheCanvas');
+    const lCtx = lCanvas.getContext('2d');
+    let lathePlayIdx = 0, latheIsPlaying = false;
+    let latheSelectedLineIdx = -1;
+    let latheAnimReq = null, latheLastTime = 0;
+
+    function resizeLathe() {
+      const box = document.getElementById('latheBox');
+      if (!box || box.clientWidth === 0) return;
+      lCanvas.width = box.clientWidth;
+      lCanvas.height = box.clientHeight;
+      drawLatheScreen();
+    }
+
+    function resetLatheView() {
+      if (latheSegments.length === 0) return;
+      let minZ = Infinity, maxZ = -Infinity, minR = Infinity, maxR = -Infinity;
+      latheSegments.forEach(s => {
+        minZ = Math.min(minZ, s.z1, s.z2); maxZ = Math.max(maxZ, s.z1, s.z2);
+        minR = Math.min(minR, s.r1, s.r2); maxR = Math.max(maxR, s.r1, s.r2);
+      });
+      const pad = 24;
+      const spanZ = Math.max(10, maxZ - minZ);
+      const spanR = Math.max(10, maxR - minR);
+      latheScale = Math.min((lCanvas.width - pad * 2) / spanZ, (lCanvas.height - pad * 2) / spanR);
+      lathePanX = (lCanvas.width / 2) - ((minZ + maxZ) / 2 * latheScale);
+      lathePanY = (lCanvas.height / 2) + ((minR + maxR) / 2 * latheScale);
+      drawLatheScreen();
+    }
+
+    function generateLatheArc(z1, r1, z2, r2, R, I, K, isG03) {
+      let cZ, cR, rad;
+      if (I !== null || K !== null) {
+        cR = r1 + (I || 0); cZ = z1 + (K || 0);
+        rad = Math.hypot(z1 - cZ, r1 - cR);
+      } else if (R !== null) {
+        rad = Math.abs(R);
+        const dz = z2 - z1, dr = r2 - r1, d = Math.hypot(dz, dr);
+        if (d === 0 || d > 2 * rad) return { pts: [{ z: z1, r: r1 }, { z: z2, r: r2 }], arcLength: d };
+        const h = Math.sqrt(Math.max(0, rad * rad - (d / 2) * (d / 2)));
+        const midZ = (z1 + z2) / 2, midR = (r1 + r2) / 2;
+        const sign = (isG03 ? 1 : -1) * (R < 0 ? -1 : 1);
+        cZ = midZ + sign * h * (-dr / d);
+        cR = midR + sign * h * (dz / d);
+      } else {
+        return { pts: [{ z: z1, r: r1 }, { z: z2, r: r2 }], arcLength: Math.hypot(z2 - z1, r2 - r1) };
+      }
+
+      let startAng = Math.atan2(r1 - cR, z1 - cZ);
+      let endAng = Math.atan2(r2 - cR, z2 - cZ);
+      if (isG03) { while (endAng <= startAng) endAng += 2 * Math.PI; }
+      else { while (endAng >= startAng) endAng -= 2 * Math.PI; }
+
+      const sweep = Math.abs(endAng - startAng);
+      const arcLength = rad * sweep; // 실제 원호 곡선 길이
+
+      const steps = 16, pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const theta = startAng + (endAng - startAng) * (i / steps);
+        pts.push({ z: cZ + rad * Math.cos(theta), r: cR + rad * Math.sin(theta) });
+      }
+      return { pts, radius: rad, arcLength };
+    }
+
+    function parseAndDrawLathe() {
+      const gcode = document.getElementById('latheGcode').value.trim();
+      if (!gcode) { alert('G코드를 먼저 입력하세요.'); return; }
+      resizeLathe();
+      stopLathePlay();
+      const rawLines = gcode.split('\n');
+      let curX = 250, curZ = 250;
+      let modalG = 'G00';
+      let curFeed = 0.35, curVc = 200, maxRpm = 2000, curRpm = 1000, isG96 = true;
+      let curTool = '초기설정';
+      let toolStats = {};
+      const RAPID_SPEED = 10000, TOOL_CHANGE_TIME = 1.0;
+      latheSegments = [];
+
+      function getBucket(t) {
+        if (!toolStats[t]) toolStats[t] = { time: 0, cutTime: 0, rapidTime: 0, dist: 0 };
+        return toolStats[t];
+      }
+
+      for (let idx = 0; idx < rawLines.length; idx++) {
+        let raw = rawLines[idx];
+        let line = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
+        if (!line || line.startsWith('%')) continue;
+
+        const tM = line.match(/T(\d{4}|\d{2})/);
+        if (tM) { curTool = 'T' + tM[1]; getBucket(curTool).time += TOOL_CHANGE_TIME; }
+
+        const g4M = line.match(/G0?4\s*([UXP])([\d\.]+)/);
+        if (g4M) {
+          const dVal = parseFloat(g4M[2]);
+          getBucket(curTool).time += (g4M[1] === 'P' && dVal >= 100) ? dVal / 1000.0 : dVal;
+        }
+
+        const g50M = line.match(/G50.*?S(\d+)/);
+        if (g50M) maxRpm = parseFloat(g50M[1]);
+        if (line.includes('G96')) isG96 = true;
+        if (line.includes('G97')) isG96 = false;
+        const sM = line.match(/S(\d+)/);
+        if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
+        const fM = line.match(/F([\d\.]+)/);
+        if (fM) curFeed = Math.max(0.001, parseFloat(fM[1]));
+
+        const gMatches = line.match(/G\d+/g);
+        if (gMatches) {
+          gMatches.forEach(g => {
+            const num = parseInt(g.replace('G',''), 10);
+            if (num === 0) modalG = 'G00';
+            else if (num === 1) modalG = 'G01';
+            else if (num === 2) modalG = 'G02';
+            else if (num === 3) modalG = 'G03';
+          });
+        }
+
+        if (line.includes('G28')) {
+          latheSegments.push({ z1: curZ, r1: curX / 2, z2: 250, r2: 125, type: 'G00', pts: null, lineIdx: idx });
+          curX = 250; curZ = 250;
+          continue;
+        }
+
+        let targetX = curX, targetZ = curZ;
+        const xm = line.match(/X([\-\d\.]+)/);
+        const zm = line.match(/Z([\-\d\.]+)/);
+        const um = line.match(/U([\-\d\.]+)/);
+        const wm = line.match(/W([\-\d\.]+)/);
+        
+        // 절대/증분 중복 혼선 방지
+        if (xm) targetX = parseFloat(xm[1]);
+        else if (um) targetX = curX + parseFloat(um[1]);
+
+        if (zm) targetZ = parseFloat(zm[1]);
+        else if (wm) targetZ = curZ + parseFloat(wm[1]);
+
+        if (targetX !== curX || targetZ !== curZ) {
+          const r1 = curX / 2, r2 = targetX / 2;
+          const dz = targetZ - curZ;
+          let dist = Math.hypot(Math.abs(r2) - Math.abs(r1), dz);
+          let arcPts = null;
+
+          if (modalG === 'G02' || modalG === 'G03') {
+            const rm = line.match(/R([\-\d\.]+)/);
+            const im = line.match(/I([\-\d\.]+)/);
+            const km = line.match(/K([\-\d\.]+)/);
+            const res = generateLatheArc(curZ, r1, targetZ, r2, rm ? parseFloat(rm[1]) : null, im ? parseFloat(im[1]) : null, km ? parseFloat(km[1]) : null, modalG === 'G03');
+            arcPts = res.pts;
+            if (res.arcLength) dist = res.arcLength; // 실제 원호 길이로 정확히 대체
+          }
+
+          const b = getBucket(curTool);
+          let sec = 0;
+          if (modalG === 'G00') {
+            sec = (dist / RAPID_SPEED) * 60;
+            b.rapidTime += sec;
+          } else {
+            const avgDia = Math.max(5, (Math.abs(curX) + Math.abs(targetX)) / 2);
+            let activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+            sec = (dist / (curFeed * (activeRpm || 100))) * 60;
+            b.cutTime += sec; b.dist += dist;
+          }
+          b.time += sec;
+          latheSegments.push({ z1: curZ, r1: r1, z2: targetZ, r2: r2, type: modalG, pts: arcPts, lineIdx: idx });
+          curX = targetX; curZ = targetZ;
+        }
+      }
+
+      resetLatheView();
+      lathePlayIdx = latheSegments.length;
+      document.getElementById('latheSeek').value = 100;
+      drawLatheScreen();
+
+      let report = "=== 선반 가공 시간 및 통계 ===\n";
+      let total = 0, totalCut = 0, totalRapid = 0;
+      for (const [t, d] of Object.entries(toolStats)) {
+        total += d.time; totalCut += d.cutTime; totalRapid += d.rapidTime;
+        if (t === '초기설정') continue;
+        const m = Math.floor(d.time / 60), s = Math.round(d.time % 60);
+        report += `• ${t.padEnd(8)} : ${m}:${s < 10 ? '0' : ''}${s} (${d.time.toFixed(1)}초)\n`;
+      }
+      report += `------------------------------------\n`;
+      report += `전체 가공 시간 : ${Math.floor(total/60)}:${Math.round(total%60) < 10 ? '0':''}${Math.round(total%60)} (총 ${Math.round(total)}초)\n`;
+      report += `[상세] 절삭: ${totalCut.toFixed(1)}s | 급속: ${totalRapid.toFixed(1)}s\n`;
+      document.getElementById('latheReport').innerText = report;
+    }
+
+    function drawLatheScreen() {
+      const grad = lCtx.createLinearGradient(0, 0, 0, lCanvas.height);
+      grad.addColorStop(0, '#2b4491');
+      grad.addColorStop(1, '#4361b5');
+      lCtx.fillStyle = grad;
+      lCtx.fillRect(0, 0, lCanvas.width, lCanvas.height);
+
+      lCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      lCtx.lineWidth = 1;
+      lCtx.setLineDash([4, 4]);
+      lCtx.beginPath();
+      lCtx.moveTo(0, lathePanY); lCtx.lineTo(lCanvas.width, lathePanY);
+      lCtx.stroke();
+      lCtx.beginPath();
+      lCtx.moveTo(lathePanX, 0); lCtx.lineTo(lathePanX, lCanvas.height);
+      lCtx.stroke();
+      lCtx.setLineDash([]);
+
+      const count = Math.min(lathePlayIdx, latheSegments.length);
+      for (let i = 0; i < count; i++) {
+        const s = latheSegments[i];
+        lCtx.beginPath();
+        lCtx.strokeStyle = (s.lineIdx === latheSelectedLineIdx) ? '#00ffff' : (s.type === 'G00' ? '#facc15' : '#ffffff');
+        lCtx.lineWidth = (s.type === 'G00') ? 1.2 : 1.7;
+
+        if (s.pts && s.pts.length > 0) {
+          const startPt = s.pts[0];
+          lCtx.moveTo(lathePanX + startPt.z * latheScale, lathePanY - startPt.r * latheScale);
+          for (let p = 1; p < s.pts.length; p++) {
+            lCtx.lineTo(lathePanX + s.pts[p].z * latheScale, lathePanY - s.pts[p].r * latheScale);
+          }
+        } else {
+          const sx1 = lathePanX + s.z1 * latheScale, sy1 = lathePanY - s.r1 * latheScale;
+          const sx2 = lathePanX + s.z2 * latheScale, sy2 = lathePanY - s.r2 * latheScale;
+          lCtx.moveTo(sx1, sy1);
+          lCtx.lineTo(sx2, sy2);
+        }
+        lCtx.stroke();
+      }
+    }
+
+    /* 선반 뷰포트 확대/축소 및 드래그 제스처 */
+    const lBox = document.getElementById('latheBox');
+    lBox.addEventListener('wheel', e => {
+      e.preventDefault();
+      const rect = lCanvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+      lathePanX = mouseX - (mouseX - lathePanX) * zoomFactor;
+      lathePanY = mouseY - (mouseY - lathePanY) * zoomFactor;
+      latheScale *= zoomFactor;
+      drawLatheScreen();
+    }, { passive: false });
+
+    let lIsDrag = false, lLastMouse = { x: 0, y: 0 };
+    lBox.addEventListener('pointerdown', e => {
+      lIsDrag = true;
+      lLastMouse = { x: e.clientX, y: e.clientY };
+    });
+    window.addEventListener('pointerup', () => lIsDrag = false);
+    window.addEventListener('pointermove', e => {
+      if (!lIsDrag) return;
+      lathePanX += (e.clientX - lLastMouse.x);
+      lathePanY += (e.clientY - lLastMouse.y);
+      lLastMouse = { x: e.clientX, y: e.clientY };
+      drawLatheScreen();
+    });
+
+    let lTouchDist = 0;
+    lBox.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        lTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      }
+    });
+    lBox.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        if (lTouchDist > 0) {
+          const factor = dist / lTouchDist;
+          const rect = lCanvas.getBoundingClientRect();
+          const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+          const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+          lathePanX = midX - (midX - lathePanX) * factor;
+          lathePanY = midY - (midY - lathePanY) * factor;
+          latheScale *= factor;
+          drawLatheScreen();
+        }
+        lTouchDist = dist;
+      }
+    }, { passive: false });
+
+    const debouncedSyncLathe = debounce(function(textarea) {
+      const pos = textarea.selectionStart;
+      const lines = textarea.value.substr(0, pos).split('\n');
+      latheSelectedLineIdx = lines.length - 1;
+      drawLatheScreen();
+    }, 120);
+
+    function toggleLathePlay() {
+      if (latheSegments.length === 0) return;
+      if (latheIsPlaying) pauseLathePlay(); else startLathePlay();
+    }
+    function startLathePlay() {
+      if (lathePlayIdx >= latheSegments.length) lathePlayIdx = 0;
+      latheIsPlaying = true;
+      document.getElementById('btnLathePlay').innerText = '일시정지 ❚❚';
+      latheLastTime = performance.now();
+      cancelAnimationFrame(latheAnimReq);
+      latheAnimReq = requestAnimationFrame(latheAnimLoop);
+    }
+    function latheAnimLoop(timestamp) {
+      if (!latheIsPlaying) return;
+      const speedVal = parseFloat(document.getElementById('latheSpeed').value) || 10;
+      if (timestamp - latheLastTime >= Math.max(16, 200 / speedVal)) {
+        if (lathePlayIdx < latheSegments.length) {
+          lathePlayIdx++;
+          document.getElementById('latheSeek').value = Math.round((lathePlayIdx / latheSegments.length) * 100);
+          drawLatheScreen();
+        } else { pauseLathePlay(); return; }
+        latheLastTime = timestamp;
+      }
+      latheAnimReq = requestAnimationFrame(latheAnimLoop);
+    }
+    function pauseLathePlay() {
+      latheIsPlaying = false;
+      cancelAnimationFrame(latheAnimReq);
+      document.getElementById('btnLathePlay').innerText = '재생 ▶';
+    }
+    function stopLathePlay() {
+      pauseLathePlay();
+      lathePlayIdx = latheSegments.length;
+      document.getElementById('latheSeek').value = 100;
+      drawLatheScreen();
+    }
+    function onLatheSeek(val) {
+      pauseLathePlay();
+      lathePlayIdx = Math.round((val / 100) * latheSegments.length);
+      drawLatheScreen();
+    }
+
+    /* =========================================================
+       2. MCT 3축 밀링 시뮬레이터 & C/T 연산 (3D 원호 길이 연산 정밀화)
+       ========================================================= */
+    const mCanvas = document.getElementById('mctCanvas');
+    const mCtx = mCanvas.getContext('2d');
+    let mctMoves = [];
+
+    let mRotZ = -30 * Math.PI / 180;
+    let mRotElev = 30 * Math.PI / 180;
+    let mScale = 1.8, mPanX = 0, mPanY = 0;
+    let mctPlayIdx = 0, mctIsPlaying = false;
+    let mctSelectedLineIdx = -1;
+    let mctAnimReq = null, mctLastTime = 0;
+
+    function resizeMCT() {
+      const box = document.getElementById('mctBox');
+      if (!box || box.clientWidth === 0) return;
+      mCanvas.width = box.clientWidth;
+      mCanvas.height = box.clientHeight;
+      mPanX = mCanvas.width / 2;
+      mPanY = mCanvas.height / 2 + 10;
+      drawMctScreen();
+    }
+
+    function resetMctView() {
+      mRotZ = -30 * Math.PI / 180;
+      mRotElev = 30 * Math.PI / 180;
+      mPanX = mCanvas.width / 2;
+      mPanY = mCanvas.height / 2 + 10;
+
+      if (mctMoves.length === 0) {
+        mScale = 1.8;
+      } else {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        mctMoves.forEach(m => {
+          minX = Math.min(minX, m.x1, m.x2); maxX = Math.max(maxX, m.x1, m.x2);
+          minY = Math.min(minY, m.y1, m.y2); maxY = Math.max(maxY, m.y1, m.y2);
+        });
+        const span = Math.max(20, maxX - minX, maxY - minY);
+        mScale = (mCanvas.width * 0.45) / span;
+      }
+      drawMctScreen();
+    }
+
+    function project3D(x, y, z) {
+      const cosZ = Math.cos(mRotZ), sinZ = Math.sin(mRotZ);
+      const cosE = Math.cos(mRotElev), sinE = Math.sin(mRotElev);
+
+      const rx = x * cosZ - y * sinZ;
+      const ry = x * sinZ + y * cosZ;
+
+      const px = mPanX + rx * mScale;
+      const py = mPanY - (ry * sinE + z * cosE) * mScale;
+
+      return { px, py };
+    }
+
+    function calcMctArcLength(x1, y1, z1, x2, y2, z2, R, I, J, isG03) {
+      let cx, cy, rad;
+      const dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
+      const chord = Math.hypot(dx, dy);
+
+      if (I !== null || J !== null) {
+        cx = x1 + (I || 0); cy = y1 + (J || 0);
+        rad = Math.hypot(x1 - cx, y1 - cy);
+      } else if (R !== null) {
+        rad = Math.abs(R);
+        if (chord === 0 || chord > 2 * rad) return Math.hypot(dx, dy, dz);
+        const h = Math.sqrt(Math.max(0, rad * rad - (chord / 2) * (chord / 2)));
+        const sign = (isG03 ? 1 : -1) * (R < 0 ? -1 : 1);
+        cx = (x1 + x2) / 2 + sign * h * (-dy / chord);
+        cy = (y1 + y2) / 2 + sign * h * (dx / chord);
+      } else {
+        return Math.hypot(dx, dy, dz);
+      }
+
+      let a1 = Math.atan2(y1 - cy, x1 - cx);
+      let a2 = Math.atan2(y2 - cy, x2 - cx);
+      if (isG03) { while (a2 <= a1) a2 += 2 * Math.PI; }
+      else { while (a2 >= a1) a2 -= 2 * Math.PI; }
+
+      const arc2D = rad * Math.abs(a2 - a1);
+      return Math.hypot(arc2D, dz); // 헬리컬 Z이송까지 반영한 3차원 호 길이
+    }
+
+    function parseAndDrawMCT() {
+      const gcode = document.getElementById('mctGcode').value.trim();
+      if (!gcode) { alert('MCT G코드를 입력하세요.'); return; }
+
+      resizeMCT();
+      stopMctPlay();
+      const lines = gcode.split('\n');
+      
+      let cur = { x: 0, y: 0, z: 0 };
+      let modalG = 'G00';
+      let isG91 = false;
+      let activeCycle = null;
+      let cycleR = 5.0, cycleZ = -20.0, cycleRetractZ = 50.0;
+      let isG98 = true;
+      let curFeed = 500;
+      let curTool = '초기설정';
+      let toolStats = {};
+      const RAPID_SPEED = 10000;
+      const TOOL_CHANGE_TIME = 3.0;
+
+      function getMctBucket(t) {
+        if (!toolStats[t]) toolStats[t] = { time: 0, cutTime: 0, rapidTime: 0, dist: 0 };
+        return toolStats[t];
+      }
+
+      mctMoves = [];
+
+      lines.forEach((raw, idx) => {
+        let l = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
+        if (!l || l.startsWith('%')) return;
+
+        const tM = l.match(/T(\d+)/);
+        if (tM) curTool = 'T' + String(tM[1]).padStart(2, '0');
+        if (l.includes('M06') || l.includes('M6')) getMctBucket(curTool).time += TOOL_CHANGE_TIME;
+
+        // 주요 M코드 기계 딜레이
+        if (l.includes('M03') || l.includes('M3') || l.includes('M04') || l.includes('M4')) getMctBucket(curTool).time += 0.5;
+        if (l.includes('M05') || l.includes('M5')) getMctBucket(curTool).time += 0.5;
+        if (l.includes('M19')) getMctBucket(curTool).time += 1.0;
+
+        const g4M = l.match(/G0?4\s*([PX])([\d\.]+)/);
+        if (g4M) {
+          const dVal = parseFloat(g4M[2]);
+          getMctBucket(curTool).time += (g4M[1] === 'P' && dVal >= 100) ? dVal / 1000.0 : dVal;
+        }
+
+        if (l.includes('G90')) isG91 = false;
+        if (l.includes('G91')) isG91 = true;
+
+        const fM = l.match(/F([\d\.]+)/);
+        if (fM) curFeed = Math.max(1, parseFloat(fM[1]));
+
+        if (l.includes('G28')) {
+          if (l.includes('Z')) cur.z = 50;
+          return;
+        }
+
+        if (l.includes('G80')) activeCycle = null;
+        if (l.includes('G98')) isG98 = true;
+        if (l.includes('G99')) isG98 = false;
+
+        const cycleMatch = l.match(/G8[1-9]/);
+        if (cycleMatch) {
+          activeCycle = cycleMatch[0];
+          cycleRetractZ = cur.z;
+        }
+
+        if (l.includes('G00') || l.includes('G0 ') || l.endsWith('G0')) { modalG = 'G00'; activeCycle = null; }
+        else if (l.includes('G01') || l.includes('G1 ') || l.endsWith('G1')) { modalG = 'G01'; activeCycle = null; }
+        else if (l.includes('G02') || l.includes('G2 ') || l.endsWith('G2')) { modalG = 'G02'; activeCycle = null; }
+        else if (l.includes('G03') || l.includes('G3 ') || l.endsWith('G3')) { modalG = 'G03'; activeCycle = null; }
+
+        const xm = l.match(/X([\-\d\.]+)/);
+        const ym = l.match(/Y([\-\d\.]+)/);
+        const zm = l.match(/Z([\-\d\.]+)/);
+        const rm = l.match(/R([\-\d\.]+)/);
+        const im = l.match(/I([\-\d\.]+)/);
+        const jm = l.match(/J([\-\d\.]+)/);
+
+        let hasX = xm !== null;
+        let hasY = ym !== null;
+        let hasZ = zm !== null;
+
+        let nX = hasX ? (isG91 ? cur.x + parseFloat(xm[1]) : parseFloat(xm[1])) : cur.x;
+        let nY = hasY ? (isG91 ? cur.y + parseFloat(ym[1]) : parseFloat(ym[1])) : cur.y;
+        let nZ = hasZ ? (isG91 ? cur.z + parseFloat(zm[1]) : parseFloat(zm[1])) : cur.z;
+
+        if (rm) cycleR = parseFloat(rm[1]);
+        if (zm && activeCycle) cycleZ = isG91 ? cur.z + parseFloat(zm[1]) : parseFloat(zm[1]);
+
+        function addMctMove(x1, y1, z1, x2, y2, z2, type, lIdx, moveDist) {
+          const d = (moveDist !== undefined) ? moveDist : Math.hypot(x2 - x1, y2 - y1, z2 - z1);
+          const b = getMctBucket(curTool);
+          let sec = 0;
+          if (type === 'G00') {
+            sec = (d / RAPID_SPEED) * 60;
+            b.rapidTime += sec;
+          } else {
+            sec = (d / curFeed) * 60;
+            b.cutTime += sec;
+            b.dist += d;
+          }
+          b.time += sec;
+          mctMoves.push({ x1, y1, z1, x2, y2, z2, type, lineIdx: lIdx });
+        }
+
+        if (activeCycle) {
+          const isDrillAction = hasX || hasY || (cycleMatch && hasZ);
+          if (isDrillAction) {
+            if (cur.x !== nX || cur.y !== nY) {
+              addMctMove(cur.x, cur.y, cur.z, nX, nY, cur.z, 'G00', idx);
+              cur.x = nX; cur.y = nY;
+            }
+
+            if (cur.z !== cycleR) {
+              addMctMove(cur.x, cur.y, cur.z, cur.x, cur.y, cycleR, 'G00', idx);
+              cur.z = cycleR;
+            }
+
+            addMctMove(cur.x, cur.y, cycleR, cur.x, cur.y, cycleZ, 'G01', idx);
+
+            const retZ = isG98 ? cycleRetractZ : cycleR;
+            addMctMove(cur.x, cur.y, cycleZ, cur.x, cur.y, retZ, 'G00', idx);
+            cur.z = retZ;
+            return;
+          }
+        }
+
+        if (nX !== cur.x || nY !== cur.y || nZ !== cur.z) {
+          let moveDist = Math.hypot(nX - cur.x, nY - cur.y, nZ - cur.z);
+          if (modalG === 'G02' || modalG === 'G03') {
+            moveDist = calcMctArcLength(cur.x, cur.y, cur.z, nX, nY, nZ, 
+              rm ? parseFloat(rm[1]) : null, 
+              im ? parseFloat(im[1]) : null, 
+              jm ? parseFloat(jm[1]) : null, 
+              modalG === 'G03');
+          }
+          addMctMove(cur.x, cur.y, cur.z, nX, nY, nZ, modalG, idx, moveDist);
+          cur = { x: nX, y: nY, z: nZ };
+        }
+      });
+
+      resetMctView();
+      mctPlayIdx = mctMoves.length;
+      document.getElementById('mctSeek').value = 100;
+      drawMctScreen();
+
+      let report = "=== MCT 가공 시간 및 통계 ===\n";
+      let total = 0, totalCut = 0, totalRapid = 0;
+      for (const [t, d] of Object.entries(toolStats)) {
+        total += d.time; totalCut += d.cutTime; totalRapid += d.rapidTime;
+        if (t === '초기설정') continue;
+        const m = Math.floor(d.time / 60), s = Math.round(d.time % 60);
+        report += `• ${t.padEnd(8)} : ${m}:${s < 10 ? '0' : ''}${s} (${d.time.toFixed(1)}초)\n`;
+      }
+      report += `------------------------------------\n`;
+      report += `전체 가공 시간 : ${Math.floor(total/60)}:${Math.round(total%60) < 10 ? '0':''}${Math.round(total%60)} (총 ${Math.round(total)}초)\n`;
+      report += `[상세] 절삭: ${totalCut.toFixed(1)}s | 급속: ${totalRapid.toFixed(1)}s\n`;
+      document.getElementById('mctReport').innerText = report;
+    }
+
+    function drawMctScreen() {
+      const grad = mCtx.createLinearGradient(0, 0, 0, mCanvas.height);
+      grad.addColorStop(0, '#2b4491');
+      grad.addColorStop(1, '#4361b5');
+      mCtx.fillStyle = grad;
+      mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
+
+      const o = project3D(0, 0, 0);
+      const xA = project3D(20, 0, 0), yA = project3D(0, 20, 0), zA = project3D(0, 0, 20);
+
+      function drawAxis(pTo, col, label) {
+        mCtx.strokeStyle = col; mCtx.fillStyle = col; mCtx.lineWidth = 2.2;
+        mCtx.beginPath(); mCtx.moveTo(o.px, o.py); mCtx.lineTo(pTo.px, pTo.py); mCtx.stroke();
+        mCtx.font = "bold 11px sans-serif";
+        mCtx.fillText(label, pTo.px + 4, pTo.py - 3);
+      }
+      drawAxis(xA, '#ef4444', 'X');
+      drawAxis(yA, '#22c55e', 'Y');
+      drawAxis(zA, '#38bdf8', 'Z');
+
+      const count = Math.min(mctPlayIdx, mctMoves.length);
+      let lastP = null;
+
+      for (let i = 0; i < count; i++) {
+        const m = mctMoves[i];
+        mCtx.beginPath();
+
+        if (m.lineIdx === mctSelectedLineIdx) {
+          mCtx.strokeStyle = '#00ffff';
+          mCtx.lineWidth = 3.5;
+        } else {
+          mCtx.strokeStyle = (m.type === 'G00') ? '#facc15' : '#ffffff';
+          mCtx.lineWidth = (m.type === 'G00') ? 1.3 : 1.7;
+        }
+
+        const p1 = project3D(m.x1, m.y1, m.z1);
+        const p2 = project3D(m.x2, m.y2, m.z2);
+        mCtx.moveTo(p1.px, p1.py);
+        mCtx.lineTo(p2.px, p2.py);
+        mCtx.stroke();
+        lastP = p2;
+      }
+
+      if (lastP && mctPlayIdx > 0 && mctPlayIdx <= mctMoves.length) {
+        mCtx.fillStyle = '#ef4444';
+        mCtx.strokeStyle = '#ffffff';
+        mCtx.lineWidth = 1;
+        mCtx.beginPath();
+        mCtx.moveTo(lastP.px, lastP.py);
+        mCtx.lineTo(lastP.px - 6, lastP.py - 11);
+        mCtx.lineTo(lastP.px + 6, lastP.py - 11);
+        mCtx.closePath();
+        mCtx.fill();
+        mCtx.stroke();
+      }
+    }
+
+    const debouncedSyncMct = debounce(function(textarea) {
+      const pos = textarea.selectionStart;
+      const lines = textarea.value.substr(0, pos).split('\n');
+      mctSelectedLineIdx = lines.length - 1;
+      drawMctScreen();
+    }, 120);
+
+    function toggleMctPlay() {
+      if (mctMoves.length === 0) return;
+      if (mctIsPlaying) pauseMctPlay(); else startMctPlay();
+    }
+    function startMctPlay() {
+      if (mctPlayIdx >= mctMoves.length) mctPlayIdx = 0;
+      mctIsPlaying = true;
+      document.getElementById('btnMctPlay').innerText = '일시정지 ❚❚';
+      mctLastTime = performance.now();
+      cancelAnimationFrame(latheAnimReq);
+      mctAnimReq = requestAnimationFrame(mctAnimLoop);
+    }
+    function mctAnimLoop(timestamp) {
+      if (!mctIsPlaying) return;
+      const speedVal = parseFloat(document.getElementById('mctSpeed').value) || 10;
+      if (timestamp - mctLastTime >= Math.max(16, 200 / speedVal)) {
+        if (mctPlayIdx < mctMoves.length) {
+          mctPlayIdx++;
+          document.getElementById('mctSeek').value = Math.round((mctPlayIdx / mctMoves.length) * 100);
+          drawMctScreen();
+        } else { pauseMctPlay(); return; }
+        mctLastTime = timestamp;
+      }
+      mctAnimReq = requestAnimationFrame(mctAnimLoop);
+    }
+    function pauseMctPlay() {
+      mctIsPlaying = false;
+      cancelAnimationFrame(mctAnimReq);
+      document.getElementById('btnMctPlay').innerText = '재생 ▶';
+    }
+    function stopMctPlay() {
+      pauseMctPlay();
+      mctPlayIdx = mctMoves.length;
+      document.getElementById('mctSeek').value = 100;
+      drawMctScreen();
+    }
+    function onMctSeek(val) {
+      pauseMctPlay();
+      mctPlayIdx = Math.round((val / 100) * mctMoves.length);
+      drawMctScreen();
+    }
+
+    const mBox = document.getElementById('mctBox');
+    mBox.addEventListener('wheel', e => {
+      e.preventDefault();
+      mScale *= (e.deltaY < 0 ? 1.15 : 0.85);
+      drawMctScreen();
+    }, { passive: false });
+
+    let mIsDrag = false, mLastMouse = { x: 0, y: 0 };
+    mBox.addEventListener('pointerdown', e => {
+      mIsDrag = true;
+      mLastMouse = { x: e.clientX, y: e.clientY };
+    });
+    window.addEventListener('pointerup', () => mIsDrag = false);
+    window.addEventListener('pointermove', e => {
+      if (!mIsDrag) return;
+      mRotZ += (e.clientX - mLastMouse.x) * 0.01;
+      mRotElev = Math.max(0.05, Math.min(Math.PI / 2 - 0.05, mRotElev - (e.clientY - mLastMouse.y) * 0.01));
+      mLastMouse = { x: e.clientX, y: e.clientY };
+      drawMctScreen();
+    });
+
+    let mTouchDist = 0;
+    mBox.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        mTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      }
+    });
+    mBox.addEventListener('touchmove', e => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        if (mTouchDist > 0) {
+          mScale *= (dist / mTouchDist);
+          drawMctScreen();
+        }
+        mTouchDist = dist;
+      }
+    }, { passive: false });
+
+    /* =========================================================
+       3. CNC 선반 절삭 계산기
+       ========================================================= */
+    function calcLathe(mode) {
+      const d = parseFloat(document.getElementById('l_dia').value);
+      const vcIn = document.getElementById('l_vc');
+      const rpmIn = document.getElementById('l_rpm');
+      const f = parseFloat(document.getElementById('l_feed').value) || 0.35;
+      const nr = parseFloat(document.getElementById('l_nr').value) || 0.8;
+      if (!d || d <= 0) return;
+
+      let vc = 0, rpm = 0;
+      if (mode === 1 && vcIn.value) {
+        vc = parseFloat(vcIn.value);
+        rpm = Math.round((1000 * vc) / (Math.PI * d));
+        rpmIn.value = rpm;
+      } else if (mode === 2 && rpmIn.value) {
+        rpm = parseFloat(rpmIn.value);
+        vc = ((Math.PI * d * rpm) / 1000).toFixed(1);
+        vcIn.value = vc;
+      } else return;
+
+      const rz = ((f * f) / (8 * nr)) * 1000;
+      document.getElementById('latheCalcReport').innerText =
+        `[계산 결과]\n• 주축 속도 (N) : ${rpm} RPM\n• 절삭 속도 (Vc) : ${vc} m/min\n• 분당 피드 : ${(rpm * f).toFixed(1)} mm/min\n• 이론 조도 Rz : ${rz.toFixed(1)} ㎛ (Ra 약 ${(rz/4).toFixed(2)} ㎛)`;
+    }
+
+    /* =========================================================
+       4. 밀링 절삭 계산기
+       ========================================================= */
+    function calcMctParam(mode) {
+      const d = parseFloat(document.getElementById('m_dia').value);
+      const vcIn = document.getElementById('m_vc');
+      const rpmIn = document.getElementById('m_rpm');
+      if (!d || d <= 0) return;
+
+      if (mode === 1 && vcIn.value) {
+        const vc = parseFloat(vcIn.value);
+        const rpm = Math.round((1000 * vc) / (Math.PI * d));
+        rpmIn.value = rpm;
+      } else if (mode === 2 && rpmIn.value) {
+        const rpm = parseFloat(rpmIn.value);
+        vcIn.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
+      }
+      calcMctFeed(1);
+    }
+
+    function calcMctFeed(mode) {
+      const d = parseFloat(document.getElementById('m_dia').value) || 10;
+      const z = parseFloat(document.getElementById('m_teeth').value);
+      const rpm = parseFloat(document.getElementById('m_rpm').value);
+      const ae = parseFloat(document.getElementById('m_ae').value) || 0;
+      const ap = parseFloat(document.getElementById('m_ap').value) || 0;
+      const fzIn = document.getElementById('m_fz');
+      const feedIn = document.getElementById('m_feed');
+
+      if (!z || !rpm || z <= 0 || rpm <= 0) return;
+
+      let f = 0, fz = 0;
+      if (mode === 1) {
+        fz = parseFloat(fzIn.value);
+        if (isNaN(fz)) return;
+        f = Math.round(fz * z * rpm);
+        feedIn.value = f;
+      } else {
+        f = parseFloat(feedIn.value);
+        if (isNaN(f)) return;
+        fz = parseFloat((f / (z * rpm)).toFixed(4));
+        fzIn.value = fz;
+      }
+
+      const qVal = ((ae * ap * f) / 1000).toFixed(2);
+      const vc = ((Math.PI * d * rpm) / 1000).toFixed(1);
+
+      document.getElementById('mctCalcReport').innerText =
+        `=== 밀링 절삭조건 산출 ===\n` +
+        `• 주축 회전수 (N) : ${rpm} RPM | Vc: ${vc} m/min\n` +
+        `• 테이블 이송 (F) : ${f} mm/min\n` +
+        `• 날당 이송 (Fz) : ${fz} mm/tooth | 회전당: ${(fz * z).toFixed(3)} mm/rev\n` +
+        `------------------------------------\n` +
+        `[공출량 (칩 배출량 Q)]\n• Q = ${qVal} cm³/min (cc/min)\n  (조건: ae ${ae}mm × ap ${ap}mm × F ${f}mm/min)`;
+    }
+  </script>
+</body>
+</html>
