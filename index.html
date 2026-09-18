@@ -218,7 +218,7 @@
       </div>
 
       <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
-        Duracarb 홈 가공
+        Duracarb 절단 및 홈 가공
       </div>
       <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
         Duracarb 드릴링
@@ -327,9 +327,9 @@
         <label>주축 회전수 N (RPM)</label>
         <input type="number" id="l_rpm" placeholder="예: 915" oninput="calcLathe(2)" />
         <label>회전당 이송 f (mm/rev)</label>
-        <input type="number" id="l_feed" value="0.35" step="0.01" oninput="calcLathe(1)" />
+        <input type="number" id="l_feed" placeholder="예: 0.35" step="0.01" oninput="calcLathe(1)" />
         <label>인서트 노즈 R (mm)</label>
-        <input type="number" id="l_nr" value="0.8" step="0.4" oninput="calcLathe(1)" />
+        <input type="number" id="l_nr" placeholder="예: 0.8" step="0.4" oninput="calcLathe(1)" />
       </div>
       <div class="info-box" id="latheCalcReport">파라미터를 입력하면 실시간 상호 산출됩니다.</div>
     </div>
@@ -340,11 +340,11 @@
         <div class="input-grid-2">
           <div>
             <label>직경 Φ (mm)</label>
-            <input type="number" id="m_dia" placeholder="예: 10" value="10" oninput="calcMctParam(1)" />
+            <input type="number" id="m_dia" placeholder="예: 10" oninput="calcMctParam(1)" />
           </div>
           <div>
             <label>날 수 (Z)</label>
-            <input type="number" id="m_teeth" placeholder="예: 4" value="4" oninput="calcMctParam(1)" />
+            <input type="number" id="m_teeth" placeholder="예: 4" oninput="calcMctParam(1)" />
           </div>
         </div>
 
@@ -355,7 +355,7 @@
           </div>
           <div>
             <label>절삭속도 Vc (m/min)</label>
-            <input type="number" id="m_vc" placeholder="예: 120" value="120" oninput="calcMctParam(1)" />
+            <input type="number" id="m_vc" placeholder="예: 120" oninput="calcMctParam(1)" />
           </div>
         </div>
         
@@ -366,22 +366,22 @@
           </div>
           <div>
             <label>날당 이송 Fz (mm/t)</label>
-            <input type="number" id="m_fz" placeholder="예: 0.05" value="0.05" step="0.005" oninput="calcMctFeed(1)" />
+            <input type="number" id="m_fz" placeholder="예: 0.05" step="0.005" oninput="calcMctFeed(1)" />
           </div>
         </div>
 
         <div class="input-grid-2">
           <div>
             <label>절삭 폭 ae (mm)</label>
-            <input type="number" id="m_ae" placeholder="예: 5" value="5" oninput="calcMctFeed(1)" />
+            <input type="number" id="m_ae" placeholder="예: 5" oninput="calcMctFeed(1)" />
           </div>
           <div>
             <label>절삭 깊이 ap (mm)</label>
-            <input type="number" id="m_ap" placeholder="예: 2" value="2" oninput="calcMctFeed(1)" />
+            <input type="number" id="m_ap" placeholder="예: 2" oninput="calcMctFeed(1)" />
           </div>
         </div>
       </div>
-      <div class="info-box" id="mctCalcReport">절삭 조건 및 ae, ap를 넣으면 공출량(Q)이 자동 계산됩니다.</div>
+      <div class="info-box" id="mctCalcReport">파라미터 입력 시 절삭조건 및 공출량(Q)이 자동 계산됩니다.</div>
     </div>
   </div>
 
@@ -459,7 +459,6 @@
 
       if (name === 'lathe-path') setTimeout(() => { resizeLathe(); resetLatheView(); }, 60);
       if (name === 'mct-path') setTimeout(() => { resizeMCT(); resetMctView(); }, 60);
-      if (name === 'mct-calc') calcMctParam(1);
     }
 
     function debounce(func, wait) {
@@ -529,7 +528,7 @@
       else { while (endAng >= startAng) endAng -= 2 * Math.PI; }
 
       const sweep = Math.abs(endAng - startAng);
-      const arcLength = rad * sweep; // 실제 원호 곡선 길이
+      const arcLength = rad * sweep;
 
       const steps = 16, pts = [];
       for (let i = 0; i <= steps; i++) {
@@ -575,7 +574,7 @@
         const g50M = line.match(/G50.*?S(\d+)/);
         if (g50M) maxRpm = parseFloat(g50M[1]);
         if (line.includes('G96')) isG96 = true;
-        if (line.includes('G97')) isG96 = false;
+        if (line.includes('G97')) isG97 = false;
         const sM = line.match(/S(\d+)/);
         if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
         const fM = line.match(/F([\d\.]+)/);
@@ -604,7 +603,6 @@
         const um = line.match(/U([\-\d\.]+)/);
         const wm = line.match(/W([\-\d\.]+)/);
         
-        // 절대/증분 중복 혼선 방지
         if (xm) targetX = parseFloat(xm[1]);
         else if (um) targetX = curX + parseFloat(um[1]);
 
@@ -623,7 +621,7 @@
             const km = line.match(/K([\-\d\.]+)/);
             const res = generateLatheArc(curZ, r1, targetZ, r2, rm ? parseFloat(rm[1]) : null, im ? parseFloat(im[1]) : null, km ? parseFloat(km[1]) : null, modalG === 'G03');
             arcPts = res.pts;
-            if (res.arcLength) dist = res.arcLength; // 실제 원호 길이로 정확히 대체
+            if (res.arcLength) dist = res.arcLength;
           }
 
           const b = getBucket(curTool);
@@ -703,7 +701,7 @@
       }
     }
 
-    /* 선반 뷰포트 확대/축소 및 드래그 제스처 */
+    /* 선반 뷰포트 인터랙션 */
     const lBox = document.getElementById('latheBox');
     lBox.addEventListener('wheel', e => {
       e.preventDefault();
@@ -805,7 +803,7 @@
     }
 
     /* =========================================================
-       2. MCT 3축 밀링 시뮬레이터 & C/T 연산 (3D 원호 길이 연산 정밀화)
+       2. MCT 3축 밀링 시뮬레이터 & C/T 연산
        ========================================================= */
     const mCanvas = document.getElementById('mctCanvas');
     const mCtx = mCanvas.getContext('2d');
@@ -886,7 +884,7 @@
       else { while (a2 >= a1) a2 -= 2 * Math.PI; }
 
       const arc2D = rad * Math.abs(a2 - a1);
-      return Math.hypot(arc2D, dz); // 헬리컬 Z이송까지 반영한 3차원 호 길이
+      return Math.hypot(arc2D, dz);
     }
 
     function parseAndDrawMCT() {
@@ -924,7 +922,6 @@
         if (tM) curTool = 'T' + String(tM[1]).padStart(2, '0');
         if (l.includes('M06') || l.includes('M6')) getMctBucket(curTool).time += TOOL_CHANGE_TIME;
 
-        // 주요 M코드 기계 딜레이
         if (l.includes('M03') || l.includes('M3') || l.includes('M04') || l.includes('M4')) getMctBucket(curTool).time += 0.5;
         if (l.includes('M05') || l.includes('M5')) getMctBucket(curTool).time += 0.5;
         if (l.includes('M19')) getMctBucket(curTool).time += 1.0;
@@ -1202,8 +1199,11 @@
       const d = parseFloat(document.getElementById('l_dia').value);
       const vcIn = document.getElementById('l_vc');
       const rpmIn = document.getElementById('l_rpm');
-      const f = parseFloat(document.getElementById('l_feed').value) || 0.35;
-      const nr = parseFloat(document.getElementById('l_nr').value) || 0.8;
+      const fIn = document.getElementById('l_feed');
+      const nrIn = document.getElementById('l_nr');
+      
+      const f = parseFloat(fIn.value) || 0.35;
+      const nr = parseFloat(nrIn.value) || 0.8;
       if (!d || d <= 0) return;
 
       let vc = 0, rpm = 0;
@@ -1226,9 +1226,11 @@
        4. 밀링 절삭 계산기
        ========================================================= */
     function calcMctParam(mode) {
-      const d = parseFloat(document.getElementById('m_dia').value);
+      const dIn = document.getElementById('m_dia').value;
       const vcIn = document.getElementById('m_vc');
       const rpmIn = document.getElementById('m_rpm');
+      
+      const d = parseFloat(dIn);
       if (!d || d <= 0) return;
 
       if (mode === 1 && vcIn.value) {
@@ -1243,9 +1245,9 @@
     }
 
     function calcMctFeed(mode) {
-      const d = parseFloat(document.getElementById('m_dia').value) || 10;
-      const z = parseFloat(document.getElementById('m_teeth').value);
-      const rpm = parseFloat(document.getElementById('m_rpm').value);
+      const d = parseFloat(document.getElementById('m_dia').value) || 0;
+      const z = parseFloat(document.getElementById('m_teeth').value) || 0;
+      const rpm = parseFloat(document.getElementById('m_rpm').value) || 0;
       const ae = parseFloat(document.getElementById('m_ae').value) || 0;
       const ap = parseFloat(document.getElementById('m_ap').value) || 0;
       const fzIn = document.getElementById('m_fz');
@@ -1256,18 +1258,18 @@
       let f = 0, fz = 0;
       if (mode === 1) {
         fz = parseFloat(fzIn.value);
-        if (isNaN(fz)) return;
+        if (isNaN(fz) || fz <= 0) return;
         f = Math.round(fz * z * rpm);
         feedIn.value = f;
       } else {
         f = parseFloat(feedIn.value);
-        if (isNaN(f)) return;
+        if (isNaN(f) || f <= 0) return;
         fz = parseFloat((f / (z * rpm)).toFixed(4));
         fzIn.value = fz;
       }
 
       const qVal = ((ae * ap * f) / 1000).toFixed(2);
-      const vc = ((Math.PI * d * rpm) / 1000).toFixed(1);
+      const vc = d > 0 ? ((Math.PI * d * rpm) / 1000).toFixed(1) : '-';
 
       document.getElementById('mctCalcReport').innerText =
         `=== 밀링 절삭조건 산출 ===\n` +
