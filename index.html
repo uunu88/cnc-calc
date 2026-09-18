@@ -304,9 +304,10 @@
           <span>N ↔ Vc & F ↔ Fz & 공출량(Q)</span>
         </div>
 
+        <!-- 조건계산기 바로 밑에 위치한 2칸 -->
         <div class="menu-btn" onclick="openView('gcode-calc')">
           G / M 코드 일람
-          <span>선반 & MCT & 사이클 코드</span>
+          <span>선반 & MCT 사이클 완벽 분류</span>
         </div>
         <div class="menu-btn" onclick="openView('mat-calc')">
           재질별 절삭조건
@@ -536,7 +537,8 @@
               <tr data-cat="common"><td><span class="code-tag">G03</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CCW)</td><td>반시계 방향 원호 가공</td></tr>
               <tr data-cat="common"><td><span class="code-tag">G04</span></td><td><span class="badge badge-common">공용</span></td><td>Dwell (휴지)</td><td>일정 시간 이송 대기 (홈 가공 칩 끊기, 바닥 정삭)</td></tr>
               <tr data-cat="common"><td><span class="code-tag">G28</span></td><td><span class="badge badge-common">공용</span></td><td>기계원점 복귀</td><td>중간 경유점 경유 후 1기계원점 복귀</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G40</span></td><td><span class="badge badge-common">공용</span></td><td>인서트/공구경 취소</td><td>공구 반경 보정 해제</td></tr>
+              <!-- 버그 수정: 선반 노즈R 및 밀링 공구경 보정 취소 명칭 명확화 -->
+              <tr data-cat="common"><td><span class="code-tag">G40</span></td><td><span class="badge badge-common">공용</span></td><td>공구경/노즈R 보정 취소</td><td>공구 반경 및 노즈R 보정 벡터 해제</td></tr>
               <tr data-cat="common"><td><span class="code-tag">G41</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 좌측</td><td>진행방향 기준 좌측 보정 (MCT 하향절삭 필수)</td></tr>
               <tr data-cat="common"><td><span class="code-tag">G42</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 우측</td><td>진행방향 기준 공구 우측 보정</td></tr>
               <tr data-cat="common"><td><span class="code-tag">G54~G59</span></td><td><span class="badge badge-common">공용</span></td><td>공작물 좌표계</td><td>가공 원점 1번~6번 지정</td></tr>
@@ -960,8 +962,11 @@
 
         const g50M = line.match(/G50.*?S(\d+)/);
         if (g50M) maxRpm = parseFloat(g50M[1]);
+        
+        // 버그 수정: G97 모드 진입 시 isG96 = false로 정확히 전환
         if (line.includes('G96')) isG96 = true;
-        if (line.includes('G97')) isG97 = false;
+        if (line.includes('G97')) isG96 = false;
+
         const sM = line.match(/S(\d+)/);
         if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
         const fM = line.match(/F([\d\.]+)/);
@@ -1298,6 +1303,22 @@
         return toolStats[t];
       }
 
+      function addMctMove(x1, y1, z1, x2, y2, z2, type, lIdx, moveDist) {
+        const d = (moveDist !== undefined) ? moveDist : Math.hypot(x2 - x1, y2 - y1, z2 - z1);
+        const b = getMctBucket(curTool);
+        let sec = 0;
+        if (type === 'G00') {
+          sec = (d / RAPID_SPEED) * 60;
+          b.rapidTime += sec;
+        } else {
+          sec = (d / curFeed) * 60;
+          b.cutTime += sec;
+          b.dist += d;
+        }
+        b.time += sec;
+        mctMoves.push({ x1, y1, z1, x2, y2, z2, type, lineIdx: lIdx });
+      }
+
       mctMoves = [];
 
       lines.forEach((raw, idx) => {
@@ -1324,8 +1345,13 @@
         const fM = l.match(/F([\d\.]+)/);
         if (fM) curFeed = Math.max(1, parseFloat(fM[1]));
 
+        // 버그 수정: G28 Z축 복귀 시 이동선(addMctMove)을 추가하고 궤적 및 C/T에 정상 반영
         if (l.includes('G28')) {
-          if (l.includes('Z')) cur.z = 50;
+          if (l.includes('Z')) {
+            const retZ = 50;
+            addMctMove(cur.x, cur.y, cur.z, cur.x, cur.y, retZ, 'G00', idx);
+            cur.z = retZ;
+          }
           return;
         }
 
@@ -1361,22 +1387,6 @@
 
         if (rm) cycleR = parseFloat(rm[1]);
         if (zm && activeCycle) cycleZ = isG91 ? cur.z + parseFloat(zm[1]) : parseFloat(zm[1]);
-
-        function addMctMove(x1, y1, z1, x2, y2, z2, type, lIdx, moveDist) {
-          const d = (moveDist !== undefined) ? moveDist : Math.hypot(x2 - x1, y2 - y1, z2 - z1);
-          const b = getMctBucket(curTool);
-          let sec = 0;
-          if (type === 'G00') {
-            sec = (d / RAPID_SPEED) * 60;
-            b.rapidTime += sec;
-          } else {
-            sec = (d / curFeed) * 60;
-            b.cutTime += sec;
-            b.dist += d;
-          }
-          b.time += sec;
-          mctMoves.push({ x1, y1, z1, x2, y2, z2, type, lineIdx: lIdx });
-        }
 
         if (activeCycle) {
           const isDrillAction = hasX || hasY || (cycleMatch && hasZ);
@@ -1501,18 +1511,21 @@
       if (mctMoves.length === 0) return;
       if (mctIsPlaying) pauseMctPlay(); else startMctPlay();
     }
+
+    // 버그 수정: mct용 애니메이션 변수(mctAnimReq, mctLastTime)로 전면 정상화
     function startMctPlay() {
       if (mctPlayIdx >= mctMoves.length) mctPlayIdx = 0;
       mctIsPlaying = true;
       document.getElementById('btnMctPlay').innerText = '일시정지 ❚❚';
       mctLastTime = performance.now();
-      cancelAnimationFrame(latheAnimReq);
+      cancelAnimationFrame(mctAnimReq);
       mctAnimReq = requestAnimationFrame(mctAnimLoop);
     }
+
     function mctAnimLoop(timestamp) {
       if (!mctIsPlaying) return;
       const speedVal = parseFloat(document.getElementById('mctSpeed').value) || 10;
-      if (timestamp - latheLastTime >= Math.max(16, 200 / speedVal)) {
+      if (timestamp - mctLastTime >= Math.max(16, 200 / speedVal)) {
         if (mctPlayIdx < mctMoves.length) {
           mctPlayIdx++;
           document.getElementById('mctSeek').value = Math.round((mctPlayIdx / mctMoves.length) * 100);
@@ -1522,17 +1535,20 @@
       }
       mctAnimReq = requestAnimationFrame(mctAnimLoop);
     }
+
     function pauseMctPlay() {
       mctIsPlaying = false;
       cancelAnimationFrame(mctAnimReq);
       document.getElementById('btnMctPlay').innerText = '재생 ▶';
     }
+
     function stopMctPlay() {
       pauseMctPlay();
       mctPlayIdx = mctMoves.length;
       document.getElementById('mctSeek').value = 100;
       drawMctScreen();
     }
+
     function onMctSeek(val) {
       pauseMctPlay();
       mctPlayIdx = Math.round((val / 100) * mctMoves.length);
