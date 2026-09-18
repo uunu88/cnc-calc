@@ -334,17 +334,17 @@
       <div class="info-box" id="latheCalcReport">파라미터를 입력하면 실시간 상호 산출됩니다.</div>
     </div>
 
-    <!-- 4. 밀링 계산기 -->
+    <!-- 4. 밀링 계산기 (원래 위치 복원: RPM/Vc, FEED/Fz 순서 배치 및 완벽 양방향 연동) -->
     <div id="view-mct-calc" class="sub-view">
       <div class="card">
         <div class="input-grid-2">
           <div>
             <label>직경 Φ (mm)</label>
-            <input type="number" id="m_dia" placeholder="예: 10" oninput="calcMctParam(1)" />
+            <input type="number" id="m_dia" placeholder="예: 10" oninput="onMctDiaChange()" />
           </div>
           <div>
             <label>날 수 (Z)</label>
-            <input type="number" id="m_teeth" placeholder="예: 4" oninput="calcMctParam(1)" />
+            <input type="number" id="m_teeth" placeholder="예: 4" oninput="onMctTeethChange()" />
           </div>
         </div>
 
@@ -373,15 +373,15 @@
         <div class="input-grid-2">
           <div>
             <label>절삭 폭 ae (mm)</label>
-            <input type="number" id="m_ae" placeholder="예: 5" oninput="calcMctFeed(1)" />
+            <input type="number" id="m_ae" placeholder="예: 5" oninput="updateMctChipRate()" />
           </div>
           <div>
             <label>절삭 깊이 ap (mm)</label>
-            <input type="number" id="m_ap" placeholder="예: 2" oninput="calcMctFeed(1)" />
+            <input type="number" id="m_ap" placeholder="예: 2" oninput="updateMctChipRate()" />
           </div>
         </div>
       </div>
-      <div class="info-box" id="mctCalcReport">파라미터 입력 시 절삭조건 및 공출량(Q)이 자동 계산됩니다.</div>
+      <div class="info-box" id="mctCalcReport">파라미터 입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
     </div>
   </div>
 
@@ -574,7 +574,7 @@
         const g50M = line.match(/G50.*?S(\d+)/);
         if (g50M) maxRpm = parseFloat(g50M[1]);
         if (line.includes('G96')) isG96 = true;
-        if (line.includes('G97')) isG97 = false;
+        if (line.includes('G97')) isG96 = false;
         const sM = line.match(/S(\d+)/);
         if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
         const fM = line.match(/F([\d\.]+)/);
@@ -1223,59 +1223,114 @@
     }
 
     /* =========================================================
-       4. 밀링 절삭 계산기
+       4. 밀링 절삭 계산기 (완벽 양방향 실시간 상호 연동)
        ========================================================= */
-    function calcMctParam(mode) {
-      const dIn = document.getElementById('m_dia').value;
+    function onMctDiaChange() {
+      const d = parseFloat(document.getElementById('m_dia').value);
       const vcIn = document.getElementById('m_vc');
       const rpmIn = document.getElementById('m_rpm');
-      
-      const d = parseFloat(dIn);
-      if (!d || d <= 0) return;
 
-      if (mode === 1 && vcIn.value) {
-        const vc = parseFloat(vcIn.value);
-        const rpm = Math.round((1000 * vc) / (Math.PI * d));
-        rpmIn.value = rpm;
-      } else if (mode === 2 && rpmIn.value) {
-        const rpm = parseFloat(rpmIn.value);
-        vcIn.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
+      if (!d || d <= 0) return;
+      if (vcIn.value) {
+        calcMctParam(1);
+      } else if (rpmIn.value) {
+        calcMctParam(2);
       }
-      calcMctFeed(1);
     }
 
-    function calcMctFeed(mode) {
-      const d = parseFloat(document.getElementById('m_dia').value) || 0;
-      const z = parseFloat(document.getElementById('m_teeth').value) || 0;
-      const rpm = parseFloat(document.getElementById('m_rpm').value) || 0;
-      const ae = parseFloat(document.getElementById('m_ae').value) || 0;
-      const ap = parseFloat(document.getElementById('m_ap').value) || 0;
+    function onMctTeethChange() {
+      const z = parseFloat(document.getElementById('m_teeth').value);
       const fzIn = document.getElementById('m_fz');
       const feedIn = document.getElementById('m_feed');
 
-      if (!z || !rpm || z <= 0 || rpm <= 0) return;
+      if (!z || z <= 0) return;
+      if (fzIn.value) {
+        calcMctFeed(1);
+      } else if (feedIn.value) {
+        calcMctFeed(2);
+      }
+    }
 
-      let f = 0, fz = 0;
-      if (mode === 1) {
-        fz = parseFloat(fzIn.value);
-        if (isNaN(fz) || fz <= 0) return;
-        f = Math.round(fz * z * rpm);
-        feedIn.value = f;
-      } else {
-        f = parseFloat(feedIn.value);
-        if (isNaN(f) || f <= 0) return;
-        fz = parseFloat((f / (z * rpm)).toFixed(4));
-        fzIn.value = fz;
+    function calcMctParam(mode) {
+      const d = parseFloat(document.getElementById('m_dia').value);
+      const vcIn = document.getElementById('m_vc');
+      const rpmIn = document.getElementById('m_rpm');
+      const z = parseFloat(document.getElementById('m_teeth').value);
+      const fzIn = document.getElementById('m_fz');
+      const feedIn = document.getElementById('m_feed');
+
+      if (mode === 1) { // Vc 입력 -> RPM 계산
+        const vc = parseFloat(vcIn.value);
+        if (d && d > 0 && !isNaN(vc)) {
+          const rpm = Math.round((1000 * vc) / (Math.PI * d));
+          rpmIn.value = rpm;
+          // RPM이 변경되었으므로 Fz가 있으면 Feed를, Feed가 있으면 Fz를 갱신
+          if (z && z > 0 && fzIn.value) {
+            feedIn.value = Math.round(parseFloat(fzIn.value) * z * rpm);
+          } else if (z && z > 0 && feedIn.value) {
+            fzIn.value = parseFloat((parseFloat(feedIn.value) / (z * rpm)).toFixed(4));
+          }
+        }
+      } else if (mode === 2) { // RPM 입력 -> Vc 계산
+        const rpm = parseFloat(rpmIn.value);
+        if (d && d > 0 && !isNaN(rpm)) {
+          vcIn.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
+          // RPM이 변경되었으므로 Fz가 있으면 Feed를, Feed가 있으면 Fz를 갱신
+          if (z && z > 0 && fzIn.value) {
+            feedIn.value = Math.round(parseFloat(fzIn.value) * z * rpm);
+          } else if (z && z > 0 && feedIn.value) {
+            fzIn.value = parseFloat((parseFloat(feedIn.value) / (z * rpm)).toFixed(4));
+          }
+        }
+      }
+      updateMctChipRate();
+    }
+
+    function calcMctFeed(mode) {
+      const z = parseFloat(document.getElementById('m_teeth').value);
+      const rpm = parseFloat(document.getElementById('m_rpm').value);
+      const fzIn = document.getElementById('m_fz');
+      const feedIn = document.getElementById('m_feed');
+
+      if (!z || !rpm || z <= 0 || rpm <= 0) {
+        updateMctChipRate();
+        return;
       }
 
+      if (mode === 1) { // Fz 입력 -> Feed 계산
+        const fz = parseFloat(fzIn.value);
+        if (!isNaN(fz)) {
+          feedIn.value = Math.round(fz * z * rpm);
+        }
+      } else if (mode === 2) { // Feed 입력 -> Fz 계산
+        const f = parseFloat(feedIn.value);
+        if (!isNaN(f)) {
+          fzIn.value = parseFloat((f / (z * rpm)).toFixed(4));
+        }
+      }
+      updateMctChipRate();
+    }
+
+    function updateMctChipRate() {
+      const d = parseFloat(document.getElementById('m_dia').value) || 0;
+      const z = parseFloat(document.getElementById('m_teeth').value) || 0;
+      const rpm = parseFloat(document.getElementById('m_rpm').value) || 0;
+      const vcIn = document.getElementById('m_vc').value;
+      const feedIn = document.getElementById('m_feed').value;
+      const fzIn = document.getElementById('m_fz').value;
+      const ae = parseFloat(document.getElementById('m_ae').value) || 0;
+      const ap = parseFloat(document.getElementById('m_ap').value) || 0;
+
+      const f = parseFloat(feedIn) || 0;
+      const fz = parseFloat(fzIn) || 0;
+      const vc = vcIn ? parseFloat(vcIn) : (d > 0 && rpm > 0 ? ((Math.PI * d * rpm) / 1000).toFixed(1) : '-');
       const qVal = ((ae * ap * f) / 1000).toFixed(2);
-      const vc = d > 0 ? ((Math.PI * d * rpm) / 1000).toFixed(1) : '-';
 
       document.getElementById('mctCalcReport').innerText =
         `=== 밀링 절삭조건 산출 ===\n` +
-        `• 주축 회전수 (N) : ${rpm} RPM | Vc: ${vc} m/min\n` +
-        `• 테이블 이송 (F) : ${f} mm/min\n` +
-        `• 날당 이송 (Fz) : ${fz} mm/tooth | 회전당: ${(fz * z).toFixed(3)} mm/rev\n` +
+        `• 주축 회전수 (N) : ${rpm ? rpm + ' RPM' : '-'} | Vc: ${vc} m/min\n` +
+        `• 날당 이송 (Fz) : ${fz ? fz + ' mm/tooth' : '-'} | 회전당: ${(fz * z).toFixed(3)} mm/rev\n` +
+        `• 테이블 이송 (F) : ${f ? f + ' mm/min' : '-'}\n` +
         `------------------------------------\n` +
         `[공출량 (칩 배출량 Q)]\n• Q = ${qVal} cm³/min (cc/min)\n  (조건: ae ${ae}mm × ap ${ap}mm × F ${f}mm/min)`;
     }
