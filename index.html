@@ -26,41 +26,33 @@
     body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
     
     header {
-      background: #0f172a; padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+      background: #0f172a; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
       border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; gap: 8px;
     }
     header h1 {
-      font-size: 20px; font-weight: 800; color: #ffffff; letter-spacing: -0.6px;
+      font-size: 19px; font-weight: 800; color: #ffffff; letter-spacing: -0.6px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;
     }
     header h1 span { color: var(--accent); }
 
+    /* 컴팩트해진 명함 영역 */
     .header-biz-card {
       background: #ffffff; color: #1e293b; border-radius: 6px;
-      padding: 5px 8px 5px 12px; position: relative; overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.4); display: flex; flex-direction: column; gap: 2px;
-      flex-shrink: 0; width: 220px;
+      padding: 4px 8px 4px 10px; position: relative; overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.35); display: flex; flex-direction: column; gap: 2px;
+      flex-shrink: 0;
     }
-    .header-biz-card::before { content: ""; position: absolute; left: 0; top: 0; width: 5px; height: 75%; background: #1e293b; }
-    .header-biz-card::after { content: ""; position: absolute; left: 0; bottom: 0; width: 5px; height: 25%; background: #dc2626; }
-    .hbc-top { display: flex; justify-content: space-between; align-items: center; }
-    .hbc-name { font-size: 11.5px; font-weight: 800; color: #0f172a; line-height: 1; }
-    .hbc-role { font-size: 8px; font-weight: 600; color: #475569; margin-top: 1px; }
-
-    .duracarb-logo-micro {
-      border: 1px solid #1e293b; border-radius: 2px; display: flex; align-items: center;
-      background: #fff; transform: scale(0.78); transform-origin: right center;
-    }
-    .d-box { background: #1e293b; color: #fff; font-weight: 900; font-size: 10px; padding: 1px 3px; }
-    .d-text-wrap { display: flex; flex-direction: column; padding: 1px 3px; }
-    .d-sub { font-size: 5px; color: #dc2626; font-weight: 700; line-height: 1; }
-    .d-main { font-size: 9.5px; font-weight: 900; color: #dc2626; letter-spacing: -0.3px; line-height: 1; }
+    .header-biz-card::before { content: ""; position: absolute; left: 0; top: 0; width: 4px; height: 75%; background: #1e293b; }
+    .header-biz-card::after { content: ""; position: absolute; left: 0; bottom: 0; width: 4px; height: 25%; background: #dc2626; }
+    .hbc-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+    .hbc-name { font-size: 11px; font-weight: 800; color: #0f172a; line-height: 1; }
+    .hbc-role { font-size: 8px; font-weight: 600; color: #475569; }
 
     .hbc-bottom {
       border-top: 1px solid #f1f5f9; padding-top: 2px; font-size: 8px; color: #475569;
       display: flex; flex-direction: column; gap: 1px; font-weight: 600;
     }
-    .hbc-row { display: flex; justify-content: space-between; }
+    .hbc-row { display: flex; justify-content: space-between; gap: 4px; }
     .hbc-row a { color: inherit; text-decoration: none; }
 
     header button.btn-back {
@@ -74,7 +66,7 @@
       display: grid; 
       grid-template-columns: 1fr 1fr; 
       gap: 12px; 
-      padding-bottom: 20px;
+      padding-bottom: 12px;
     }
     .menu-btn {
       background: linear-gradient(145deg, #131b2e, #0e1626); border: 2px solid var(--border); border-radius: 14px;
@@ -84,6 +76,21 @@
     }
     .menu-btn:active { border-color: var(--accent); transform: scale(0.97); }
     .menu-btn span { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-weight: normal; }
+
+    /* 홈 하단 안내 문구 */
+    .home-footer-note {
+      text-align: center;
+      padding: 14px 10px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      background: rgba(19, 27, 46, 0.4);
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      margin-top: auto;
+      margin-bottom: 6px;
+    }
+    .home-footer-note strong { color: var(--accent); font-weight: 600; }
 
     .sub-view { display: none; flex-direction: column; gap: 8px; height: 100%; }
     .card { background: var(--card-bg); border-radius: 10px; padding: 10px; border: 1px solid var(--border); }
@@ -162,24 +169,15 @@
   <header>
     <h1 id="headerTitle">CNC / MCT <span>현장 가공 도구</span></h1>
 
+    <!-- 슬림화된 명함 영역 -->
     <div class="header-biz-card" id="headerBizCard">
       <div class="hbc-top">
-        <div>
-          <div class="hbc-name">Ryu Yun-hu</div>
-          <div class="hbc-role">Application Engineer</div>
-        </div>
-        <div class="duracarb-logo-micro">
-          <div class="d-box">D</div>
-          <div class="d-text-wrap">
-            <span class="d-sub">Member IMC Group</span>
-            <span class="d-main">uracarb</span>
-          </div>
-        </div>
+        <div class="hbc-name">Ryu Yun-hu</div>
+        <div class="hbc-role">Application Engineer</div>
       </div>
       <div class="hbc-bottom">
         <div class="hbc-row">
           <span>📱 <a href="tel:010-6599-2582">010-6599-2582</a></span>
-          <span>☎ 053-851-8370</span>
         </div>
         <div class="hbc-row">
           <span>✉ <a href="mailto:ryh88@taegutec.co.kr"><strong>ryh88@taegutec.co.kr</strong></a></span>
@@ -191,37 +189,44 @@
   </header>
 
   <div class="container">
-    <div id="view-main" class="main-grid">
-      <div class="menu-btn" onclick="openView('lathe-path')">
-        CNC 선반 경로
-        <span>2축 가공 & C/T 시뮬레이터</span>
-      </div>
-      <div class="menu-btn" onclick="openView('mct-path')">
-        MCT 밀링 경로
-        <span>3축 가공 & C/T 시뮬레이터</span>
+    <div id="view-main">
+      <div class="main-grid">
+        <div class="menu-btn" onclick="openView('lathe-path')">
+          CNC 선반 경로
+          <span>2축 가공 & C/T 시뮬레이터</span>
+        </div>
+        <div class="menu-btn" onclick="openView('mct-path')">
+          MCT 밀링 경로
+          <span>3축 가공 & C/T 시뮬레이터</span>
+        </div>
+
+        <div class="menu-btn" onclick="openView('lathe-calc')">
+          선반 절삭조건 계산
+          <span>Vc ↔ RPM & 조도(Rz)</span>
+        </div>
+        <div class="menu-btn" onclick="openView('mct-calc')">
+          밀링 절삭조건 계산
+          <span>피드(F) & 공출량(Q) 연동</span>
+        </div>
+
+        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">
+          Duracarb 터닝
+        </div>
+        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">
+          Duracarb 밀링
+        </div>
+
+        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
+          Duracarb 절단 및 홈 가공
+        </div>
+        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
+          Duracarb 드릴링
+        </div>
       </div>
 
-      <div class="menu-btn" onclick="openView('lathe-calc')">
-        선반 절삭조건 계산
-        <span>Vc ↔ RPM & 조도(Rz)</span>
-      </div>
-      <div class="menu-btn" onclick="openView('mct-calc')">
-        밀링 절삭조건 계산
-        <span>피드(F) & 공출량(Q) 연동</span>
-      </div>
-
-      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">
-        Duracarb 터닝
-      </div>
-      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">
-        Duracarb 밀링
-      </div>
-
-      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
-        Duracarb 절단 및 홈 가공
-      </div>
-      <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
-        Duracarb 드릴링
+      <!-- 홈 화면 하단 안내 문구 -->
+      <div class="home-footer-note">
+        사용 시 불편한 점 있으시면 언제든 연락주세요.<br />
       </div>
     </div>
 
@@ -435,7 +440,7 @@
 
     function goHome() {
       document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
-      document.getElementById('view-main').style.display = 'grid';
+      document.getElementById('view-main').style.display = 'block';
       document.getElementById('headerBizCard').style.display = 'flex';
       document.getElementById('btnHome').style.display = 'none';
       document.getElementById('headerTitle').innerHTML = 'CNC / MCT <span>현장 가공 도구</span>';
@@ -1244,7 +1249,6 @@
       const fzIn = document.getElementById('m_fz');
 
       if (!z || z <= 0) return;
-      // 날 수 변경 시: Feed가 있으면 Feed 고정으로 Fz를 구하고, 없을 때만 Fz 기준으로 Feed 산출
       if (feedIn.value) {
         calcMctFeed(2);
       } else if (fzIn.value) {
@@ -1262,13 +1266,13 @@
 
       let currentRpm = 0;
 
-      if (mode === 1) { // Vc 입력 -> RPM 계산
+      if (mode === 1) {
         const vc = parseFloat(vcIn.value);
         if (d && d > 0 && !isNaN(vc)) {
           currentRpm = Math.round((1000 * vc) / (Math.PI * d));
           rpmIn.value = currentRpm;
         }
-      } else if (mode === 2) { // RPM 입력 -> Vc 계산
+      } else if (mode === 2) {
         const rpm = parseFloat(rpmIn.value);
         if (d && d > 0 && !isNaN(rpm)) {
           currentRpm = rpm;
@@ -1276,9 +1280,6 @@
         }
       }
 
-      // [핵심 변경] RPM이 변했을 때의 연동 로직:
-      // 이송 FEED(F)가 이미 입력되어 있으면 FEED를 유지하고 날당이송(Fz)을 변경!
-      // FEED가 비어있고 날당이송(Fz)만 들어있는 경우에만 FEED를 계산!
       if (currentRpm > 0 && z && z > 0) {
         if (feedIn.value !== "") {
           const f = parseFloat(feedIn.value);
@@ -1307,12 +1308,12 @@
         return;
       }
 
-      if (mode === 1) { // Fz 입력 -> Feed 계산
+      if (mode === 1) {
         const fz = parseFloat(fzIn.value);
         if (!isNaN(fz)) {
           feedIn.value = Math.round(fz * z * rpm);
         }
-      } else if (mode === 2) { // Feed 입력 -> Fz 계산
+      } else if (mode === 2) {
         const f = parseFloat(feedIn.value);
         if (!isNaN(f)) {
           fzIn.value = parseFloat((f / (z * rpm)).toFixed(4));
