@@ -334,7 +334,7 @@
       <div class="info-box" id="latheCalcReport">파라미터를 입력하면 실시간 상호 산출됩니다.</div>
     </div>
 
-    <!-- 4. 밀링 계산기 (원래 위치 복원: RPM/Vc, FEED/Fz 순서 배치 및 완벽 양방향 연동) -->
+    <!-- 4. 밀링 계산기 -->
     <div id="view-mct-calc" class="sub-view">
       <div class="card">
         <div class="input-grid-2">
@@ -574,7 +574,7 @@
         const g50M = line.match(/G50.*?S(\d+)/);
         if (g50M) maxRpm = parseFloat(g50M[1]);
         if (line.includes('G96')) isG96 = true;
-        if (line.includes('G97')) isG96 = false;
+        if (line.includes('G97')) isG97 = false;
         const sM = line.match(/S(\d+)/);
         if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
         const fM = line.match(/F([\d\.]+)/);
@@ -1126,7 +1126,7 @@
     function mctAnimLoop(timestamp) {
       if (!mctIsPlaying) return;
       const speedVal = parseFloat(document.getElementById('mctSpeed').value) || 10;
-      if (timestamp - mctLastTime >= Math.max(16, 200 / speedVal)) {
+      if (timestamp - latheLastTime >= Math.max(16, 200 / speedVal)) {
         if (mctPlayIdx < mctMoves.length) {
           mctPlayIdx++;
           document.getElementById('mctSeek').value = Math.round((mctPlayIdx / mctMoves.length) * 100);
@@ -1223,7 +1223,7 @@
     }
 
     /* =========================================================
-       4. 밀링 절삭 계산기 (완벽 양방향 실시간 상호 연동)
+       4. 밀링 절삭 계산기 (실무 맞춤 우선순위 연동 로직)
        ========================================================= */
     function onMctDiaChange() {
       const d = parseFloat(document.getElementById('m_dia').value);
@@ -1240,14 +1240,15 @@
 
     function onMctTeethChange() {
       const z = parseFloat(document.getElementById('m_teeth').value);
-      const fzIn = document.getElementById('m_fz');
       const feedIn = document.getElementById('m_feed');
+      const fzIn = document.getElementById('m_fz');
 
       if (!z || z <= 0) return;
-      if (fzIn.value) {
-        calcMctFeed(1);
-      } else if (feedIn.value) {
+      // 날 수 변경 시: Feed가 있으면 Feed 고정으로 Fz를 구하고, 없을 때만 Fz 기준으로 Feed 산출
+      if (feedIn.value) {
         calcMctFeed(2);
+      } else if (fzIn.value) {
+        calcMctFeed(1);
       }
     }
 
@@ -1259,30 +1260,39 @@
       const fzIn = document.getElementById('m_fz');
       const feedIn = document.getElementById('m_feed');
 
+      let currentRpm = 0;
+
       if (mode === 1) { // Vc 입력 -> RPM 계산
         const vc = parseFloat(vcIn.value);
         if (d && d > 0 && !isNaN(vc)) {
-          const rpm = Math.round((1000 * vc) / (Math.PI * d));
-          rpmIn.value = rpm;
-          // RPM이 변경되었으므로 Fz가 있으면 Feed를, Feed가 있으면 Fz를 갱신
-          if (z && z > 0 && fzIn.value) {
-            feedIn.value = Math.round(parseFloat(fzIn.value) * z * rpm);
-          } else if (z && z > 0 && feedIn.value) {
-            fzIn.value = parseFloat((parseFloat(feedIn.value) / (z * rpm)).toFixed(4));
-          }
+          currentRpm = Math.round((1000 * vc) / (Math.PI * d));
+          rpmIn.value = currentRpm;
         }
       } else if (mode === 2) { // RPM 입력 -> Vc 계산
         const rpm = parseFloat(rpmIn.value);
         if (d && d > 0 && !isNaN(rpm)) {
+          currentRpm = rpm;
           vcIn.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
-          // RPM이 변경되었으므로 Fz가 있으면 Feed를, Feed가 있으면 Fz를 갱신
-          if (z && z > 0 && fzIn.value) {
-            feedIn.value = Math.round(parseFloat(fzIn.value) * z * rpm);
-          } else if (z && z > 0 && feedIn.value) {
-            fzIn.value = parseFloat((parseFloat(feedIn.value) / (z * rpm)).toFixed(4));
+        }
+      }
+
+      // [핵심 변경] RPM이 변했을 때의 연동 로직:
+      // 이송 FEED(F)가 이미 입력되어 있으면 FEED를 유지하고 날당이송(Fz)을 변경!
+      // FEED가 비어있고 날당이송(Fz)만 들어있는 경우에만 FEED를 계산!
+      if (currentRpm > 0 && z && z > 0) {
+        if (feedIn.value !== "") {
+          const f = parseFloat(feedIn.value);
+          if (!isNaN(f)) {
+            fzIn.value = parseFloat((f / (z * currentRpm)).toFixed(4));
+          }
+        } else if (fzIn.value !== "") {
+          const fz = parseFloat(fzIn.value);
+          if (!isNaN(fz)) {
+            feedIn.value = Math.round(fz * z * currentRpm);
           }
         }
       }
+
       updateMctChipRate();
     }
 
