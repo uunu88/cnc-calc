@@ -275,7 +275,7 @@
           <span>📱 <a href="tel:010-6599-2582">010-6599-2582</a></span>
         </div>
         <div class="hbc-row">
-          <span>✉ <a href="mailto:-"><strong>-</strong></a></span>
+          <span>✉ <a href="mailto:ryh88@taegutec.co.kr"><strong>ryh88@taegutec.co.kr</strong></a></span>
         </div>
       </div>
     </div>
@@ -744,6 +744,12 @@
         }
 
         const area = document.getElementById(targetTextareaId);
+        const approved = confirm('OCR 인식 결과입니다.\n\n' + cleaned + '\n\n확인: 입력하고 시뮬레이션 실행\n취소: 입력하지 않고 직접 수정');
+        if (!approved) {
+          area.value = cleaned;
+          area.focus();
+          return;
+        }
         area.value = cleaned;
 
         if (targetTextareaId === 'latheGcode') parseAndDrawLathe();
@@ -927,6 +933,23 @@
       return { pts, radius: rad, arcLength };
     }
 
+    /* G/M 코드 검증 및 안전 경고 유틸리티 */
+    function getUnsupportedCodes(line, machine) {
+      const supported = machine === 'lathe'
+        ? new Set(['G00','G01','G02','G03','G04','G28','G50','G96','G97'])
+        : new Set(['G00','G01','G02','G03','G04','G28','G80','G81','G82','G83','G84','G85','G86','G87','G88','G89','G90','G91','G98','G99']);
+      const found = (line.match(/G\d{1,2}/g) || []).map(g => 'G' + String(parseInt(g.slice(1),10)).padStart(2,'0'));
+      return [...new Set(found.filter(g => !supported.has(g)))];
+    }
+
+    function showSimulationSafetyNotice(machine, warnings) {
+      const head = machine === 'lathe' ? '선반' : 'MCT';
+      const msg = `※ ${head} 시뮬레이션 주의\n경로와 시간은 참고용 추정치입니다. 실제 가공 전 제어기 형식, 좌표계, 공구 길이/보정, 원점복귀, 간섭, 회전수 제한을 반드시 확인하세요.`;
+      if (warnings.length) {
+        alert(msg + '\n\n미지원 또는 확인이 필요한 코드:\n' + warnings.join(', '));
+      }
+    }
+
     function parseAndDrawLathe() {
       const gcode = document.getElementById('latheGcode').value.trim();
       if (!gcode) { alert('G코드를 먼저 입력하세요.'); return; }
@@ -938,6 +961,7 @@
       let curFeed = 0.35, curVc = 200, maxRpm = 2000, curRpm = 1000, isG96 = true;
       let curTool = '초기설정';
       let toolStats = {};
+      const warnings = new Set();
       const RAPID_SPEED = 10000, TOOL_CHANGE_TIME = 1.0;
       latheSegments = [];
 
@@ -950,6 +974,7 @@
         let raw = rawLines[idx];
         let line = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
         if (!line || line.startsWith('%')) continue;
+        getUnsupportedCodes(line, 'lathe').forEach(code => warnings.add(code));
 
         const tM = line.match(/T(\d{4}|\d{2})/);
         if (tM) { curTool = 'T' + tM[1]; getBucket(curTool).time += TOOL_CHANGE_TIME; }
@@ -1024,7 +1049,9 @@
           } else {
             const avgDia = Math.max(5, (Math.abs(curX) + Math.abs(targetX)) / 2);
             let activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
-            sec = (dist / (curFeed * (activeRpm || 100))) * 60;
+            const safeRpm = Math.max(1, activeRpm || 100);
+            // 선반 F는 일반적으로 mm/rev로 가정합니다. 제어기 설정에 따라 달라질 수 있습니다.
+            sec = (dist / (curFeed * safeRpm)) * 60;
             b.cutTime += sec; b.dist += dist;
           }
           b.time += sec;
@@ -1049,7 +1076,9 @@
       report += `------------------------------------\n`;
       report += `전체 가공 시간 : ${Math.floor(total/60)}:${Math.round(total%60) < 10 ? '0':''}${Math.round(total%60)} (총 ${Math.round(total)}초)\n`;
       report += `[상세] 절삭: ${totalCut.toFixed(1)}s | 급속: ${totalRapid.toFixed(1)}s\n`;
+      report += `\n[주의] 급속 ${RAPID_SPEED} mm/min, F는 mm/rev 가정\n`;
       document.getElementById('latheReport').innerText = report;
+      showSimulationSafetyNotice('lathe', [...warnings]);
     }
 
     function drawLatheScreen() {
@@ -1295,6 +1324,7 @@
       let curFeed = 500;
       let curTool = '초기설정';
       let toolStats = {};
+      const warnings = new Set();
       const RAPID_SPEED = 10000;
       const TOOL_CHANGE_TIME = 3.0;
 
@@ -1303,7 +1333,7 @@
         return toolStats[t];
       }
 
-      function addMctMove(x1, y1, z1, x2, y2, z2, type, lIdx, moveDist) {
+      function addMctMove(x1, y1, z1, x2, y2, z2, type, lIdx, moveDist, points = null) {
         const d = (moveDist !== undefined) ? moveDist : Math.hypot(x2 - x1, y2 - y1, z2 - z1);
         const b = getMctBucket(curTool);
         let sec = 0;
@@ -1316,7 +1346,59 @@
           b.dist += d;
         }
         b.time += sec;
-        mctMoves.push({ x1, y1, z1, x2, y2, z2, type, lineIdx: lIdx });
+        mctMoves.push({ x1, y1, z1, x2, y2, z2, type, lineIdx: lIdx, points });
+      }
+
+      // 원호를 실제 곡선 점으로 변환합니다. (I/J 중심지정 및 R 지정 지원)
+      function buildMctArcPoints(x1, y1, z1, x2, y2, z2, R, I, J, isG03) {
+        let cx, cy, rad;
+        const dx = x2 - x1, dy = y2 - y1;
+        const chord = Math.hypot(dx, dy);
+
+        if (I !== null || J !== null) {
+          cx = x1 + (I || 0);
+          cy = y1 + (J || 0);
+          rad = Math.hypot(x1 - cx, y1 - cy);
+        } else if (R !== null && chord > 0 && chord <= 2 * Math.abs(R)) {
+          rad = Math.abs(R);
+          const h = Math.sqrt(Math.max(0, rad * rad - (chord / 2) * (chord / 2)));
+          const sign = (isG03 ? 1 : -1) * (R < 0 ? -1 : 1);
+          cx = (x1 + x2) / 2 + sign * h * (-dy / chord);
+          cy = (y1 + y2) / 2 + sign * h * (dx / chord);
+        } else {
+          return null;
+        }
+
+        if (!isFinite(rad) || rad <= 0) return null;
+
+        let a1 = Math.atan2(y1 - cy, x1 - cx);
+        let a2 = Math.atan2(y2 - cy, x2 - cx);
+        let delta;
+
+        // 시작점과 끝점이 같고 I/J가 있으면 360도 원호로 처리
+        if (Math.abs(dx) < 1e-9 && Math.abs(dy) < 1e-9 && (I !== null || J !== null)) {
+          delta = isG03 ? 2 * Math.PI : -2 * Math.PI;
+        } else {
+          if (isG03) {
+            while (a2 <= a1) a2 += 2 * Math.PI;
+          } else {
+            while (a2 >= a1) a2 -= 2 * Math.PI;
+          }
+          delta = a2 - a1;
+        }
+
+        const count = Math.max(16, Math.ceil(Math.abs(delta) * rad / 2));
+        const pts = [];
+        for (let k = 0; k <= count; k++) {
+          const t = k / count;
+          const a = a1 + delta * t;
+          pts.push({
+            x: cx + rad * Math.cos(a),
+            y: cy + rad * Math.sin(a),
+            z: z1 + (z2 - z1) * t
+          });
+        }
+        return { points: pts, length: Math.hypot(Math.abs(delta) * rad, z2 - z1) };
       }
 
       mctMoves = [];
@@ -1324,13 +1406,14 @@
       lines.forEach((raw, idx) => {
         let l = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
         if (!l || l.startsWith('%')) return;
+        getUnsupportedCodes(l, 'mct').forEach(code => warnings.add(code));
 
         const tM = l.match(/T(\d+)/);
         if (tM) curTool = 'T' + String(tM[1]).padStart(2, '0');
-        if (l.includes('M06') || l.includes('M6')) getMctBucket(curTool).time += TOOL_CHANGE_TIME;
+        if (/(^|\s)M0?6(?:\s|$)/.test(l)) getMctBucket(curTool).time += TOOL_CHANGE_TIME;
 
-        if (l.includes('M03') || l.includes('M3') || l.includes('M04') || l.includes('M4')) getMctBucket(curTool).time += 0.5;
-        if (l.includes('M05') || l.includes('M5')) getMctBucket(curTool).time += 0.5;
+        if (/(^|\s)M0?[34](?:\s|$)/.test(l)) getMctBucket(curTool).time += 0.5;
+        if (/(^|\s)M0?5(?:\s|$)/.test(l)) getMctBucket(curTool).time += 0.5;
         if (l.includes('M19')) getMctBucket(curTool).time += 1.0;
 
         const g4M = l.match(/G0?4\s*([PX])([\d\.]+)/);
@@ -1355,6 +1438,11 @@
           return;
         }
 
+        // 작업좌표 오프셋 설정은 실제 공구 이동이 아니므로 경로에서 제외
+        if (/^G10(?:L\d+)?/.test(l)) return;
+        // 서브프로그램 호출/복귀 자체는 경로가 아니며, 본문이 없으면 그 형상을 재현할 수 없음
+        if (/^M98\b|^M99\b/.test(l)) return;
+
         if (l.includes('G80')) activeCycle = null;
         if (l.includes('G98')) isG98 = true;
         if (l.includes('G99')) isG98 = false;
@@ -1365,10 +1453,12 @@
           cycleRetractZ = cur.z;
         }
 
-        if (l.includes('G00') || l.includes('G0 ') || l.endsWith('G0')) { modalG = 'G00'; activeCycle = null; }
-        else if (l.includes('G01') || l.includes('G1 ') || l.endsWith('G1')) { modalG = 'G01'; activeCycle = null; }
-        else if (l.includes('G02') || l.includes('G2 ') || l.endsWith('G2')) { modalG = 'G02'; activeCycle = null; }
-        else if (l.includes('G03') || l.includes('G3 ') || l.endsWith('G3')) { modalG = 'G03'; activeCycle = null; }
+        // G0X..., G1X..., G3I...처럼 공백 없는 밀링 코드도 인식
+        const gMotion = l.match(/G(00|01|02|03|0|1|2|3)(?=[A-Z\s]|$)/);
+        if (gMotion) {
+          modalG = 'G' + gMotion[1].padStart(2, '0');
+          activeCycle = null;
+        }
 
         const xm = l.match(/X([\-\d\.]+)/);
         const ym = l.match(/Y([\-\d\.]+)/);
@@ -1410,16 +1500,25 @@
           }
         }
 
-        if (nX !== cur.x || nY !== cur.y || nZ !== cur.z) {
+        const isArc = modalG === 'G02' || modalG === 'G03';
+        const R = rm ? parseFloat(rm[1]) : null;
+        const I = im ? parseFloat(im[1]) : null;
+        const J = jm ? parseFloat(jm[1]) : null;
+
+        // G3I-66 / G2I-66처럼 끝점 없이 원 한 바퀴를 도는 블록 지원
+        if (isArc && (I !== null || J !== null) &&
+            Math.abs(nX - cur.x) < 1e-9 && Math.abs(nY - cur.y) < 1e-9 &&
+            Math.abs(nZ - cur.z) < 1e-9) {
+          const arc = buildMctArcPoints(cur.x, cur.y, cur.z, cur.x, cur.y, cur.z, R, I, J, modalG === 'G03');
+          if (arc) addMctMove(cur.x, cur.y, cur.z, cur.x, cur.y, cur.z, modalG, idx, arc.length, arc.points);
+        } else if (nX !== cur.x || nY !== cur.y || nZ !== cur.z) {
           let moveDist = Math.hypot(nX - cur.x, nY - cur.y, nZ - cur.z);
-          if (modalG === 'G02' || modalG === 'G03') {
-            moveDist = calcMctArcLength(cur.x, cur.y, cur.z, nX, nY, nZ, 
-              rm ? parseFloat(rm[1]) : null, 
-              im ? parseFloat(im[1]) : null, 
-              jm ? parseFloat(jm[1]) : null, 
-              modalG === 'G03');
+          let points = null;
+          if (isArc) {
+            const arc = buildMctArcPoints(cur.x, cur.y, cur.z, nX, nY, nZ, R, I, J, modalG === 'G03');
+            if (arc) { moveDist = arc.length; points = arc.points; }
           }
-          addMctMove(cur.x, cur.y, cur.z, nX, nY, nZ, modalG, idx, moveDist);
+          addMctMove(cur.x, cur.y, cur.z, nX, nY, nZ, modalG, idx, moveDist, points);
           cur = { x: nX, y: nY, z: nZ };
         }
       });
@@ -1441,6 +1540,7 @@
       report += `전체 가공 시간 : ${Math.floor(total/60)}:${Math.round(total%60) < 10 ? '0':''}${Math.round(total%60)} (총 ${Math.round(total)}초)\n`;
       report += `[상세] 절삭: ${totalCut.toFixed(1)}s | 급속: ${totalRapid.toFixed(1)}s\n`;
       document.getElementById('mctReport').innerText = report;
+      showSimulationSafetyNotice('mct', [...warnings]);
     }
 
     function drawMctScreen() {
@@ -1478,12 +1578,22 @@
           mCtx.lineWidth = (m.type === 'G00') ? 1.3 : 1.7;
         }
 
-        const p1 = project3D(m.x1, m.y1, m.z1);
-        const p2 = project3D(m.x2, m.y2, m.z2);
-        mCtx.moveTo(p1.px, p1.py);
-        mCtx.lineTo(p2.px, p2.py);
+        if (m.points && m.points.length > 1) {
+          const first = project3D(m.points[0].x, m.points[0].y, m.points[0].z);
+          mCtx.moveTo(first.px, first.py);
+          for (let q = 1; q < m.points.length; q++) {
+            const pp = project3D(m.points[q].x, m.points[q].y, m.points[q].z);
+            mCtx.lineTo(pp.px, pp.py);
+          }
+          lastP = project3D(m.points[m.points.length - 1].x, m.points[m.points.length - 1].y, m.points[m.points.length - 1].z);
+        } else {
+          const p1 = project3D(m.x1, m.y1, m.z1);
+          const p2 = project3D(m.x2, m.y2, m.z2);
+          mCtx.moveTo(p1.px, p1.py);
+          mCtx.lineTo(p2.px, p2.py);
+          lastP = p2;
+        }
         mCtx.stroke();
-        lastP = p2;
       }
 
       if (lastP && mctPlayIdx > 0 && mctPlayIdx <= mctMoves.length) {
