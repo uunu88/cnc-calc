@@ -252,6 +252,12 @@
       border-color: var(--accent);
       color: #fff;
     }
+
+    .material-tools { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 8px; }
+    .material-tools input, .material-tools select { flex:1; min-width:120px; background:#090d16; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:8px; font-size:11px; }
+    .material-meta { font-size:10px; color:var(--text-muted); margin:6px 0; }
+    .material-table td { white-space:nowrap; }
+    .material-table td:last-child { white-space:normal; min-width:150px; }
   </style>
 </head>
 <body>
@@ -662,6 +668,22 @@
             </tbody>
           </table>
         </div>
+
+        <div style="margin-top:18px; font-size:14px; font-weight:800;">재질 규격 대응표</div>
+        <div class="material-meta">※ 규격 간 유사 등급을 찾기 위한 참고표입니다. 실제 대체 가능 여부는 화학성분, 열처리, 경도 및 제조사 성적서를 확인하세요.</div>
+        <div class="material-tools">
+          <input id="materialSearch" type="search" placeholder="재질명 검색 (예: S45C, 4140, SUS304)" oninput="filterMaterials()">
+          <select id="materialGroup" onchange="filterMaterials()">
+            <option value="all">전체 재질군</option><option>P 탄소강/합금강</option><option>M 스테인리스</option><option>K 주철</option><option>N 알루미늄/비철</option><option>S 내열합금/티타늄</option><option>H 공구강/고경도강</option>
+          </select>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table material-table">
+            <thead><tr><th>재질군</th><th>JIS</th><th>AISI/SAE</th><th>DIN/EN</th><th>열처리·참고</th></tr></thead>
+            <tbody id="materialRows"></tbody>
+          </table>
+        </div>
+        <div id="materialCount" class="material-meta"></div>
       </div>
     </div>
 
@@ -1832,6 +1854,24 @@
       }
       updateMctChipRate();
     }
+
+
+    const materialData = [
+      ['P 탄소강/합금강','S10C','1010','C10','A29','저탄소강'],['P 탄소강/합금강','S20C','1020','C22','A29','저탄소강'],['P 탄소강/합금강','S45C','1045','C45','A29','중탄소강'],['P 탄소강/합금강','S50C','1050','C50','A29','중탄소강'],['P 탄소강/합금강','SCM415','4115','16MnCr5','A29','침탄용 합금강'],['P 탄소강/합금강','SCM420','4120','20MnCr5','A29','침탄용 합금강'],['P 탄소강/합금강','SCM435','4135','34CrMo4','A29','조질용'],['P 탄소강/합금강','SCM440','4140','42CrMo4','A29','조질용'],['P 탄소강/합금강','SNCM439','4340','36CrNiMo6','A29','고강도 조질용'],['P 탄소강/합금강','SMn443','1144','36S20','A29','쾌삭강'],
+      ['M 스테인리스','SUS303','303','1.4305','A582','쾌삭 오스테나이트계'],['M 스테인리스','SUS304','304','1.4301','A240','오스테나이트계'],['M 스테인리스','SUS304L','304L','1.4307','A240','저탄소'],['M 스테인리스','SUS316','316','1.4401','A240','Mo 첨가'],['M 스테인리스','SUS316L','316L','1.4404','A240','저탄소·Mo 첨가'],['M 스테인리스','SUS321','321','1.4541','A240','Ti 안정화'],['M 스테인리스','SUS410','410','1.4006','A240','마르텐사이트계'],['M 스테인리스','SUS420J2','420','1.4021','A276','고탄소 마르텐사이트계'],['M 스테인리스','SUS430','430','1.4016','A240','페라이트계'],['M 스테인리스','SUS440C','440C','1.4125','A276','고탄소·고경도 가능'],
+      ['K 주철','FC200','-','EN-GJL-200','A48','회주철'],['K 주철','FC250','-','EN-GJL-250','A48','회주철'],['K 주철','FC300','-','EN-GJL-300','A48','회주철'],['K 주철','FCD400','60-40-18','EN-GJS-400-18','A536','구상흑연주철'],['K 주철','FCD450','65-45-12','EN-GJS-450-10','A536','구상흑연주철'],['K 주철','FCD600','80-55-06','EN-GJS-600-3','A536','고강도 구상흑연주철'],
+      ['N 알루미늄/비철','A1050','1050','EN AW-1050A','B209','순알루미늄계'],['N 알루미늄/비철','A2017','2017','EN AW-2017A','B209','Al-Cu계'],['N 알루미늄/비철','A2024','2024','EN AW-2024','B209','고강도 Al-Cu-Mg'],['N 알루미늄/비철','A5052','5052','EN AW-5052','B209','Al-Mg계'],['N 알루미늄/비철','A5083','5083','EN AW-5083','B209','용접 구조용'],['N 알루미늄/비철','A6061','6061','EN AW-6061','B209','T6 등 상태 확인'],['N 알루미늄/비철','A6063','6063','EN AW-6063','B209','압출용'],['N 알루미늄/비철','A7075','7075','EN AW-7075','B209','T6/T651 등 상태 확인'],['N 알루미늄/비철','C1100','C11000','CW004A','B152','무산소·터프피치 구리'],
+      ['S 내열합금/티타늄','Ti-6Al-4V','Grade 5','3.7165','B265','티타늄 합금'],['S 내열합금/티타늄','Ti-6Al-4V ELI','Grade 23','3.7165','B265','저간극 원소·의료용'],['S 내열합금/티타늄','-','Inconel 600','2.4816','B168','니켈계 내열합금'],['S 내열합금/티타늄','-','Inconel 625','2.4856','B443','니켈계 내열합금'],['S 내열합금/티타늄','-','Inconel 718','2.4668','B637','석출경화형'],['S 내열합금/티타늄','-','Hastelloy C-276','2.4819','B574','Ni-Mo-Cr계'],
+      ['H 공구강/고경도강','SKD11','D2','1.2379','A681','열처리 후 고경도'],['H 공구강/고경도강','SKD61','H13','1.2344','A681','열간 금형강'],['H 공구강/고경도강','SKH51','M2','1.3343','A600','고속도강'],['H 공구강/고경도강','SKS3','O1','1.2510','A681','유냉·저합금 공구강'],['H 공구강/고경도강','SUJ2','52100','100Cr6','A295','베어링강'],['H 공구강/고경도강','SCM440(조질)','4140 Q&T','42CrMo4+QT','A29','경도에 따라 조건 조정'],['H 공구강/고경도강','SKD11(고경도)','D2 58~62HRC','1.2379 QT','A681','고경도 밀링 참고']
+    ];
+    function filterMaterials() {
+      const q=(document.getElementById('materialSearch').value||'').toLowerCase();
+      const g=document.getElementById('materialGroup').value;
+      const rows=materialData.filter(r=>(g==='all'||r[0]===g)&&r.join(' ').toLowerCase().includes(q));
+      document.getElementById('materialRows').innerHTML=rows.map(r=>'<tr>'+[r[0],r[1],r[2],r[3],r[5]].map((v,i)=>'<td>'+(i===0?'<strong>'+v+'</strong>':v)+'</td>').join('')+'</tr>').join('');
+      document.getElementById('materialCount').textContent=`표시 ${rows.length} / 전체 ${materialData.length}개`;
+    }
+    filterMaterials();
 
     function updateMctChipRate() {
       const d = parseFloat(document.getElementById('m_dia').value) || 0;
