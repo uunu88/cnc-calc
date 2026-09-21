@@ -1,19 +1,17 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>CNC / MCT 도우미</title>
-  
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="theme-color" content="#0f172a" />
-
-  <!-- 브라우저 단독 OCR 엔진 (Tesseract.js CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>CNC / MCT 도우미</title>
+<meta content="yes" name="apple-mobile-web-app-capable"/>
+<meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+<meta content="yes" name="mobile-web-app-capable"/>
+<meta content="#0f172a" name="theme-color"/>
+<!-- 브라우저 단독 OCR 엔진 (Tesseract.js CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+<style>
     :root {
       --bg: #090d16;
       --card-bg: #131b2e;
@@ -180,6 +178,35 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .ocr-status { font-size: 13px; color: #fff; font-weight: 600; }
 
+    /* Duracarb 2026 재종표 */
+    .dura-2026-wrap { overflow-x:auto; margin-top:8px; border:1px solid var(--border); border-radius:10px; }
+    .dura-note{margin:0 0 8px;color:#fbbf24;font-size:11px;font-weight:700;line-height:1.5;}
+.dura-2026-table { width:958px; min-width:958px; max-width:none; table-layout:fixed; border-collapse:collapse; font-size:10.5px; text-align:left; }
+    .dura-2026-table col.kind { width:90px; }
+    .dura-2026-table col.color { width:48px; }
+    .dura-2026-table col.grade { width:100px; }
+    .dura-2026-table col.iso { width:120px; }
+    .dura-2026-table col.app { width:300px; }
+    .dura-2026-table col.comp { width:100px; }
+    .dura-2026-table th, .dura-2026-table td { padding:7px 7px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); vertical-align:middle; box-sizing:border-box; }
+    .dura-2026-table th:last-child, .dura-2026-table td:last-child { border-right:none; }
+    .dura-2026-table th { background:#0f172a; color:var(--accent); white-space:nowrap; font-weight:800; text-align:center; vertical-align:middle; }
+    .dura-2026-table tr:last-child td { border-bottom:none; }
+    .dura-2026-table .dura-kind { width:90px; font-weight:800; color:#e2e8f0; background:rgba(255,255,255,.025); white-space:nowrap; text-align:center; vertical-align:middle; }
+    .dura-2026-table .dura-color { width:48px; min-width:48px; max-width:48px; text-align:center; vertical-align:middle; padding-left:7px; padding-right:7px; }
+    .dura-swatch { display:inline-block; width:18px; height:18px; border-radius:4px; border:1px solid rgba(255,255,255,.25); vertical-align:middle; }
+    .dura-black { background:#111; }
+    .dura-yellow { background:#facc15; }
+    .dura-gray { background:#737373; }
+    .dura-metal { background:linear-gradient(135deg,#d4d4d8,#71717a); }
+    .dura-grade { font-weight:900; color:#fff; white-space:nowrap; text-align:center; vertical-align:middle; }
+    .dura-iso { font-weight:800; line-height:1.45; white-space:nowrap; text-align:center; vertical-align:middle; }
+    .dura-p { color:#60a5fa; } .dura-m { color:#facc15; } .dura-k { color:#f87171; }
+    .dura-n { color:#4ade80; } .dura-s { color:#fb923c; } .dura-h { color:#c4b5fd; }
+    .dura-app { color:#e2e8f0; line-height:1.45; text-align:left; vertical-align:middle; width:300px; }
+    .dura-competitor { color:#cbd5e1; line-height:1.45; text-align:center; vertical-align:middle; }
+    .dura-note { margin-top:8px; color:var(--text-muted); font-size:9.5px; line-height:1.5; }
+
     /* G/M 코드 및 조건표 스타일 */
     .data-table-wrap {
       overflow-x: auto;
@@ -256,8 +283,151 @@
     .material-tools { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 8px; }
     .material-tools input, .material-tools select { flex:1; min-width:120px; background:#090d16; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:8px; font-size:11px; }
     .material-meta { font-size:10px; color:var(--text-muted); margin:6px 0; }
-    .material-table td { white-space:nowrap; }
-    .material-table td:last-child { white-space:normal; min-width:150px; }
+    .material-table { min-width: 760px; }
+    .material-table th, .material-table td { white-space: nowrap; }
+    .material-table th:nth-child(1), .material-table td:nth-child(1) { min-width: 150px; }
+    .material-table th:nth-child(2), .material-table td:nth-child(2) { min-width: 85px; }
+    .material-table th:nth-child(3), .material-table td:nth-child(3) { min-width: 90px; }
+    .material-table th:nth-child(4), .material-table td:nth-child(4) { min-width: 105px; }
+    .material-table th:nth-child(5), .material-table td:nth-child(5) { min-width: 65px; }
+    .material-table th:nth-child(6), .material-table td:nth-child(6) { white-space:normal; min-width:150px; }
+    /* Duracarb CBN User Guide - mobile friendly */
+    .cbn-guide-card { padding-bottom: 18px; }
+    .cbn-guide-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px; }
+    .cbn-kicker { font-size:10px; letter-spacing:.14em; color:var(--accent); font-weight:800; margin-bottom:3px; }
+    .cbn-guide-head h2 { font-size:20px; line-height:1.2; }
+    .cbn-page-badge { flex:none; padding:5px 8px; border:1px solid var(--border); border-radius:999px; color:var(--text-muted); font-size:10px; }
+    .cbn-example { padding:14px 12px; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg, rgba(56,189,248,.08), rgba(15,23,42,.7)); margin-bottom:12px; }
+    .cbn-example-code { font-size:clamp(20px,5.4vw,34px); font-weight:900; letter-spacing:.02em; word-spacing:20px; text-align:center; line-height:1.15; word-break:keep-all; }
+    .cbn-example-code span { color:var(--accent); }
+    .cbn-code-map { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:10px; }
+    .cbn-code-map span { font-size:9px; text-align:center; color:var(--text-muted); }
+    .cbn-code-map b { display:block; color:var(--text); font-size:11px; margin-bottom:2px; }
+    .cbn-grid-top, .cbn-grid-bottom { display:grid; gap:10px; }
+    .cbn-example-map {
+      display:grid;
+      grid-template-columns:repeat(7, minmax(0, 1fr));
+      gap:6px;
+      margin-top:12px;
+    }
+    .cbn-example-map-five {
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+      width:100%;
+      margin-left:0;
+      margin-right:0;
+    }
+    .cbn-example-item {
+      min-width:0;
+      text-align:center;
+      padding:7px 4px 8px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--surface);
+    }
+    .cbn-example-basic {
+      text-align:left;
+      padding-left:8px;
+      padding-right:8px;
+    }
+    .cbn-example-title, .cbn-example-num, .cbn-example-label {
+      font-size:9px;
+      color:var(--text-muted);
+      font-weight:700;
+      line-height:1.2;
+    }
+    .cbn-example-value {
+      margin-top:3px;
+      font-size:17px;
+      line-height:1.1;
+      font-weight:900;
+      color:var(--text);
+      letter-spacing:.2px;
+    }
+    .cbn-code-blue { color:#3b82f6; }
+    .cbn-example-basic .cbn-example-value {
+      font-size:13px;
+      letter-spacing:0;
+    }
+    .cbn-example-label {
+      margin-top:3px;
+      font-size:8.5px;
+    }
+    .cbn-example-item .cbn-example-num,
+    .cbn-example-item .cbn-example-label {
+      display:inline;
+      vertical-align:middle;
+    }
+    .cbn-example-item .cbn-example-label {
+      margin-left:3px;
+    }
+    .cbn-example-grade {
+      grid-column:span 1;
+    }
+
+    .cbn-grid-top { grid-template-columns:repeat(3,1fr); margin-bottom:10px; }
+    .cbn-grid-bottom { grid-template-columns:1fr 1fr 1.25fr; }
+    .cbn-info-box { background:rgba(148,163,184,.08); border:1px solid var(--border); border-radius:10px; padding:11px; min-width:0; }
+    .cbn-info-box h3 { font-size:12px; margin-bottom:8px; }
+    .cbn-empty-box { min-height:112px; }
+    .cbn-empty-note { font-size:10px; color:var(--text-muted); line-height:1.5; }
+    .cbn-list { list-style:none; display:grid; gap:6px; font-size:11px; line-height:1.35; }
+    .cbn-list li::before { content:'•'; color:var(--accent); margin-right:5px; }
+    .cbn-mini-table { width:100%; border-collapse:collapse; font-size:9.5px; background:rgba(15,23,42,.5); }
+    .cbn-mini-table th, .cbn-mini-table td { border:1px solid var(--border); padding:4px 3px; text-align:center; white-space:nowrap; }
+    .cbn-mini-table th { background:rgba(250,204,21,.82); color:#111827; font-weight:800; }
+    .cbn-mini-table td { background:rgba(255,255,255,.03); }
+    .cbn-angle-table td:first-child, .cbn-angle-table th:first-child { width:42%; }
+    .cbn-honing-diagram { position:relative; height:92px; margin:10px 0; border:1px solid var(--border); border-radius:10px; background:rgba(148,163,184,.06); overflow:hidden; }
+    .diagram-line { position:absolute; height:1px; background:var(--text-muted); transform-origin:left center; }
+    .diagram-main { left:8%; top:48%; width:45%; }
+    .diagram-slant { left:31%; top:48%; width:25%; transform:rotate(22deg); }
+    .diagram-honing-line { left:56%; top:49%; width:18%; transform:rotate(-90deg); }
+    .diagram-angle-line { left:56%; top:49%; width:13%; transform:rotate(-145deg); }
+    .diagram-label { position:absolute; font-size:9px; color:var(--text-muted); font-weight:700; }
+    .diagram-length { left:28%; top:14%; }
+    .diagram-honing { left:57%; top:15%; }
+    .diagram-angle { left:66%; top:57%; }
+    .cbn-grade-section { margin-top:12px; }
+    .cbn-grade-subtitle { font-size:10px; color:var(--text-muted); margin:-3px 0 10px; }
+    .cbn-grade-group-title { font-size:12px; font-weight:800; color:var(--text); margin:12px 0 6px; }
+    .cbn-grade-table-wrap { margin-top:0; }
+    .cbn-grade-table { font-size:10.5px; }
+    .cbn-grade-table th, .cbn-grade-table td { padding:7px 7px; vertical-align:top; }
+    .cbn-grade-table th { white-space:nowrap; }
+    .cbn-grade-table td:nth-child(1), .cbn-grade-table td:nth-child(2), .cbn-grade-table td:nth-child(3) { white-space:nowrap; }
+    .cbn-recommend { color:var(--accent); font-size:9.5px; font-weight:700; }
+    .cbn-note { margin-top:12px; padding:9px 10px; border-radius:8px; background:rgba(56,189,248,.06); color:var(--text-muted); font-size:10px; line-height:1.55; }
+
+    /* ISO 그룹 색상 - 배경/테두리 없이 글자 색상만 표시 */
+    .iso-badge { display:inline; min-width:0; padding:0; margin-right:4px; border:0; border-radius:0; background:none !important; font-weight:900; font-size:11px; white-space:nowrap; }
+    .iso-p { color:#3b82f6; }
+    .iso-m { color:#eab308; }
+    .iso-k { color:#ef4444; }
+    .iso-n { color:#22c55e; }
+    .iso-s { color:#f97316; }
+    .iso-h { color:#a8a29e; }
+    .material-table .material-group-cell { white-space:nowrap; font-weight:700; }
+    .material-table .material-group-cell strong { font-weight:800; }
+    .material-table .iso-row-p { color:#3b82f6; }
+    .material-table .iso-row-m { color:#eab308; }
+    .material-table .iso-row-k { color:#ef4444; }
+    .material-table .iso-row-n { color:#22c55e; }
+    .material-table .iso-row-s { color:#f97316; }
+    .material-table .iso-row-h { color:#a8a29e; }
+    .iso-cell { font-weight:700; }
+
+    @media (max-width: 680px) {
+      .cbn-grid-top { grid-template-columns:1fr; }
+      .cbn-grid-bottom { grid-template-columns:1fr; }
+      .cbn-grade-box { width:100%; }
+      .cbn-code-map { grid-template-columns:repeat(4,1fr); row-gap:8px; }
+      .cbn-mini-table { font-size:10px; }
+      .cbn-mini-table th, .cbn-mini-table td { padding:5px 3px; }
+      .cbn-grade-table { font-size:10px; }
+      .cbn-grade-table th, .cbn-grade-table td { padding:6px 5px; }
+      .cbn-grade-table td:nth-child(4) { white-space:normal; line-height:1.4; }
+    }
+
     .discount-rounded {
       font-size: 11px;
       color: var(--accent);
@@ -265,511 +435,711 @@
       min-height: 14px;
     }
   </style>
-</head>
+<style>
+/* Duracarb 2026 table refinement - fixed by colgroup */
+.dura-2026-wrap{width:100%;overflow-x:auto;box-sizing:border-box;}
+.dura-2026-table{width:980px !important;min-width:980px !important;max-width:980px !important;table-layout:fixed !important;border-collapse:collapse !important;box-sizing:border-box !important;}
+.dura-2026-table th,.dura-2026-table td{box-sizing:border-box !important;padding:7px !important;margin:0 !important;border-right:1px solid var(--border) !important;border-bottom:1px solid var(--border) !important;vertical-align:middle !important;}
+.dura-2026-table th{text-align:center !important;}
+.dura-2026-table col:nth-child(1){width:90px !important;}
+.dura-2026-table col:nth-child(2){width:48px !important;}
+.dura-2026-table col:nth-child(3){width:100px !important;}
+.dura-2026-table col:nth-child(4){width:120px !important;}
+.dura-2026-table col:nth-child(5){width:322px !important;}
+.dura-2026-table col:nth-child(6),.dura-2026-table col:nth-child(7),.dura-2026-table col:nth-child(8){width:100px !important;}
+.dura-2026-table .dura-color{width:48px !important;min-width:48px !important;max-width:48px !important;text-align:center !important;}
+.dura-2026-table .dura-app{width:322px !important;}
+.dura-2026-table th:last-child,.dura-2026-table td:last-child{border-right:none !important;}
+</style><style id="dura-final-fix">
+.dura-2026-wrap{width:100%;overflow-x:auto;box-sizing:border-box;}
+.dura-2026-table{width:980px !important;min-width:980px !important;max-width:980px !important;table-layout:fixed !important;border-collapse:collapse !important;box-sizing:border-box !important;}
+.dura-2026-table col:nth-child(1){width:90px !important;}
+.dura-2026-table col:nth-child(2){width:48px !important;}
+.dura-2026-table col:nth-child(3){width:100px !important;}
+.dura-2026-table col:nth-child(4){width:120px !important;}
+.dura-2026-table col:nth-child(5){width:322px !important;}
+.dura-2026-table col:nth-child(6),.dura-2026-table col:nth-child(7),.dura-2026-table col:nth-child(8){width:100px !important;}
+.dura-2026-table th,.dura-2026-table td{box-sizing:border-box !important;padding:7px !important;margin:0 !important;border-right:1px solid var(--border) !important;border-bottom:1px solid var(--border) !important;}
+.dura-2026-table th:nth-child(1),.dura-2026-table td:nth-child(1){width:90px !important;}
+.dura-2026-table th:nth-child(2),.dura-2026-table td:nth-child(2){width:48px !important;min-width:48px !important;max-width:48px !important;text-align:center !important;}
+.dura-2026-table th:nth-child(3),.dura-2026-table td:nth-child(3){width:100px !important;}
+.dura-2026-table th:nth-child(4),.dura-2026-table td:nth-child(4){width:120px !important;}
+.dura-2026-table th:nth-child(5),.dura-2026-table td:nth-child(5){width:322px !important;}
+.dura-2026-table th:nth-child(6),.dura-2026-table td:nth-child(6),.dura-2026-table th:nth-child(7),.dura-2026-table td:nth-child(7),.dura-2026-table th:nth-child(8),.dura-2026-table td:nth-child(8){width:100px !important;}
+.dura-2026-table .dura-color{width:48px !important;min-width:48px !important;max-width:48px !important;text-align:center !important;}
+.dura-2026-table .dura-app{width:322px !important;}
+.dura-2026-table th:last-child,.dura-2026-table td:last-child{border-right:none !important;}
+</style>
+<style>
+.dura-2026-table col.color { width:48px !important; }
+.dura-2026-table td.dura-color, .dura-2026-table th:nth-child(2) { width:48px !important; min-width:48px !important; max-width:48px !important; padding-left:0 !important; padding-right:0 !important; text-align:center !important; }
+.dura-2026-table td.dura-color { box-sizing:border-box !important; }
+</style><style>
+.dura-2026-table td.dura-color,
+.dura-2026-table th.dura-color {
+  width:48px !important;
+  min-width:48px !important;
+  max-width:48px !important;
+  padding:7px 7px !important;
+  box-sizing:border-box !important;
+  text-align:center !important;
+  vertical-align:middle !important;
+}
+.dura-2026-table td.dura-grade {
+  width:100px !important;
+  min-width:100px !important;
+  max-width:100px !important;
+  box-sizing:border-box !important;
+}
+</style></head>
 <body>
-
-  <!-- OCR 진행 오버레이 -->
-  <div class="ocr-overlay" id="ocrOverlay">
-    <div class="ocr-spinner"></div>
-    <div class="ocr-status" id="ocrStatus">모니터 사진을 분석하는 중... (0%)</div>
-  </div>
-
-  <header>
-    <h1 id="headerTitle">CNC / MCT <span>도우미</span></h1>
-
-    <div class="header-biz-card" id="headerBizCard">
-      <div class="hbc-top">
-        <div class="hbc-name">Duracarb</div>
-        <div class="hbc-role">Support Tool</div>
-      </div>
-      <div class="hbc-bottom">
-        <div class="hbc-row">
-          <span>📱 <a href="tel:01065992582">---------------------------------</a></span>
-        </div>
-        <div class="hbc-row">
-          <span>✉ <a href="mailto:gurmmania@gmail.com"><strong>--------------------------------</strong></a></span>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn-back" id="btnHome" onclick="goHome()" style="display: none;">‹ 홈으로</button>
-  </header>
-
-  <div class="container">
-    <div id="view-main">
-      <div class="main-grid">
-        <div class="menu-btn" onclick="openView('lathe-path')">
+<!-- OCR 진행 오버레이 -->
+<div class="ocr-overlay" id="ocrOverlay">
+<div class="ocr-spinner"></div>
+<div class="ocr-status" id="ocrStatus">모니터 사진을 분석하는 중... (0%)</div>
+</div>
+<header>
+<h1 id="headerTitle">CNC / MCT <span>도우미</span></h1>
+<div class="header-biz-card" id="headerBizCard">
+<div class="hbc-top">
+<div class="hbc-name">Duracarb</div>
+<div class="hbc-role">Support Tool</div>
+</div>
+<div class="hbc-bottom">
+<div class="hbc-row">
+<span>📱 <a href="tel:01065992582">---------------------------------</a></span>
+</div>
+<div class="hbc-row">
+<span>✉ <a href="mailto:gurmmania@gmail.com"><strong>--------------------------------</strong></a></span>
+</div>
+</div>
+</div>
+<button class="btn-back" id="btnHome" onclick="goHome()" style="display: none;">‹ 홈으로</button>
+</header>
+<div class="container">
+<div id="view-main">
+<div class="main-grid">
+<div class="menu-btn" onclick="openView('lathe-path')">
           CNC 선반 경로
-          <span>2축 가공 & C/T 시뮬레이터</span>
-        </div>
-        <div class="menu-btn" onclick="openView('mct-path')">
+          <span>2축 가공 &amp; C/T 시뮬레이터</span>
+</div>
+<div class="menu-btn" onclick="openView('mct-path')">
           MCT 밀링 경로
-          <span>3축 가공 & C/T 시뮬레이터</span>
-        </div>
-
-        <div class="menu-btn" onclick="openView('lathe-calc')">
+          <span>3축 가공 &amp; C/T 시뮬레이터</span>
+</div>
+<div class="menu-btn" onclick="openView('lathe-calc')">
           선반 절삭조건 계산
-          <span>Vc ↔ RPM & 조도(Rz)</span>
-        </div>
-        <div class="menu-btn" onclick="openView('mct-calc')">
+          <span>Vc ↔ RPM &amp; 조도(Rz)</span>
+</div>
+<div class="menu-btn" onclick="openView('mct-calc')">
           밀링 절삭조건 계산
-          <span>N ↔ Vc & F ↔ Fz & 공출량(Q)</span>
-        </div>
-
-        <!-- 조건계산기 바로 밑에 위치한 2칸 -->
-        <div class="menu-btn" onclick="openView('gcode-calc')">
-          G / M 코드 일람
-          <span>선반 & MCT 사이클 분류</span>
-        </div>
-        <div class="menu-btn" onclick="openView('mat-calc')">
-          재질별 절삭조건
-          <span>ISO 그룹별 권장 & 재질 대응표</span>
-        </div>
-
-        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">
+          <span>N ↔ Vc &amp; F ↔ Fz &amp; 공출량(Q)</span>
+</div>
+<!-- 5번: 듀라카브 2026 재종표 -->
+<div class="menu-btn" onclick="openView('duracarb-2026')">
+          Duracarb 재종표
+          <span>2026년 &amp; 타 메이커 대응</span>
+</div>
+<div class="menu-btn" onclick="openView('discount-calc')">
+          할인율 계산기
+          <span>정가별 할인 &amp; 납품가</span>
+</div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">
           Duracarb 터닝
         </div>
-        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">
           Duracarb 밀링
         </div>
-
-        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
           Duracarb 홈 가공
         </div>
-        <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
           Duracarb 드릴링
         </div>
-        <div class="menu-btn" onclick="openView('discount-calc')">
-          할인율 계산기
-          <span>정가별 할인 & 납품가</span>
-        </div>
-        <div class="menu-btn" onclick="openView('future-update')">
+<div class="menu-btn" onclick="openView('cbn-guide')">
+          Duracarb CBN
+          <span>인서트 규격 선정법 · CBN User Guide</span>
+</div>
+<div class="menu-btn" onclick="openView('mat-calc')">
+          재질별 절삭조건
+          <span>ISO 그룹별 권장 &amp; 재질 대응표</span>
+</div>
+<div class="menu-btn" onclick="openView('gcode-calc')">
+          G / M 코드 일람
+          <span>선반 &amp; MCT 사이클 분류</span>
+</div>
+<div class="menu-btn" onclick="openView('future-update')">
           추후 업데이트 예정
-          <span>새로운 업무 편의 기능</span>
         </div>
-      </div>
-
-      <div class="home-footer-note">
-        <strong>사진인식 안됩니다.</strong><br /> 
-        따로 카메라로 사진 찍으시고 AI로 텍스트 추출 후<br />
-        복사 붙여놓기로 경로 보는 것을 추천합니다.<br />
-        <br />
-        <strong>혹시 모르니 공유하시면 절대 안됩니다.</strong><br />
-        쓰다 문제 생길 시 책임 안집니다ㅎㅎㅎ <br />
+</div>
+<div class="home-footer-note">
+<strong>사진인식 안됩니다.</strong><br/> 
+        따로 카메라로 사진 찍으시고 AI로 텍스트 추출 후<br/>
+        복사 붙여놓기로 경로 보는 것을 추천합니다.<br/>
+<br/>
+<strong>혹시 모르니 공유하시면 절대 안됩니다.</strong><br/>
+        쓰다 문제 생길 시 책임 안집니다ㅎㅎㅎ <br/>
         계산기 쓰시고 주소는 https://uunu88.github.io/calc/ 입니다.
         
       </div>
-    </div>
-
-    <!-- 1. CNC 선반 화면 -->
-    <div id="view-lathe-path" class="sub-view">
-      <div class="card">
-        <div class="card-head-row">
-          <label>선반 G코드 (사진 인식 / 파일 드롭)</label>
-          <div class="head-actions">
-            <button class="btn-cam-ocr" onclick="document.getElementById('latheCameraInput').click()">📷 사진 인식</button>
-            <input type="file" id="latheCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImageOCR(event, 'latheGcode')" />
-            
-            <button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">📁 NC 파일</button>
-            <input type="file" id="latheFileInput" style="display:none;" accept=".nc,.txt,.tap,.gcode" onchange="loadFileContent(event, 'latheGcode')" />
-          </div>
-        </div>
-        <textarea id="latheGcode" placeholder="선반 G코드를 붙여넣거나 [📷 사진 인식]으로 CNC 화면을 촬영하세요..." onkeyup="debouncedSyncLathe(this)" onclick="debouncedSyncLathe(this)"></textarea>
-
-        <div class="btn-row" style="margin-top: 4px;">
-          <button class="btn-run" onclick="parseAndDrawLathe()">경로 생성</button>
-          <button class="btn-sub" onclick="resetLatheView()">화면 맞춤</button>
-        </div>
-        <div class="legend" style="margin-top:5px;">
-          <span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
-          <span><span class="dot" style="background:#ffffff;"></span>절삭</span>
-          <span><span class="dot" style="background:#00ffff;"></span>선택블록</span>
-          <span style="color:#94a3b8;">휠/핀치: 줌, 드래그: 이동</span>
-        </div>
-      </div>
-      
-      <div class="viewport" id="latheBox"><canvas id="latheCanvas"></canvas></div>
-
-      <div class="player-bar">
-        <input type="range" id="latheSeek" class="seek-slider" min="0" max="100" value="100" oninput="onLatheSeek(this.value)" />
-        <div class="player-controls">
-          <div style="display:flex; gap:5px;">
-            <button class="btn-player" id="btnLathePlay" onclick="toggleLathePlay()">재생 ▶</button>
-            <button class="btn-player" onclick="stopLathePlay()">정지 ■</button>
-          </div>
-          <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
-            <span>속도</span>
-            <select id="latheSpeed" class="speed-select">
-              <option value="2">2 배속</option>
-              <option value="5">5 배속</option>
-              <option value="10" selected>10 배속</option>
-              <option value="20">20 배속</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="info-box" id="latheReport">G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.</div>
-    </div>
-
-    <!-- 2. MCT 밀링 화면 -->
-    <div id="view-mct-path" class="sub-view">
-      <div class="card">
-        <div class="card-head-row">
-          <label>MCT 3축 G코드 (사진 인식 & C/T 연산)</label>
-          <div class="head-actions">
-            <button class="btn-cam-ocr" onclick="document.getElementById('mctCameraInput').click()">📷 사진 인식</button>
-            <input type="file" id="mctCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="handleImageOCR(event, 'mctGcode')" />
-
-            <button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">📁 NC 파일</button>
-            <input type="file" id="mctFileInput" style="display:none;" accept=".nc,.txt,.tap,.gcode" onchange="loadFileContent(event, 'mctGcode')" />
-          </div>
-        </div>
-        <textarea id="mctGcode" placeholder="MCT 3축 G코드를 붙여넣거나 [📷 사진 인식]으로 화면을 촬영하세요..." onkeyup="debouncedSyncMct(this)" onclick="debouncedSyncMct(this)"></textarea>
-
-        <div class="btn-row" style="margin-top: 4px;">
-          <button class="btn-run" onclick="parseAndDrawMCT()">3D 경로 생성</button>
-          <button class="btn-sub" onclick="resetMctView()">뷰 리셋</button>
-        </div>
-        <div class="legend" style="margin-top:5px;">
-          <span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
-          <span><span class="dot" style="background:#ffffff;"></span>G01/원호(절삭)</span>
-          <span><span class="dot" style="background:#00ffff;"></span>선택선</span>
-          <span style="color:#94a3b8;">1손가락: 궤도회전 / 2손가락: 줌</span>
-        </div>
-      </div>
-
-      <div class="viewport" id="mctBox"><canvas id="mctCanvas"></canvas></div>
-
-      <div class="player-bar">
-        <input type="range" id="mctSeek" class="seek-slider" min="0" max="100" value="100" oninput="onMctSeek(this.value)" />
-        <div class="player-controls">
-          <div style="display:flex; gap:5px;">
-            <button class="btn-player" id="btnMctPlay" onclick="toggleMctPlay()">재생 ▶</button>
-            <button class="btn-player" onclick="stopMctPlay()">정지 ■</button>
-          </div>
-          <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
-            <span>속도</span>
-            <select id="mctSpeed" class="speed-select">
-              <option value="2">2 배속</option>
-              <option value="5">5 배속</option>
-              <option value="10" selected>10 배속</option>
-              <option value="20">20 배속</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
-    </div>
-
-    <!-- 3. CNC 선반 계산기 -->
-    <div id="view-lathe-calc" class="sub-view">
-      <div class="card">
-        <label>가공 직경 Φ (mm)</label>
-        <input type="number" id="l_dia" placeholder="예: 86.95" oninput="calcLathe(1)" />
-        <label>절삭속도 Vc (m/min)</label>
-        <input type="number" id="l_vc" placeholder="예: 250" oninput="calcLathe(1)" />
-        <label>주축 회전수 N (RPM)</label>
-        <input type="number" id="l_rpm" placeholder="예: 915" oninput="calcLathe(2)" />
-        <label>회전당 이송 f (mm/rev)</label>
-        <input type="number" id="l_feed" placeholder="예: 0.35" step="0.01" oninput="calcLathe(1)" />
-        <label>인서트 노즈 R (mm)</label>
-        <input type="number" id="l_nr" placeholder="예: 0.8" step="0.4" oninput="calcLathe(1)" />
-      </div>
-      <div class="info-box" id="latheCalcReport">입력하면 실시간 상호 산출됩니다.</div>
-    </div>
-
-    <!-- 4. 밀링 계산기 -->
-    <div id="view-mct-calc" class="sub-view">
-      <div class="card">
-        <div class="input-grid-2">
-          <div>
-            <label>직경 Φ (mm)</label>
-            <input type="number" id="m_dia" placeholder="예: 10" oninput="onMctDiaChange()" />
-          </div>
-          <div>
-            <label>날 수 (Z)</label>
-            <input type="number" id="m_teeth" placeholder="예: 4" oninput="onMctTeethChange()" />
-          </div>
-        </div>
-
-        <div class="input-grid-2">
-          <div>
-            <label>주축 회전수 N (RPM)</label>
-            <input type="number" id="m_rpm" placeholder="예: 3820" oninput="calcMctParam(2)" />
-          </div>
-          <div>
-            <label>절삭속도 Vc (m/min)</label>
-            <input type="number" id="m_vc" placeholder="예: 120" oninput="calcMctParam(1)" />
-          </div>
-        </div>
-        
-        <div class="input-grid-2">
-          <div>
-            <label>이송 FEED (F mm/min)</label>
-            <input type="number" id="m_feed" placeholder="예: 764" oninput="calcMctFeed(2)" />
-          </div>
-          <div>
-            <label>날당 이송 Fz (mm/t)</label>
-            <input type="number" id="m_fz" placeholder="예: 0.05" step="0.005" oninput="calcMctFeed(1)" />
-          </div>
-        </div>
-
-        <div class="input-grid-2">
-          <div>
-            <label>절삭 폭 ae (mm)</label>
-            <input type="number" id="m_ae" placeholder="예: 5" oninput="updateMctChipRate()" />
-          </div>
-          <div>
-            <label>절삭 깊이 ap (mm)</label>
-            <input type="number" id="m_ap" placeholder="예: 2" oninput="updateMctChipRate()" />
-          </div>
-        </div>
-      </div>
-      <div class="info-box" id="mctCalcReport">입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
-    </div>
-
-    <!-- 5. G / M 코드 일람 화면 -->
-    <div id="view-gcode-calc" class="sub-view">
-      <div class="card">
-        <div class="filter-tabs">
-          <div class="tab-btn active" onclick="setFilterCat('all', this)">전체</div>
-          <div class="tab-btn" onclick="setFilterCat('lathe', this)">선반(CNC)</div>
-          <div class="tab-btn" onclick="setFilterCat('mct', this)">밀링(MCT)</div>
-          <div class="tab-btn" onclick="setFilterCat('mcode', this)">M코드</div>
-        </div>
-
-        <label>코드 및 기능 실시간 검색</label>
-        <input type="text" id="codeSearch" placeholder="예: G71, G83, 나사, 보정, 탭, 정지..." oninput="applyTableFilters()" />
-        
-        <div class="data-table-wrap">
-          <table class="data-table" id="codeTable">
-            <thead>
-              <tr>
-                <th style="width: 72px;">코드</th>
-                <th style="width: 60px;">구분</th>
-                <th style="width: 110px;">기능 명칭</th>
-                <th>상세 지령 및 설명</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- 공통 기본 G코드 -->
-              <tr data-cat="common"><td><span class="code-tag">G00</span></td><td><span class="badge badge-common">공용</span></td><td>급속 위치결정</td><td>가공물 비절삭 구간 급속 이송 (간섭 주의)</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G01</span></td><td><span class="badge badge-common">공용</span></td><td>직선 보간</td><td>지정된 절삭 이송속도(F)로 직선 가공</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G02</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CW)</td><td>시계 방향 원호 가공 (R값 또는 I, J, K 벡터)</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G03</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CCW)</td><td>반시계 방향 원호 가공</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G04</span></td><td><span class="badge badge-common">공용</span></td><td>Dwell (휴지)</td><td>일정 시간 이송 대기 (홈 가공 칩 끊기, 바닥 정삭)</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G28</span></td><td><span class="badge badge-common">공용</span></td><td>기계원점 복귀</td><td>중간 경유점 경유 후 1기계원점 복귀</td></tr>
-              <!-- 버그 수정: 선반 노즈R 및 밀링 공구경 보정 취소 명칭 명확화 -->
-              <tr data-cat="common"><td><span class="code-tag">G40</span></td><td><span class="badge badge-common">공용</span></td><td>공구경/노즈R 보정 취소</td><td>공구 반경 및 노즈R 보정 벡터 해제</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G41</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 좌측</td><td>진행방향 기준 좌측 보정 (MCT 하향절삭 필수)</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G42</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 우측</td><td>진행방향 기준 공구 우측 보정</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G54~G59</span></td><td><span class="badge badge-common">공용</span></td><td>공작물 좌표계</td><td>가공 원점 1번~6번 지정</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G90</span></td><td><span class="badge badge-common">공용</span></td><td>절대 지령 모드</td><td>좌표계 원점(0,0) 기준 이동 명령</td></tr>
-              <tr data-cat="common"><td><span class="code-tag">G91</span></td><td><span class="badge badge-common">공용</span></td><td>증분 지령 모드</td><td>현재 공구 위치 기준 상대적 이동</td></tr>
-
-              <!-- CNC 선반 전용 및 복합 반복 사이클 -->
-              <tr data-cat="lathe"><td><span class="code-tag">G70</span></td><td><span class="badge badge-lathe">선반</span></td><td>정삭 가공 사이클</td><td>G71/G72/G73 황삭 후 지정 블록(P~Q) 다듬질</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G71</span></td><td><span class="badge badge-lathe">선반</span></td><td>외경/내경 황삭 사이클</td><td>Z축 길이방향 외경/내경 자동 황삭 가공</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G72</span></td><td><span class="badge badge-lathe">선반</span></td><td>단면 황삭 사이클</td><td>X축 방향(단면) 횡방향 자동 황삭 가공</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G73</span></td><td><span class="badge badge-lathe">선반</span></td><td>패턴 반복 사이클</td><td>단조재/주조품 형상 윤곽 일정 여유 황삭</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G74</span></td><td><span class="badge badge-lathe">선반</span></td><td>단면 홈/심공 드릴</td><td>단면 펙(Peck) 홈 가공 및 Z축 심공 드릴링</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G75</span></td><td><span class="badge badge-lathe">선반</span></td><td>외경/내경 홈가공</td><td>X축 방향 펙 드릴링 및 외/내경 그루빙</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G76</span></td><td><span class="badge badge-lathe">선반</span></td><td>복합 나사절삭 사이클</td><td>복합 절입량 자동 분할 나사 가공 (2블록 지령)</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G92</span></td><td><span class="badge badge-lathe">선반</span></td><td>나사절삭 / 최고RPM</td><td>단일 블록 나사절삭 또는 주축 최고회전수 클램프</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G96</span></td><td><span class="badge badge-lathe">선반</span></td><td>주속 일정 제어</td><td>직경 변화에 따른 RPM 자동 가변 (Vc 유지)</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G97</span></td><td><span class="badge badge-lathe">선반</span></td><td>주속 일정 취소</td><td>고정 회전수 제어 (RPM 고정 모드)</td></tr>
-              <tr data-cat="lathe"><td><span class="code-tag">G99</span></td><td><span class="badge badge-lathe">선반</span></td><td>회전당 이송</td><td>회전당 피드(mm/rev) 모드 지정</td></tr>
-
-              <!-- 밀링(MCT) 전용 및 고정 사이클 -->
-              <tr data-cat="mct"><td><span class="code-tag">G17/18/19</span></td><td><span class="badge badge-mct">MCT</span></td><td>평면 선택</td><td>G17(XY 평면), G18(ZX 평면), G19(YZ 평면)</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G43</span></td><td><span class="badge badge-mct">MCT</span></td><td>공구장(+) 보정</td><td>공구 길이 양(+) 보정 지령 (H 번호 지정)</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G49</span></td><td><span class="badge badge-mct">MCT</span></td><td>공구장 보정 취소</td><td>공구 길이 보정 오프셋 해제</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G73</span></td><td><span class="badge badge-mct">MCT</span></td><td>고속 펙 드릴 사이클</td><td>간헐 이송 후 미소 후퇴(칩 분쇄) 심공 사이클</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G80</span></td><td><span class="badge badge-mct">MCT</span></td><td>고정 사이클 취소</td><td>모든 드릴링/보링 사이클 해제</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G81</span></td><td><span class="badge badge-mct">MCT</span></td><td>기본 드릴링 사이클</td><td>바닥 휴지(Dwell) 없는 연속 관통 드릴링</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G82</span></td><td><span class="badge badge-mct">MCT</span></td><td>카운터보링 사이클</td><td>구멍 바닥에서 Dwell(P) 후 복귀 (자리파기)</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G83</span></td><td><span class="badge badge-mct">MCT</span></td><td>심공 드릴링 사이클</td><td>R점까지 완전 후퇴하며 칩 배출 (깊은 구멍용)</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G84</span></td><td><span class="badge badge-mct">MCT</span></td><td>태핑 사이클</td><td>탭 가공 (바닥 도달 시 주축 자동 역회전)</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G85</span></td><td><span class="badge badge-mct">MCT</span></td><td>리밍 사이클</td><td>가공 피드로 진입 후 가공 피드로 복귀 (정밀구멍)</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G86</span></td><td><span class="badge badge-mct">MCT</span></td><td>보링 사이클</td><td>구멍 바닥 도달 시 주축 정지 후 급속 복귀</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G94</span></td><td><span class="badge badge-mct">MCT</span></td><td>분당 이송</td><td>분당 이송 피드(mm/min) 모드</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G98</span></td><td><span class="badge badge-mct">MCT</span></td><td>초기점 복귀</td><td>고정 사이클 완료 후 초기 Z 높이로 복귀</td></tr>
-              <tr data-cat="mct"><td><span class="code-tag">G99</span></td><td><span class="badge badge-mct">MCT</span></td><td>R점 복귀</td><td>고정 사이클 완료 후 안전 R점으로 복귀</td></tr>
-
-              <!-- 보조 기능 (M 코드) -->
-              <tr data-cat="mcode"><td><span class="code-tag">M00</span></td><td><span class="badge badge-m">M코드</span></td><td>프로그램 무조건 정지</td><td>장비 일시정지 (가공물 확인, 칩 제거, 계측)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M01</span></td><td><span class="badge badge-m">M코드</span></td><td>선택적 정지</td><td>Optional Stop 스위치 ON일 때만 정지</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M02</span></td><td><span class="badge badge-m">M코드</span></td><td>프로그램 종료</td><td>자동 운전 종료 (복귀 없이 멈춤)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M03</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 정회전 (CW)</td><td>스핀들 시계 방향 회전 (우회전)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M04</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 역회전 (CCW)</td><td>스핀들 반시계 방향 회전 (좌회전)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M05</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 정지</td><td>스핀들 회전 정지</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M06</span></td><td><span class="badge badge-m">M코드</span></td><td>공구 교환 (ATC)</td><td>MCT 공구 자동 교환 지령 (T번 공구와 조합)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M08</span></td><td><span class="badge badge-m">M코드</span></td><td>절삭유 ON</td><td>쿨런트 토출 시작</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M09</span></td><td><span class="badge badge-m">M코드</span></td><td>절삭유 OFF</td><td>쿨런트 토출 중단</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M19</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 정위치 정지</td><td>스핀들 오리엔테이션 (ATC 및 보링 공구 인출용)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M29</span></td><td><span class="badge badge-m">M코드</span></td><td>리지드 탭 모드</td><td>주축 회전과 이송을 동기화하는 강성 탭핑</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M30</span></td><td><span class="badge badge-m">M코드</span></td><td>종료 및 원위치 리셋</td><td>가공 완료, 프로그램 헤드로 복귀</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M98</span></td><td><span class="badge badge-m">M코드</span></td><td>서브프로그램 호출</td><td>지정 번호의 보조 프로그램 호출 (P 번호)</td></tr>
-              <tr data-cat="mcode"><td><span class="code-tag">M99</span></td><td><span class="badge badge-m">M코드</span></td><td>서브 종료 및 복귀</td><td>메인 프로그램으로 복귀</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. 할인율 계산기 화면 -->
-    <div id="view-discount-calc" class="sub-view">
-      <div class="card">
-        <label>정가 (원)</label>
-        <input type="number" id="discountBasePrice" placeholder="예: 10000" min="0" step="1" oninput="syncDiscountFromRatio()" />
-
-        <div class="input-grid-2">
-          <div>
-            <label>직접 입력 할인배율</label>
-            <input type="number" id="dealerDiscountRatio" placeholder="예: 0.7" min="0" max="1" step="0.01" oninput="syncDiscountFromRatio()" />
-          </div>
-          <div>
-            <label>대리점 매입가 (원)</label>
-            <input type="number" id="dealerPurchasePrice" placeholder="예: 7000" min="0" step="1" oninput="syncDiscountFromPurchase()" />
-            <div id="dealerPurchaseRounded" class="discount-rounded">1의 자리 반올림: -</div>
-          </div>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn-sub" style="flex: 1;" onclick="resetDiscountCalc()">초기화</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <label>유저 납품가 가산율 (%)</label>
-        <div class="input-grid-2">
-          <div>
-            <input type="number" id="userDeliveryPercent" placeholder="예: 10" step="0.01" oninput="calculateUserDelivery()" />
-          </div>
-          <div>
-            <input type="text" id="userDeliveryPrice" placeholder="유저 납품가" readonly />
-            <div id="userDeliveryRounded" class="discount-rounded">1의 자리 반올림: -</div>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+</div>
+<!-- 1. CNC 선반 화면 -->
+<div class="sub-view" id="view-lathe-path">
+<div class="card">
+<div class="card-head-row">
+<label>선반 G코드 (사진 인식 / 파일 드롭)</label>
+<div class="head-actions">
+<button class="btn-cam-ocr" onclick="document.getElementById('latheCameraInput').click()">📷 사진 인식</button>
+<input accept="image/*" capture="environment" id="latheCameraInput" onchange="handleImageOCR(event, 'latheGcode')" style="display:none;" type="file"/>
+<button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">📁 NC 파일</button>
+<input accept=".nc,.txt,.tap,.gcode" id="latheFileInput" onchange="loadFileContent(event, 'latheGcode')" style="display:none;" type="file"/>
+</div>
+</div>
+<textarea id="latheGcode" onclick="debouncedSyncLathe(this)" onkeyup="debouncedSyncLathe(this)" placeholder="선반 G코드를 붙여넣거나 [📷 사진 인식]으로 CNC 화면을 촬영하세요..."></textarea>
+<div class="btn-row" style="margin-top: 4px;">
+<button class="btn-run" onclick="parseAndDrawLathe()">경로 생성</button>
+<button class="btn-sub" onclick="resetLatheView()">화면 맞춤</button>
+</div>
+<div class="legend" style="margin-top:5px;">
+<span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
+<span><span class="dot" style="background:#ffffff;"></span>절삭</span>
+<span><span class="dot" style="background:#00ffff;"></span>선택블록</span>
+<span style="color:#94a3b8;">휠/핀치: 줌, 드래그: 이동</span>
+</div>
+</div>
+<div class="viewport" id="latheBox"><canvas id="latheCanvas"></canvas></div>
+<div class="player-bar">
+<input class="seek-slider" id="latheSeek" max="100" min="0" oninput="onLatheSeek(this.value)" type="range" value="100"/>
+<div class="player-controls">
+<div style="display:flex; gap:5px;">
+<button class="btn-player" id="btnLathePlay" onclick="toggleLathePlay()">재생 ▶</button>
+<button class="btn-player" onclick="stopLathePlay()">정지 ■</button>
+</div>
+<div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
+<span>속도</span>
+<select class="speed-select" id="latheSpeed">
+<option value="2">2 배속</option>
+<option value="5">5 배속</option>
+<option selected="" value="10">10 배속</option>
+<option value="20">20 배속</option>
+</select>
+</div>
+</div>
+</div>
+<div class="info-box" id="latheReport">G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.</div>
+</div>
+<!-- 2. MCT 밀링 화면 -->
+<div class="sub-view" id="view-mct-path">
+<div class="card">
+<div class="card-head-row">
+<label>MCT 3축 G코드 (사진 인식 &amp; C/T 연산)</label>
+<div class="head-actions">
+<button class="btn-cam-ocr" onclick="document.getElementById('mctCameraInput').click()">📷 사진 인식</button>
+<input accept="image/*" capture="environment" id="mctCameraInput" onchange="handleImageOCR(event, 'mctGcode')" style="display:none;" type="file"/>
+<button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">📁 NC 파일</button>
+<input accept=".nc,.txt,.tap,.gcode" id="mctFileInput" onchange="loadFileContent(event, 'mctGcode')" style="display:none;" type="file"/>
+</div>
+</div>
+<textarea id="mctGcode" onclick="debouncedSyncMct(this)" onkeyup="debouncedSyncMct(this)" placeholder="MCT 3축 G코드를 붙여넣거나 [📷 사진 인식]으로 화면을 촬영하세요..."></textarea>
+<div class="btn-row" style="margin-top: 4px;">
+<button class="btn-run" onclick="parseAndDrawMCT()">3D 경로 생성</button>
+<button class="btn-sub" onclick="resetMctView()">뷰 리셋</button>
+</div>
+<div class="legend" style="margin-top:5px;">
+<span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
+<span><span class="dot" style="background:#ffffff;"></span>G01/원호(절삭)</span>
+<span><span class="dot" style="background:#00ffff;"></span>선택선</span>
+<span style="color:#94a3b8;">1손가락: 궤도회전 / 2손가락: 줌</span>
+</div>
+</div>
+<div class="viewport" id="mctBox"><canvas id="mctCanvas"></canvas></div>
+<div class="player-bar">
+<input class="seek-slider" id="mctSeek" max="100" min="0" oninput="onMctSeek(this.value)" type="range" value="100"/>
+<div class="player-controls">
+<div style="display:flex; gap:5px;">
+<button class="btn-player" id="btnMctPlay" onclick="toggleMctPlay()">재생 ▶</button>
+<button class="btn-player" onclick="stopMctPlay()">정지 ■</button>
+</div>
+<div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
+<span>속도</span>
+<select class="speed-select" id="mctSpeed">
+<option value="2">2 배속</option>
+<option value="5">5 배속</option>
+<option selected="" value="10">10 배속</option>
+<option value="20">20 배속</option>
+</select>
+</div>
+</div>
+</div>
+<div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
+</div>
+<!-- 3. CNC 선반 계산기 -->
+<div class="sub-view" id="view-lathe-calc">
+<div class="card">
+<label>가공 직경 Φ (mm)</label>
+<input id="l_dia" oninput="calcLathe(1)" placeholder="예: 86.95" type="number"/>
+<label>절삭속도 Vc (m/min)</label>
+<input id="l_vc" oninput="calcLathe(1)" placeholder="예: 250" type="number"/>
+<label>주축 회전수 N (RPM)</label>
+<input id="l_rpm" oninput="calcLathe(2)" placeholder="예: 915" type="number"/>
+<label>회전당 이송 f (mm/rev)</label>
+<input id="l_feed" oninput="calcLathe(1)" placeholder="예: 0.35" step="0.01" type="number"/>
+<label>인서트 노즈 R (mm)</label>
+<input id="l_nr" oninput="calcLathe(1)" placeholder="예: 0.8" step="0.4" type="number"/>
+</div>
+<div class="info-box" id="latheCalcReport">입력하면 실시간 상호 산출됩니다.</div>
+</div>
+<!-- 4. 밀링 계산기 -->
+<div class="sub-view" id="view-mct-calc">
+<div class="card">
+<div class="input-grid-2">
+<div>
+<label>직경 Φ (mm)</label>
+<input id="m_dia" oninput="onMctDiaChange()" placeholder="예: 10" type="number"/>
+</div>
+<div>
+<label>날 수 (Z)</label>
+<input id="m_teeth" oninput="onMctTeethChange()" placeholder="예: 4" type="number"/>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>주축 회전수 N (RPM)</label>
+<input id="m_rpm" oninput="calcMctParam(2)" placeholder="예: 3820" type="number"/>
+</div>
+<div>
+<label>절삭속도 Vc (m/min)</label>
+<input id="m_vc" oninput="calcMctParam(1)" placeholder="예: 120" type="number"/>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>이송 FEED (F mm/min)</label>
+<input id="m_feed" oninput="calcMctFeed(2)" placeholder="예: 764" type="number"/>
+</div>
+<div>
+<label>날당 이송 Fz (mm/t)</label>
+<input id="m_fz" oninput="calcMctFeed(1)" placeholder="예: 0.05" step="0.005" type="number"/>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>절삭 폭 ae (mm)</label>
+<input id="m_ae" oninput="updateMctChipRate()" placeholder="예: 5" type="number"/>
+</div>
+<div>
+<label>절삭 깊이 ap (mm)</label>
+<input id="m_ap" oninput="updateMctChipRate()" placeholder="예: 2" type="number"/>
+</div>
+</div>
+</div>
+<div class="info-box" id="mctCalcReport">입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
+</div>
+<!-- 5. Duracarb 2026 재종표 -->
+<div class="sub-view" id="view-duracarb-2026">
+<div class="card">
+<div class="dura-2026-wrap">
+<table class="dura-2026-table">
+<colgroup>
+<col class="kind"/><col class="color"/><col class="grade"/><col class="iso"/><col class="app"/>
+<col class="comp"/><col class="comp"/><col class="comp"/>
+</colgroup>
+<div class="dura-note"></div><thead><tr><th rowspan="2">구분</th><th rowspan="2">색상</th><th rowspan="2">재종</th><th rowspan="2">ISO 적용범위</th><th rowspan="2">피삭재 적용 / 추천 가공</th><th rowspan="2">TaeguTec</th><th colspan="2">경쟁사 대응 규격</th></tr><tr><th>Korloy</th><th>Kyocera</th></tr></thead>
+<tbody>
+<tr><td class="dura-kind" rowspan="7">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC820</td><td class="dura-iso dura-k">K10 - K20</td><td class="dura-app">회주철, 덕타일주철의 일반 터닝</td><td class="dura-competitor">TT7015</td><td class="dura-competitor">NC6110</td><td class="dura-competitor">CA4515</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9005</td><td class="dura-iso dura-p">P05 - P15</td><td>강의 초고속 연속 터닝</td><td class="dura-competitor">TT8105</td><td class="dura-competitor">NC3205</td><td class="dura-competitor">CA5505<br/>CA510</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9015</td><td class="dura-iso dura-p">P10 - P25</td><td>강의 고속 터닝</td><td class="dura-competitor">TT8115</td><td class="dura-competitor">NC3010</td><td class="dura-competitor">VP5115<br/>CA5515</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9025</td><td class="dura-iso dura-p">P15 - P35</td><td>강의 일반 터닝</td><td class="dura-competitor">TT8125</td><td class="dura-competitor">NC3120</td><td class="dura-competitor">VP5125<br/>CA5525</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC8035</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M30 - M40</span></td><td>연강, 저탄소 합금강의 중삭 터닝<br/>스테인리스강의 중속 및 저속 가공</td><td class="dura-competitor">TT5100<br/>TT9225</td><td class="dura-competitor">NC9025</td><td class="dura-competitor">CP5530<br/>CA6525</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7040</td><td class="dura-iso dura-p">P10 - P30</td><td>탄소강, 합금강의 드릴 가공용</td><td class="dura-competitor">TT7400</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7800</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M45</span></td><td>탄소강, 합금강의 황삭 가공<br/>스테인리스강의 중속 가공</td><td class="dura-competitor">TT8525B</td><td class="dura-competitor">NCM535<br/>PC5300</td><td class="dura-competitor">CA6535<br/>PR1535</td></tr>
+<tr><td class="dura-kind" rowspan="13">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5010</td><td class="dura-iso"><span class="dura-m">M05 - M25</span><br/><span class="dura-s">S05 - S25</span></td><td>스테인리스강 및 내열합금의 광범위한 터닝</td><td class="dura-competitor">TT5030</td><td class="dura-competitor">PC8110</td><td class="dura-competitor">PR1005<br/>PR930</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9320</td><td class="dura-iso"><span class="dura-p">P05 - P25</span><br/><span class="dura-k">K05 - K25</span></td><td>강의 일반 밀링<br/>주철의 급단속 밀링</td><td class="dura-competitor">TT7080</td><td class="dura-competitor">PC3600</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC7070</td><td class="dura-iso dura-p">P20 - P40</td><td>강의 일반 밀링</td><td class="dura-competitor">TT7070</td><td class="dura-competitor">PC3500</td><td class="dura-competitor">PP8030</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP7320</td><td class="dura-iso dura-k">K05 - K20</td><td>덕타일 주철과 회주철의 일반가공</td><td class="dura-competitor">TT6080</td><td class="dura-competitor">PC6510</td><td class="dura-competitor">PK9105</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP5320</td><td class="dura-iso"><span class="dura-p">P15 - P35</span><br/><span class="dura-m">M10 - M30</span><br/><span class="dura-s">S15 - S25</span></td><td>강, 스테인리스강, 내열합금강의 일반가공<br/>금형강의 중삭과 황삭 가공</td><td class="dura-competitor">TT9080</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP8330</td><td class="dura-iso"><span class="dura-p">P30 - P50</span><br/><span class="dura-m">M30 - M50</span><br/><span class="dura-s">S30 - S50</span></td><td>강, 스테인리스강의 단속 및 황삭 가공<br/>내열 합금의 저속 및 단속 가공</td><td class="dura-competitor">TT8080</td><td class="dura-competitor">PC9035<br/>PC5300</td><td class="dura-competitor">PR1535<br/>PR1225</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC9800</td><td class="dura-iso"><span class="dura-p">P15 - P35</span><br/><span class="dura-m">M10 - M30</span><br/><span class="dura-k">K10 - K30</span></td><td>강과 스테인리스강 일반 가공용 재종</td><td class="dura-competitor">TT9030</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PP8030</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5030</td><td class="dura-iso"><span class="dura-m">M05 - M30</span><br/><span class="dura-p">P10 - P30</span><br/><span class="dura-s">S10 - S20</span></td><td>강과 스테인리스강 중, 황삭에 적합<br/>드릴가공에서 뛰어난 내마모성</td><td class="dura-competitor">TT9130</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PR830<br/>PR925<br/>PR1025</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DP5015<br/>(DC980N)</td><td class="dura-iso"><span class="dura-p">P10 - P30</span><br/><span class="dura-m">M15 - M30</span><br/><span class="dura-k">K10 - K30</span><br/><span class="dura-s">S10 - S40</span><br/><span class="dura-h">H10 - H30</span></td><td>합금강, 프리하든강, 스테인리스강, 내열합금강의 가공용 (40&lt;HRC&lt;55)<br/>중속 및 고속 가공용</td><td class="dura-competitor">TT5515</td><td class="dura-competitor">YG-1<br/>X-POWER S</td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DP5025</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M20 - M40</span><br/><span class="dura-s">S20 - S40</span></td><td>탄소강, 합금강, 스테인리스강, 내열합금강의 일반가공용 (&lt;40 HRC)<br/>중속 및 고속 가공용</td><td class="dura-competitor">TT5525</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9020</td><td class="dura-iso"><span class="dura-p">P25 - P45</span><br/><span class="dura-m">M25 - M45</span></td><td>강의 일반 절삭용</td><td class="dura-competitor">TT7210</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC9235</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M40</span><br/><span class="dura-s">S30 - S40</span></td><td>스테인리스강, 내열합금, 저탄소강 등의 단속 및 중·저속용 고인성 재종</td><td class="dura-competitor">TT8020</td><td class="dura-competitor">PC5300</td><td class="dura-competitor">PM9915<br/>PM0015</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC154</td><td class="dura-iso dura-p">P20 - P35</td><td>강의 경·중절삭 및 황삭용</td><td class="dura-competitor">TT7220</td><td class="dura-competitor">PC3535</td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-kind" rowspan="4">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DN9020</td><td class="dura-iso dura-p">P15 - P25</td><td>강의 일반 절삭용</td><td class="dura-competitor">P20</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC325M</td><td class="dura-iso dura-p">P30 - P40</td><td>강 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">P30</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC210</td><td class="dura-iso dura-k">K10</td><td>주철 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">K10</td><td class="dura-competitor">H01</td><td class="dura-competitor">VK10</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC208<br/>(DC210)</td><td class="dura-iso dura-n">N10</td><td>알루미늄, 비철금속의 일반 가공<br/>비코팅</td><td class="dura-competitor">UF10</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr><td class="dura-kind" rowspan="2">서멧</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC610</td><td class="dura-iso"><span class="dura-p">P05 - P15</span><br/><span class="dura-m">M05 - M15</span><br/><span class="dura-k">K05 - K15</span></td><td>강, 주철, 스테인리스강의 정삭<br/>강의 일반 석삭 및 홈 절삭</td><td class="dura-competitor">CT3000</td><td class="dura-competitor">CN1000</td><td class="dura-competitor">TN60</td></tr>
+<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DPT110</td><td class="dura-iso"><span class="dura-p">P05 - P20</span><br/><span class="dura-m">M05 - M20</span><br/><span class="dura-k">K05 - K20</span></td><td>강, 스테인리스강 및 주철의 고속 정삭 가공<br/>양호한 표면 조도</td><td class="dura-competitor">PV3010</td><td class="dura-competitor">CC1500</td><td class="dura-competitor">PV710<br/>PV720</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- 14. 추후 업데이트 예정 -->
+<div class="sub-view" id="view-future-update">
+<div class="card">
+<div class="card-head-row"><h2>추후 업데이트 예정</h2></div>
+<div class="info-box">새로운 기능과 자료를 준비 중입니다.</div>
+</div>
+</div>
+<!-- 5. G / M 코드 일람 화면 -->
+<div class="sub-view" id="view-gcode-calc">
+<div class="card">
+<div class="filter-tabs">
+<div class="tab-btn active" onclick="setFilterCat('all', this)">전체</div>
+<div class="tab-btn" onclick="setFilterCat('lathe', this)">선반(CNC)</div>
+<div class="tab-btn" onclick="setFilterCat('mct', this)">밀링(MCT)</div>
+<div class="tab-btn" onclick="setFilterCat('mcode', this)">M코드</div>
+</div>
+<label>코드 및 기능 실시간 검색</label>
+<input id="codeSearch" oninput="applyTableFilters()" placeholder="예: G71, G83, 나사, 보정, 탭, 정지..." type="text"/>
+<div class="data-table-wrap">
+<table class="data-table" id="codeTable">
+<thead>
+<tr>
+<th style="width: 72px;">코드</th>
+<th style="width: 60px;">구분</th>
+<th style="width: 110px;">기능 명칭</th>
+<th>상세 지령 및 설명</th>
+</tr>
+</thead>
+<tbody>
+<!-- 공통 기본 G코드 -->
+<tr data-cat="common"><td><span class="code-tag">G00</span></td><td><span class="badge badge-common">공용</span></td><td>급속 위치결정</td><td>가공물 비절삭 구간 급속 이송 (간섭 주의)</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G01</span></td><td><span class="badge badge-common">공용</span></td><td>직선 보간</td><td>지정된 절삭 이송속도(F)로 직선 가공</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G02</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CW)</td><td>시계 방향 원호 가공 (R값 또는 I, J, K 벡터)</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G03</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CCW)</td><td>반시계 방향 원호 가공</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G04</span></td><td><span class="badge badge-common">공용</span></td><td>Dwell (휴지)</td><td>일정 시간 이송 대기 (홈 가공 칩 끊기, 바닥 정삭)</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G28</span></td><td><span class="badge badge-common">공용</span></td><td>기계원점 복귀</td><td>중간 경유점 경유 후 1기계원점 복귀</td></tr>
+<!-- 버그 수정: 선반 노즈R 및 밀링 공구경 보정 취소 명칭 명확화 -->
+<tr data-cat="common"><td><span class="code-tag">G40</span></td><td><span class="badge badge-common">공용</span></td><td>공구경/노즈R 보정 취소</td><td>공구 반경 및 노즈R 보정 벡터 해제</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G41</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 좌측</td><td>진행방향 기준 좌측 보정 (MCT 하향절삭 필수)</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G42</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 우측</td><td>진행방향 기준 공구 우측 보정</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G54~G59</span></td><td><span class="badge badge-common">공용</span></td><td>공작물 좌표계</td><td>가공 원점 1번~6번 지정</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G90</span></td><td><span class="badge badge-common">공용</span></td><td>절대 지령 모드</td><td>좌표계 원점(0,0) 기준 이동 명령</td></tr>
+<tr data-cat="common"><td><span class="code-tag">G91</span></td><td><span class="badge badge-common">공용</span></td><td>증분 지령 모드</td><td>현재 공구 위치 기준 상대적 이동</td></tr>
+<!-- CNC 선반 전용 및 복합 반복 사이클 -->
+<tr data-cat="lathe"><td><span class="code-tag">G70</span></td><td><span class="badge badge-lathe">선반</span></td><td>정삭 가공 사이클</td><td>G71/G72/G73 황삭 후 지정 블록(P~Q) 다듬질</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G71</span></td><td><span class="badge badge-lathe">선반</span></td><td>외경/내경 황삭 사이클</td><td>Z축 길이방향 외경/내경 자동 황삭 가공</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G72</span></td><td><span class="badge badge-lathe">선반</span></td><td>단면 황삭 사이클</td><td>X축 방향(단면) 횡방향 자동 황삭 가공</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G73</span></td><td><span class="badge badge-lathe">선반</span></td><td>패턴 반복 사이클</td><td>단조재/주조품 형상 윤곽 일정 여유 황삭</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G74</span></td><td><span class="badge badge-lathe">선반</span></td><td>단면 홈/심공 드릴</td><td>단면 펙(Peck) 홈 가공 및 Z축 심공 드릴링</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G75</span></td><td><span class="badge badge-lathe">선반</span></td><td>외경/내경 홈가공</td><td>X축 방향 펙 드릴링 및 외/내경 그루빙</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G76</span></td><td><span class="badge badge-lathe">선반</span></td><td>복합 나사절삭 사이클</td><td>복합 절입량 자동 분할 나사 가공 (2블록 지령)</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G92</span></td><td><span class="badge badge-lathe">선반</span></td><td>나사절삭 / 최고RPM</td><td>단일 블록 나사절삭 또는 주축 최고회전수 클램프</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G96</span></td><td><span class="badge badge-lathe">선반</span></td><td>주속 일정 제어</td><td>직경 변화에 따른 RPM 자동 가변 (Vc 유지)</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G97</span></td><td><span class="badge badge-lathe">선반</span></td><td>주속 일정 취소</td><td>고정 회전수 제어 (RPM 고정 모드)</td></tr>
+<tr data-cat="lathe"><td><span class="code-tag">G99</span></td><td><span class="badge badge-lathe">선반</span></td><td>회전당 이송</td><td>회전당 피드(mm/rev) 모드 지정</td></tr>
+<!-- 밀링(MCT) 전용 및 고정 사이클 -->
+<tr data-cat="mct"><td><span class="code-tag">G17/18/19</span></td><td><span class="badge badge-mct">MCT</span></td><td>평면 선택</td><td>G17(XY 평면), G18(ZX 평면), G19(YZ 평면)</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G43</span></td><td><span class="badge badge-mct">MCT</span></td><td>공구장(+) 보정</td><td>공구 길이 양(+) 보정 지령 (H 번호 지정)</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G49</span></td><td><span class="badge badge-mct">MCT</span></td><td>공구장 보정 취소</td><td>공구 길이 보정 오프셋 해제</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G73</span></td><td><span class="badge badge-mct">MCT</span></td><td>고속 펙 드릴 사이클</td><td>간헐 이송 후 미소 후퇴(칩 분쇄) 심공 사이클</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G80</span></td><td><span class="badge badge-mct">MCT</span></td><td>고정 사이클 취소</td><td>모든 드릴링/보링 사이클 해제</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G81</span></td><td><span class="badge badge-mct">MCT</span></td><td>기본 드릴링 사이클</td><td>바닥 휴지(Dwell) 없는 연속 관통 드릴링</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G82</span></td><td><span class="badge badge-mct">MCT</span></td><td>카운터보링 사이클</td><td>구멍 바닥에서 Dwell(P) 후 복귀 (자리파기)</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G83</span></td><td><span class="badge badge-mct">MCT</span></td><td>심공 드릴링 사이클</td><td>R점까지 완전 후퇴하며 칩 배출 (깊은 구멍용)</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G84</span></td><td><span class="badge badge-mct">MCT</span></td><td>태핑 사이클</td><td>탭 가공 (바닥 도달 시 주축 자동 역회전)</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G85</span></td><td><span class="badge badge-mct">MCT</span></td><td>리밍 사이클</td><td>가공 피드로 진입 후 가공 피드로 복귀 (정밀구멍)</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G86</span></td><td><span class="badge badge-mct">MCT</span></td><td>보링 사이클</td><td>구멍 바닥 도달 시 주축 정지 후 급속 복귀</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G94</span></td><td><span class="badge badge-mct">MCT</span></td><td>분당 이송</td><td>분당 이송 피드(mm/min) 모드</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G98</span></td><td><span class="badge badge-mct">MCT</span></td><td>초기점 복귀</td><td>고정 사이클 완료 후 초기 Z 높이로 복귀</td></tr>
+<tr data-cat="mct"><td><span class="code-tag">G99</span></td><td><span class="badge badge-mct">MCT</span></td><td>R점 복귀</td><td>고정 사이클 완료 후 안전 R점으로 복귀</td></tr>
+<!-- 보조 기능 (M 코드) -->
+<tr data-cat="mcode"><td><span class="code-tag">M00</span></td><td><span class="badge badge-m">M코드</span></td><td>프로그램 무조건 정지</td><td>장비 일시정지 (가공물 확인, 칩 제거, 계측)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M01</span></td><td><span class="badge badge-m">M코드</span></td><td>선택적 정지</td><td>Optional Stop 스위치 ON일 때만 정지</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M02</span></td><td><span class="badge badge-m">M코드</span></td><td>프로그램 종료</td><td>자동 운전 종료 (복귀 없이 멈춤)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M03</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 정회전 (CW)</td><td>스핀들 시계 방향 회전 (우회전)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M04</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 역회전 (CCW)</td><td>스핀들 반시계 방향 회전 (좌회전)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M05</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 정지</td><td>스핀들 회전 정지</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M06</span></td><td><span class="badge badge-m">M코드</span></td><td>공구 교환 (ATC)</td><td>MCT 공구 자동 교환 지령 (T번 공구와 조합)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M08</span></td><td><span class="badge badge-m">M코드</span></td><td>절삭유 ON</td><td>쿨런트 토출 시작</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M09</span></td><td><span class="badge badge-m">M코드</span></td><td>절삭유 OFF</td><td>쿨런트 토출 중단</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M19</span></td><td><span class="badge badge-m">M코드</span></td><td>주축 정위치 정지</td><td>스핀들 오리엔테이션 (ATC 및 보링 공구 인출용)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M29</span></td><td><span class="badge badge-m">M코드</span></td><td>리지드 탭 모드</td><td>주축 회전과 이송을 동기화하는 강성 탭핑</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M30</span></td><td><span class="badge badge-m">M코드</span></td><td>종료 및 원위치 리셋</td><td>가공 완료, 프로그램 헤드로 복귀</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M98</span></td><td><span class="badge badge-m">M코드</span></td><td>서브프로그램 호출</td><td>지정 번호의 보조 프로그램 호출 (P 번호)</td></tr>
+<tr data-cat="mcode"><td><span class="code-tag">M99</span></td><td><span class="badge badge-m">M코드</span></td><td>서브 종료 및 복귀</td><td>메인 프로그램으로 복귀</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- 7. 할인율 계산기 화면 -->
+<div class="sub-view" id="view-discount-calc">
+<div class="card">
+<label>정가 (원)</label>
+<input id="discountBasePrice" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 10000" step="1" type="number"/>
+<div class="input-grid-2">
+<div>
+<label>직접 입력 할인배율</label>
+<input id="dealerDiscountRatio" max="1" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 0.7" step="0.01" type="number"/>
+</div>
+<div>
+<label>대리점 매입가 (원)</label>
+<input id="dealerPurchasePrice" min="0" oninput="syncDiscountFromPurchase()" placeholder="예: 7000" step="1" type="number"/>
+<div class="discount-rounded" id="dealerPurchaseRounded">1의 자리 반올림: -</div>
+</div>
+</div>
+<div class="btn-row">
+<button class="btn-sub" onclick="resetDiscountCalc()" style="flex: 1;">초기화</button>
+</div>
+</div>
+<div class="card">
+<label>유저 납품가 가산율 (%)</label>
+<div class="input-grid-2">
+<div>
+<input id="userDeliveryPercent" oninput="calculateUserDelivery()" placeholder="예: 10" step="0.01" type="number"/>
+</div>
+<div>
+<input id="userDeliveryPrice" placeholder="유저 납품가" readonly="" type="text"/>
+<div class="discount-rounded" id="userDeliveryRounded">1의 자리 반올림: -</div>
+</div>
+</div>
+<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
           대리점 매입가에 입력한 가산율을 적용합니다.
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-head-row">
-          <label>유저 납품가 가산율별 계산표</label>
-          <span style="font-size:10px;color:var(--text-muted);">입력값 ±1.00% / 0.01% 단위</span>
-        </div>
-        <div class="data-table-wrap">
-          <table class="data-table">
-            <thead><tr><th>가산율</th><th>유저 납품가</th></tr></thead>
-            <tbody id="userDeliveryRows">
-              <tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- 8. 추후 업데이트 예정 화면 -->
-    <div id="view-future-update" class="sub-view">
-      <div class="card">
-        <div style="text-align:center;padding:32px 10px;color:var(--text-muted);">
-          <div style="font-size:18px;font-weight:800;color:var(--accent);margin-bottom:8px;">추후 업데이트 예정</div>
-          <div style="font-size:12px;">새로운 업무 편의 기능을 준비 중입니다.</div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- 6. 재질별 추천 가공조건 화면 -->
-    <div id="view-mat-calc" class="sub-view">
-      <div class="card">
-        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+</div>
+<div class="card">
+<div class="card-head-row">
+<label>유저 납품가 가산율별 계산표</label>
+<span style="font-size:10px;color:var(--text-muted);">입력값 ±1.00% / 0.01% 단위</span>
+</div>
+<div class="data-table-wrap">
+<table class="data-table">
+<thead><tr><th>가산율</th><th>유저 납품가</th></tr></thead>
+<tbody id="userDeliveryRows">
+<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- 8. Duracarb CBN 화면 : PDF 3페이지를 모바일용 UI로 재구성 -->
+<div class="sub-view" id="view-cbn-guide">
+<div class="card cbn-guide-card">
+<div class="cbn-guide-head">
+<div>
+<div class="cbn-kicker">CBN USER GUIDE</div>
+<h2>인서트 규격 선정법</h2>
+</div>
+</div>
+<div class="cbn-example">
+<div class="cbn-example-code">CNGA 120408 <span>4F5E</span> DB2027</div>
+<div class="cbn-example-map cbn-example-map-five">
+<div class="cbn-example-item">
+<div class="cbn-example-value cbn-code-blue">4</div>
+<div class="cbn-example-num">3</div>
+<div class="cbn-example-label">타입</div>
+</div>
+<div class="cbn-example-item">
+<div class="cbn-example-value cbn-code-blue">F</div>
+<div class="cbn-example-num">4</div>
+<div class="cbn-example-label">인선폭</div>
+</div>
+<div class="cbn-example-item">
+<div class="cbn-example-value cbn-code-blue">5</div>
+<div class="cbn-example-num">5</div>
+<div class="cbn-example-label">인선각도</div>
+</div>
+<div class="cbn-example-item">
+<div class="cbn-example-value cbn-code-blue">E</div>
+<div class="cbn-example-num">6</div>
+<div class="cbn-example-label">호닝</div>
+</div>
+</div>
+</div>
+<div class="cbn-grid-top">
+<div class="cbn-info-box cbn-empty-box">
+<h3>1. 형상</h3>
+<ul class="cbn-list"><li>예: CNGA</li></ul>
+</div>
+<div class="cbn-info-box cbn-empty-box">
+<h3>2. 사이즈</h3>
+<ul class="cbn-list"><li>예: 120408</li></ul>
+</div>
+<div class="cbn-info-box">
+<h3>3. 타입</h3>
+<ul class="cbn-list">
+<li>코너 수: 팁 브레이징</li>
+<li>코너 수: 솔리드 브레이징</li>
+<li><b>S</b> : 솔리드</li>
+<li><b>DS</b> : 솔리드 딤플</li>
+<li><b>W</b> : 와이퍼 타입</li>
+</ul>
+</div>
+</div>
+<div class="cbn-grid-bottom">
+<div class="cbn-info-box">
+<h3>4. 인선폭</h3>
+<table class="cbn-mini-table">
+<thead><tr><th>Name</th><th>Length</th><th>Name</th><th>Length</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>0.05</td><td>J</td><td>0.35</td></tr>
+<tr><td>B</td><td>0.08</td><td>K</td><td>0.70</td></tr>
+<tr><td>C</td><td>0.10</td><td>L</td><td>1.00</td></tr>
+<tr><td>D</td><td>0.13</td><td>M</td><td>1.50</td></tr>
+<tr><td>F</td><td>0.15</td><td>N</td><td>2.00</td></tr>
+<tr><td>G</td><td>0.20</td><td>O</td><td>2.50</td></tr>
+<tr><td>H</td><td>0.25</td><td>P</td><td>3.00</td></tr>
+<tr><td>I</td><td>0.30</td><td>Z</td><td>Special</td></tr>
+</tbody>
+</table>
+</div>
+<div class="cbn-info-box">
+<h3>5. 인선각도</h3>
+<table class="cbn-mini-table cbn-angle-table">
+<thead><tr><th>Name</th><th>Angle</th></tr></thead>
+<tbody>
+<tr><td>2</td><td>10°</td></tr><tr><td>3</td><td>15°</td></tr>
+<tr><td>4</td><td>20°</td></tr><tr><td>5</td><td>25°</td></tr>
+<tr><td>6</td><td>30°</td></tr><tr><td>7</td><td>35°</td></tr>
+<tr><td>8</td><td>40°</td></tr><tr><td>9</td><td>45°</td></tr>
+<tr><td>0</td><td>Special</td></tr>
+</tbody>
+</table>
+</div>
+<div class="cbn-info-box">
+<h3>6. 호닝 사이즈</h3>
+<table class="cbn-mini-table">
+<thead><tr><th>Name</th><th>Honing</th></tr></thead>
+<tbody>
+<tr><td>E</td><td>0.010–0.020 / 0.015</td></tr>
+<tr><td>E1</td><td>0.015–0.025 / 0.020</td></tr>
+<tr><td>E2</td><td>0.020–0.030 / 0.025</td></tr>
+<tr><td>E3</td><td>0.025–0.035 / 0.030</td></tr>
+<tr><td>E4</td><td>0.030–0.040 / 0.035</td></tr>
+<tr><td>E5</td><td>0.035–0.045 / 0.040</td></tr>
+<tr><td>E6</td><td>0.040–0.050 / 0.045</td></tr>
+<tr><td>E7</td><td>0.045–0.055 / 0.050</td></tr>
+<tr><td>E10</td><td>0.100</td></tr>
+<tr><td>T</td><td>No Honing</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cbn-info-box cbn-grade-section">
+<h3>7. 재종</h3>
+<div class="cbn-grade-group-title">고경고강 · HRc 55–60</div>
+<div class="data-table-wrap cbn-grade-table-wrap">
+<table class="data-table cbn-grade-table">
+<thead>
+<tr><th>CBN 함량 %</th><th>재종명</th><th>유형</th><th>추천 가공</th></tr>
+</thead>
+<tbody>
+<tr><td>55–60</td><td>DB2005</td><td>TIP</td><td>약, 중 단속</td></tr>
+<tr><td>60–65</td><td>DB2015</td><td>TIP</td><td>연속 및 약, 중 단속<br/><span class="cbn-recommend">Tip 제품의 제1 추천 재종</span></td></tr>
+<tr><td>65–70</td><td>DB2025</td><td>TIP</td><td>강단속</td></tr>
+<tr><td>65–70</td><td>DB2026</td><td>TIP</td><td>중, 강 단속</td></tr>
+<tr><td>70</td><td>DB2027</td><td>Solid Brazing</td><td>황삭 및 준정삭</td></tr>
+<tr><td>70–85</td><td>DB2035</td><td>TIP</td><td>연속 및 약단속</td></tr>
+<tr><td>80</td><td>DB2036</td><td>Solid Brazing</td><td>황삭 및 준정삭<br/><span class="cbn-recommend">Solid Brazing 제품의 제1 추천 재종</span></td></tr>
+</tbody>
+</table>
+</div>
+<div class="cbn-grade-group-title">주철</div>
+<div class="data-table-wrap cbn-grade-table-wrap">
+<table class="data-table cbn-grade-table">
+<thead>
+<tr><th>CBN 함량 %</th><th>재종명</th><th>유형</th><th>추천 가공</th></tr>
+</thead>
+<tbody>
+<tr><td>75</td><td>DB7005</td><td>TIP</td><td>연속 및 단속</td></tr>
+<tr><td>75</td><td>DB7006</td><td>Solid Brazing</td><td>황삭 및 준정삭</td></tr>
+<tr><td>85</td><td>DB7010</td><td>Solid Brazing</td><td>황삭 및 준정삭</td></tr>
+<tr><td>90</td><td>DB7015</td><td>TIP</td><td>연속 및 단속<br/><span class="cbn-recommend">Tip 제품의 제1 추천</span></td></tr>
+<tr><td>90</td><td>DB7020</td><td>Solid Brazing</td><td>황삭 및 준정삭</td></tr>
+<tr><td>95</td><td>DB7025</td><td>Solid Brazing</td><td>황삭 및 준정삭<br/><span class="cbn-recommend">Solid Brazing 및 Solid 제품의 제1 추천 재종</span></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+<!-- 6. 재질별 추천 가공조건 화면 -->
+<div class="sub-view" id="view-mat-calc">
+<div class="card">
+<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
           * 초경 인서트 기준 일반적인 중간 조건 가이드입니다. 툴 형상 및 장비 강성에 따라 조정하십시오.
         </div>
-        <div class="data-table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>피삭재 그룹</th>
-                <th>대표 강종</th>
-                <th>Vc (m/min)</th>
-                <th>선반 f (mm/rev)</th>
-                <th>밀링 Fz (mm/t)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong style="color: #60a5fa;">P (탄소강/합금강)</strong></td>
-                <td>SM45C, SCM440</td>
-                <td>160 ~ 280</td>
-                <td>0.15 ~ 0.40</td>
-                <td>0.08 ~ 0.20</td>
-              </tr>
-              <tr>
-                <td><strong style="color: #facc15;">M (스테인리스강)</strong></td>
-                <td>SUS304, SUS316</td>
-                <td>100 ~ 200</td>
-                <td>0.10 ~ 0.25</td>
-                <td>0.05 ~ 0.12</td>
-              </tr>
-              <tr>
-                <td><strong style="color: #f87171;">K (주철)</strong></td>
-                <td>GC250, GCD450</td>
-                <td>150 ~ 300</td>
-                <td>0.20 ~ 0.45</td>
-                <td>0.10 ~ 0.25</td>
-              </tr>
-              <tr>
-                <td><strong style="color: #4ade80;">N (알루미늄/비철)</strong></td>
-                <td>AL6061, AL7075</td>
-                <td>300 ~ 800+</td>
-                <td>0.15 ~ 0.50</td>
-                <td>0.10 ~ 0.30</td>
-              </tr>
-              <tr>
-                <td><strong style="color: #fb923c;">S (내열합금/티타늄)</strong></td>
-                <td>Inconel, Ti-6Al-4V</td>
-                <td>30 ~ 70</td>
-                <td>0.08 ~ 0.18</td>
-                <td>0.04 ~ 0.08</td>
-              </tr>
-              <tr>
-                <td><strong style="color: #a78bfa;">H (고경도강)</strong></td>
-                <td>SKD11, 열처리강(50HRC+)</td>
-                <td>50 ~ 120</td>
-                <td>0.05 ~ 0.15</td>
-                <td>0.03 ~ 0.08</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div style="margin-top:18px; font-size:14px; font-weight:800;">재질 규격 대응표</div>
-        <div class="material-meta">※ 규격 간 유사 등급을 찾기 위한 참고표입니다. 실제 대체 가능 여부는 화학성분, 열처리, 경도 및 제조사 성적서를 확인하세요.</div>
-        <div class="material-tools">
-          <input id="materialSearch" type="search" placeholder="재질명 검색 (예: S45C, 4140, SUS304)" oninput="filterMaterials()">
-          <select id="materialGroup" onchange="filterMaterials()">
-            <option value="all">전체 재질군</option><option>P 탄소강/합금강</option><option>M 스테인리스</option><option>K 주철</option><option>N 알루미늄/비철</option><option>S 내열합금/티타늄</option><option>H 공구강/고경도강</option>
-          </select>
-        </div>
-        <div class="data-table-wrap">
-          <table class="data-table material-table">
-            <thead><tr><th>재질군</th><th>JIS</th><th>AISI/SAE</th><th>DIN/EN</th><th>열처리·참고</th></tr></thead>
-            <tbody id="materialRows"></tbody>
-          </table>
-        </div>
-        <div id="materialCount" class="material-meta"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <script>
+<div class="data-table-wrap">
+<table class="data-table">
+<thead>
+<tr>
+<th>피삭재 그룹</th>
+<th>대표 강종</th>
+<th>Vc (m/min)</th>
+<th>선반 f (mm/rev)</th>
+<th>밀링 Fz (mm/t)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="iso-cell iso-p"><strong>P 탄소강/합금강</strong></td>
+<td class="iso-cell iso-p"><strong>SM45C, SCM440</strong></td>
+<td>160 ~ 280</td>
+<td>0.15 ~ 0.40</td>
+<td>0.08 ~ 0.20</td>
+</tr>
+<tr>
+<td class="iso-cell iso-m"><strong>M 스테인리스강</strong></td>
+<td class="iso-cell iso-m"><strong>SUS304, SUS316</strong></td>
+<td>100 ~ 200</td>
+<td>0.10 ~ 0.25</td>
+<td>0.05 ~ 0.12</td>
+</tr>
+<tr>
+<td class="iso-cell iso-k"><strong>K 주철</strong></td>
+<td class="iso-cell iso-k"><strong>GC250, GCD450</strong></td>
+<td>150 ~ 300</td>
+<td>0.20 ~ 0.45</td>
+<td>0.10 ~ 0.25</td>
+</tr>
+<tr>
+<td class="iso-cell iso-n"><strong>N 알루미늄/비철</strong></td>
+<td class="iso-cell iso-n"><strong>AL6061, AL7075</strong></td>
+<td>300 ~ 800+</td>
+<td>0.15 ~ 0.50</td>
+<td>0.10 ~ 0.30</td>
+</tr>
+<tr>
+<td class="iso-cell iso-s"><strong>S 내열합금/티타늄</strong></td>
+<td class="iso-cell iso-s"><strong>Inconel, Ti-6Al-4V</strong></td>
+<td>30 ~ 70</td>
+<td>0.08 ~ 0.18</td>
+<td>0.04 ~ 0.08</td>
+</tr>
+<tr>
+<td class="iso-cell iso-h"><strong>H 고경도강</strong></td>
+<td class="iso-cell iso-h"><strong>SKD11, 열처리강(50HRC+)</strong></td>
+<td>50 ~ 120</td>
+<td>0.05 ~ 0.15</td>
+<td>0.03 ~ 0.08</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div style="margin-top:18px; font-size:14px; font-weight:800;">재질 규격 대응표</div>
+<div class="material-meta">※ 규격 간 유사 등급을 찾기 위한 참고표입니다. 실제 대체 가능 여부는 화학성분, 열처리, 경도 및 제조사 성적서를 확인하세요.</div>
+<div class="material-tools">
+<input id="materialSearch" oninput="filterMaterials()" placeholder="재질명 검색 (예: S45C, 4140, SUS304)" type="search"/>
+<select id="materialGroup" onchange="filterMaterials()">
+<option value="all">전체 재질군</option><option>P 탄소강/합금강</option><option>M 스테인리스</option><option>K 주철</option><option>N 알루미늄/비철</option><option>S 내열합금/티타늄</option><option>H 공구강/고경도강</option>
+</select>
+</div>
+<div class="data-table-wrap">
+<table class="data-table material-table">
+<thead><tr><th>재질군</th><th>JIS</th><th>AISI/SAE</th><th>DIN/EN</th><th>ASTM</th><th>열처리·참고</th></tr></thead>
+<tbody id="materialRows"></tbody>
+</table>
+</div>
+<div class="material-meta" id="materialCount"></div>
+</div>
+</div>
+</div>
+<script>
     let currentCategory = 'all';
 
     /* ---------------- 공통 유틸 및 OCR 처리기 ---------------- */
@@ -1013,10 +1383,11 @@
         'mct-path': 'MCT 밀링 3축 시뮬레이터',
         'lathe-calc': '선반 절삭조건 계산',
         'mct-calc': '밀링 절삭조건 계산',
+        'duracarb-2026': 'Duracarb 재종표',
         'gcode-calc': '표준 G / M 코드 일람',
+        'future-update': '추후 업데이트 예정',
         'mat-calc': '재질별 추천 절삭조건',
-        'discount-calc': '할인율 계산기',
-        'future-update': '추후 업데이트 예정'
+        'discount-calc': '할인율 계산기'
       };
       document.getElementById('headerTitle').innerText = titles[name] || 'CNC / MCT 도우미';
       document.getElementById('view-' + name).style.display = 'flex';
@@ -2044,7 +2415,18 @@
       const q=(document.getElementById('materialSearch').value||'').toLowerCase();
       const g=document.getElementById('materialGroup').value;
       const rows=materialData.filter(r=>(g==='all'||r[0]===g)&&r.join(' ').toLowerCase().includes(q));
-      document.getElementById('materialRows').innerHTML=rows.map(r=>'<tr>'+[r[0],r[1],r[2],r[3],r[5]].map((v,i)=>'<td>'+(i===0?'<strong>'+v+'</strong>':v)+'</td>').join('')+'</tr>').join('');
+      document.getElementById('materialRows').innerHTML=rows.map(r=>{
+        const iso=r[0].charAt(0).toLowerCase();
+        const groupLabel=r[0].replace(/^[PMKNSH]\s+/,'');
+        return '<tr class="iso-row-'+iso+'">' +
+          '<td class="material-group-cell"><strong>'+r[0].charAt(0)+' '+groupLabel+'</strong></td>' +
+          '<td>'+r[1]+'</td>' +
+          '<td>'+r[2]+'</td>' +
+          '<td>'+r[3]+'</td>' +
+          '<td>'+r[4]+'</td>' +
+          '<td>'+r[5]+'</td>' +
+          '</tr>';
+      }).join('');
       document.getElementById('materialCount').textContent=`표시 ${rows.length} / 전체 ${materialData.length}개`;
     }
     filterMaterials();
@@ -2072,6 +2454,6 @@
         `------------------------------------\n` +
         `[공출량 (칩 배출량 Q)]\n• Q = ${qVal} cm³/min (cc/min)\n  (조건: ae ${ae}mm × ap ${ap}mm × F ${f}mm/min)`;
     }
-  </script>
+</script>
 </body>
 </html>
