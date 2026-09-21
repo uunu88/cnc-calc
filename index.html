@@ -335,7 +335,7 @@
         </div>
         <div class="menu-btn" onclick="openView('discount-calc')">
           할인율 계산기
-          <span>정가별 할인 & 납품가 계산</span>
+          <span>정가별 할인 배율 금액표</span>
         </div>
         <div class="menu-btn" onclick="openView('future-update')">
           추후 업데이트 예정
@@ -630,9 +630,12 @@
           </div>
         </div>
 
+        <div id="purchasePriceSummary" style="font-size:12px;line-height:1.8;margin-top:10px;color:var(--text-muted);">
+          대리점 매입가: -<br>1의 자리 반올림: -
+        </div>
         <div class="btn-row">
-          <button class="btn-run" onclick="syncDiscountFromRatio()">계산</button>
-          <button class="btn-sub" onclick="resetDiscountCalc()">초기화</button>
+          <button class="btn-run" style="flex: 1;" onclick="calculateUserDelivery()">계산</button>
+          <button class="btn-sub" style="flex: 1;" onclick="resetDiscountCalc()">초기화</button>
         </div>
       </div>
 
@@ -645,6 +648,9 @@
           <div>
             <input type="text" id="userDeliveryPrice" placeholder="유저 납품가" readonly />
           </div>
+        </div>
+        <div id="deliveryPriceSummary" style="font-size:12px;line-height:1.8;margin-top:10px;color:var(--text-muted);">
+          유저 납품가: -<br>1의 자리 반올림: -
         </div>
         <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
           대리점 매입가에 입력한 가산율을 적용합니다.
@@ -934,14 +940,23 @@
       const percent = Number(percentInput);
       const result = document.getElementById('userDeliveryPrice');
       const rows = document.getElementById('userDeliveryRows');
+      const purchaseSummary = document.getElementById('purchasePriceSummary');
+      const deliverySummary = document.getElementById('deliveryPriceSummary');
 
       if (purchaseInput === '' || percentInput === '' || !Number.isFinite(purchase) || purchase < 0 || !Number.isFinite(percent)) {
         result.value = '';
+        purchaseSummary.innerHTML = '대리점 매입가: -<br>1의 자리 반올림: -';
+        deliverySummary.innerHTML = '유저 납품가: -<br>1의 자리 반올림: -';
         rows.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
         return;
       }
 
-      result.value = formatWon(purchase * (1 + percent / 100));
+      const roundedPurchase = Math.round(purchase / 10) * 10;
+      purchaseSummary.innerHTML = '대리점 매입가: ' + formatWon(purchase) + '<br>1의 자리 반올림: <strong>' + formatWon(roundedPurchase) + '</strong>';
+      const delivery = purchase * (1 + percent / 100);
+      const roundedDelivery = Math.round(delivery / 10) * 10;
+      result.value = formatWon(delivery);
+      deliverySummary.innerHTML = '유저 납품가: ' + formatWon(delivery) + '<br>1의 자리 반올림: <strong>' + formatWon(roundedDelivery) + '</strong>';
       const minPercent = Math.round((percent - 1) * 100);
       const maxPercent = Math.round((percent + 1) * 100);
       let html = '';
@@ -960,6 +975,8 @@
       document.getElementById('dealerDiscountRatio').value = '';
       document.getElementById('userDeliveryPercent').value = '';
       document.getElementById('userDeliveryPrice').value = '';
+      document.getElementById('purchasePriceSummary').innerHTML = '대리점 매입가: -<br>1의 자리 반올림: -';
+      document.getElementById('deliveryPriceSummary').innerHTML = '유저 납품가: -<br>1의 자리 반올림: -';
       document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
     }
 
