@@ -333,6 +333,14 @@
         <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
           Duracarb 드릴링
         </div>
+        <div class="menu-btn" onclick="openView('discount-calc')">
+          할인율 계산기
+          <span>정가별 할인 배율 금액표</span>
+        </div>
+        <div class="menu-btn" onclick="openView('future-update')">
+          추후 업데이트 예정
+          <span>새로운 업무 편의 기능</span>
+        </div>
       </div>
 
       <div class="home-footer-note">
@@ -605,6 +613,71 @@
       </div>
     </div>
 
+    <!-- 7. 할인율 계산기 화면 -->
+    <div id="view-discount-calc" class="sub-view">
+      <div class="card">
+        <label>정가 (원)</label>
+        <input type="number" id="discountBasePrice" placeholder="예: 10000" min="0" step="1" oninput="syncDiscountFromRatio()" />
+
+        <div class="input-grid-2">
+          <div>
+            <label>직접 입력 할인배율</label>
+            <input type="number" id="dealerDiscountRatio" placeholder="예: 0.7" min="0" max="1" step="0.01" oninput="syncDiscountFromRatio()" />
+          </div>
+          <div>
+            <label>대리점 매입가 (원)</label>
+            <input type="number" id="dealerPurchasePrice" placeholder="예: 7000" min="0" step="1" oninput="syncDiscountFromPurchase()" />
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-run" onclick="syncDiscountFromRatio()">계산</button>
+          <button class="btn-sub" onclick="resetDiscountCalc()">초기화</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <label>유저 납품가 가산율 (%)</label>
+        <div class="input-grid-2">
+          <div>
+            <input type="number" id="userDeliveryPercent" placeholder="예: 10" step="0.01" oninput="calculateUserDelivery()" />
+          </div>
+          <div>
+            <input type="text" id="userDeliveryPrice" placeholder="유저 납품가" readonly />
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+          대리점 매입가에 입력한 가산율을 적용합니다.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head-row">
+          <label>유저 납품가 가산율별 계산표</label>
+          <span style="font-size:10px;color:var(--text-muted);">입력값 ±1.00% / 0.01% 단위</span>
+        </div>
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>가산율</th><th>유저 납품가</th></tr></thead>
+            <tbody id="userDeliveryRows">
+              <tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. 추후 업데이트 예정 화면 -->
+    <div id="view-future-update" class="sub-view">
+      <div class="card">
+        <div style="text-align:center;padding:32px 10px;color:var(--text-muted);">
+          <div style="font-size:18px;font-weight:800;color:var(--accent);margin-bottom:8px;">추후 업데이트 예정</div>
+          <div style="font-size:12px;">새로운 업무 편의 기능을 준비 중입니다.</div>
+        </div>
+      </div>
+    </div>
+
+
     <!-- 6. 재질별 추천 가공조건 화면 -->
     <div id="view-mat-calc" class="sub-view">
       <div class="card">
@@ -819,6 +892,78 @@
       setupDragAndDrop('mctBox', 'mctGcode');
     });
 
+    /* 할인율 계산기 */
+    function formatWon(value) {
+      return Math.round(value).toLocaleString('ko-KR') + '원';
+    }
+
+    function syncDiscountFromRatio() {
+      const baseInput = document.getElementById('discountBasePrice').value;
+      const ratioInput = document.getElementById('dealerDiscountRatio').value;
+      const base = Number(baseInput);
+      const ratio = Number(ratioInput);
+      const purchase = document.getElementById('dealerPurchasePrice');
+
+      if (baseInput !== '' && ratioInput !== '' && Number.isFinite(base) && base > 0 && Number.isFinite(ratio) && ratio >= 0 && ratio <= 1) {
+        purchase.value = Math.round(base * ratio);
+      } else if (baseInput === '' || ratioInput === '') {
+        purchase.value = '';
+      }
+      calculateUserDelivery();
+    }
+
+    function syncDiscountFromPurchase() {
+      const baseInput = document.getElementById('discountBasePrice').value;
+      const purchaseInput = document.getElementById('dealerPurchasePrice').value;
+      const base = Number(baseInput);
+      const purchase = Number(purchaseInput);
+      const ratio = document.getElementById('dealerDiscountRatio');
+
+      if (baseInput !== '' && purchaseInput !== '' && Number.isFinite(base) && base > 0 && Number.isFinite(purchase) && purchase >= 0) {
+        ratio.value = (purchase / base).toFixed(2);
+      } else if (purchaseInput === '') {
+        ratio.value = '';
+      }
+      calculateUserDelivery();
+    }
+
+    function calculateUserDelivery() {
+      const purchaseInput = document.getElementById('dealerPurchasePrice').value;
+      const percentInput = document.getElementById('userDeliveryPercent').value;
+      const purchase = Number(purchaseInput);
+      const percent = Number(percentInput);
+      const result = document.getElementById('userDeliveryPrice');
+      const rows = document.getElementById('userDeliveryRows');
+
+      if (purchaseInput === '' || percentInput === '' || !Number.isFinite(purchase) || purchase < 0 || !Number.isFinite(percent)) {
+        result.value = '';
+        rows.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
+        return;
+      }
+
+      result.value = formatWon(purchase * (1 + percent / 100));
+      const minPercent = Math.round((percent - 1) * 100);
+      const maxPercent = Math.round((percent + 1) * 100);
+      let html = '';
+
+      for (let i = minPercent; i <= maxPercent; i++) {
+        const currentPercent = i / 100;
+        const deliveryPrice = purchase * (1 + currentPercent / 100);
+        html += '<tr><td>' + currentPercent.toFixed(2) + '%</td><td>' + formatWon(deliveryPrice) + '</td></tr>';
+      }
+      rows.innerHTML = html;
+    }
+
+    function resetDiscountCalc() {
+      document.getElementById('discountBasePrice').value = '';
+      document.getElementById('dealerPurchasePrice').value = '';
+      document.getElementById('dealerDiscountRatio').value = '';
+      document.getElementById('userDeliveryPercent').value = '';
+      document.getElementById('userDeliveryPrice').value = '';
+      document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
+    }
+
+
     function goHome() {
       document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
       document.getElementById('view-main').style.display = 'block';
@@ -840,7 +985,9 @@
         'lathe-calc': '선반 절삭조건 계산',
         'mct-calc': '밀링 절삭조건 계산',
         'gcode-calc': '표준 G / M 코드 일람',
-        'mat-calc': '재질별 추천 절삭조건'
+        'mat-calc': '재질별 추천 절삭조건',
+        'discount-calc': '할인율 계산기',
+        'future-update': '추후 업데이트 예정'
       };
       document.getElementById('headerTitle').innerText = titles[name] || 'CNC / MCT 도우미';
       document.getElementById('view-' + name).style.display = 'flex';
