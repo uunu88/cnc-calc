@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
 <title>CNC / MCT 도우미</title>
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="#0f172a" name="theme-color"/>
-<!-- 브라우저 단독 OCR 엔진 (Tesseract.js CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <style>
     :root {
@@ -22,16 +20,66 @@
       --yellow: #facc15;
       --text: #f8fafc;
       --text-muted: #94a3b8;
+      --surface: #131b2e;
+      --header-bg: #0f172a;
+      --input-bg: #090d16;
+      --btn-sub-bg: #334155;
+      --btn-sub-text: #ffffff;
+      --report-bg: #090d16;
+      --report-text: #38bdf8;
+      --thead-bg: #0f172a;
+      --thead-text: #38bdf8;
+      --menu-btn-from: #131b2e;
+      --menu-btn-to: #0e1626;
+      --footer-note-bg: rgba(19, 27, 46, 0.4);
+      --row-even: rgba(255, 255, 255, 0.02);
+      --canvas-top: #2b4491;
+      --canvas-bottom: #4361b5;
+      --axis-line: rgba(255, 255, 255, 0.4);
+      --cut-line: #ffffff;
+      --rapid-line: #facc15;
     }
+    [data-theme="light"] {
+      --bg: #eef2f7;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --accent: #0284c7;
+      --yellow: #ca8a04;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --surface: #f1f5f9;
+      --header-bg: #ffffff;
+      --input-bg: #ffffff;
+      --btn-sub-bg: #e2e8f0;
+      --btn-sub-text: #0f172a;
+      --report-bg: #f8fafc;
+      --report-text: #0369a1;
+      --thead-bg: #e2e8f0;
+      --thead-text: #0369a1;
+      --menu-btn-from: #ffffff;
+      --menu-btn-to: #f1f5f9;
+      --footer-note-bg: rgba(255, 255, 255, 0.7);
+      --row-even: rgba(0, 0, 0, 0.03);
+      --canvas-top: #dbeafe;
+      --canvas-bottom: #bfdbfe;
+      --axis-line: rgba(15, 23, 42, 0.35);
+      --cut-line: #0f172a;
+      --rapid-line: #dc2626;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
-    
+    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
+
     header {
-      background: #0f172a; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+      background: var(--header-bg);
+      padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left));
+      display: flex; align-items: center; justify-content: space-between;
       border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; gap: 8px;
     }
     header h1 {
-      font-size: 19px; font-weight: 800; color: #ffffff; letter-spacing: -0.6px;
+      font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -0.6px;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;
     }
     header h1 span { color: var(--accent); }
@@ -47,47 +95,35 @@
     .hbc-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
     .hbc-name { font-size: 11px; font-weight: 800; color: #0f172a; line-height: 1; }
     .hbc-role { font-size: 8px; font-weight: 600; color: #475569; }
-
-    .hbc-bottom {
-      border-top: 1px solid #f1f5f9; padding-top: 2px; font-size: 8px; color: #475569;
-      display: flex; flex-direction: column; gap: 1px; font-weight: 600;
-    }
+    .hbc-bottom { border-top: 1px solid #f1f5f9; padding-top: 2px; font-size: 8px; color: #475569; display: flex; flex-direction: column; gap: 1px; font-weight: 600; }
     .hbc-row { display: flex; justify-content: space-between; gap: 4px; }
     .hbc-row a { color: inherit; text-decoration: none; }
 
     header button.btn-back {
-      background: #1e293b; border: 1px solid var(--border); color: #fff;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
       padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; flex-shrink: 0;
     }
 
-    .container { flex: 1; padding: 12px; display: flex; flex-direction: column; }
-
-    .main-grid { 
-      display: grid; 
-      grid-template-columns: 1fr 1fr; 
-      gap: 12px; 
-      padding-bottom: 12px;
+    .container {
+      flex: 1; padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      display: flex; flex-direction: column;
     }
+
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 12px; }
     .menu-btn {
-      background: linear-gradient(145deg, #131b2e, #0e1626); border: 2px solid var(--border); border-radius: 14px;
+      background: linear-gradient(145deg, var(--menu-btn-from), var(--menu-btn-to));
+      border: 2px solid var(--border); border-radius: 14px;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: #fff; font-size: 15px; font-weight: 700; text-align: center; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.35); transition: all 0.15s; line-height: 1.4; padding: 14px 10px; min-height: 86px;
+      color: var(--text); font-size: 15px; font-weight: 700; text-align: center; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.15s; line-height: 1.4; padding: 14px 10px; min-height: 86px;
     }
     .menu-btn:active { border-color: var(--accent); transform: scale(0.97); }
     .menu-btn span { font-size: 11px; color: var(--text-muted); margin-top: 5px; font-weight: normal; }
 
     .home-footer-note {
-      text-align: center;
-      padding: 14px 10px;
-      font-size: 11.5px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      background: rgba(19, 27, 46, 0.4);
-      border: 1px dashed var(--border);
-      border-radius: 8px;
-      margin-top: auto;
-      margin-bottom: 6px;
+      text-align: center; padding: 14px 10px; font-size: 11.5px; color: var(--text-muted);
+      line-height: 1.5; background: var(--footer-note-bg); border: 1px dashed var(--border);
+      border-radius: 8px; margin-top: auto; margin-bottom: 6px;
     }
     .home-footer-note strong { color: var(--accent); font-weight: 600; }
 
@@ -95,23 +131,22 @@
     .card { background: var(--card-bg); border-radius: 10px; padding: 10px; border: 1px solid var(--border); }
     .card-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 4px; }
     label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; display: inline-block; }
-    
-    .head-actions { display: flex; gap: 4px; }
-    .btn-file-load, .btn-cam-ocr {
-      background: #1e293b; border: 1px solid var(--border); color: var(--accent);
+
+    .head-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .btn-file-load {
+      background: var(--surface); border: 1px solid var(--border); color: var(--accent);
       padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;
       display: inline-flex; align-items: center; gap: 3px;
     }
-    .btn-cam-ocr { color: #34d399; border-color: #059669; }
-    .btn-file-load:active, .btn-cam-ocr:active { background: #334155; }
-    
+    .btn-file-load:active { background: var(--btn-sub-bg); }
+
     input, textarea, select {
-      width: 100%; background: #090d16; border: 1px solid var(--border); border-radius: 6px;
-      color: #fff; padding: 8px; font-size: 13px; margin-bottom: 5px; outline: none;
+      width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: 8px; font-size: 13px; margin-bottom: 5px; outline: none;
     }
     input:focus, textarea:focus, select:focus { border-color: var(--accent); }
     textarea { height: 90px; font-family: monospace; font-size: 11px; resize: none; white-space: pre; transition: border-color 0.2s; }
-    textarea.dragover { border-color: var(--accent); background: #16243d; }
+    textarea.dragover { border-color: var(--accent); background: var(--surface); }
 
     .input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
@@ -121,51 +156,65 @@
       padding: 9px; font-size: 13px; font-weight: 700; cursor: pointer;
     }
     .btn-sub {
-      background: #334155; color: #fff; border: none; border-radius: 6px;
+      background: var(--btn-sub-bg); color: var(--btn-sub-text); border: none; border-radius: 6px;
       padding: 9px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
     }
     .btn-run:active { background: var(--primary-hover); }
-    
+    .btn-clear { background: #7f1d1d; color: #fff; }
+    .btn-clear:active { background: #991b1b; }
+
     .viewport {
-      width: 100%; height: 280px; border: 1px solid var(--border);
+      width: 100%; height: min(280px, 42vh);
+      border: 1px solid var(--border);
       border-radius: 8px; position: relative; overflow: hidden; touch-action: none; cursor: grab;
     }
     .viewport:active { cursor: grabbing; }
     canvas { width: 100%; height: 100%; display: block; }
-    
+
     .player-bar {
-      background: #0f172a; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--header-bg); border: 1px solid var(--border); border-radius: 8px;
       padding: 6px 10px; display: flex; flex-direction: column; gap: 6px;
     }
     .player-controls { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .btn-player {
-      background: #1e293b; border: 1px solid var(--border); color: #fff;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
       padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;
     }
-    .btn-player.active { background: var(--primary); border-color: var(--accent); }
+    .btn-player.active { background: var(--primary); border-color: var(--accent); color: #fff; }
     .speed-select {
       width: 70px; padding: 3px 5px; font-size: 11px; margin-bottom: 0;
-      background: #1e293b; border: 1px solid var(--border); border-radius: 5px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text);
     }
     .seek-slider {
       width: 100%; margin: 0; padding: 0; -webkit-appearance: none; height: 4px;
-      background: #334155; border-radius: 2px; outline: none;
+      background: var(--btn-sub-bg); border-radius: 2px; outline: none;
     }
     .seek-slider::-webkit-slider-thumb {
       -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
       background: var(--accent); cursor: pointer;
     }
 
+    .info-box-head {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 10px; color: var(--text-muted); font-weight: 700;
+      margin: 8px 0 3px;
+    }
+    .btn-copy {
+      background: var(--surface); border: 1px solid var(--border); color: var(--accent);
+      padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer;
+    }
+    .btn-copy:active { background: var(--btn-sub-bg); }
+    .btn-copy.copied { color: #22c55e; border-color: #22c55e; }
+
     .info-box {
-      background: #090d16; border: 1px solid var(--border); border-radius: 8px;
-      padding: 8px; font-family: monospace; font-size: 11px; color: var(--accent);
+      background: var(--report-bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px; font-family: monospace; font-size: 11px; color: var(--report-text);
       max-height: 130px; overflow-y: auto; white-space: pre-wrap; line-height: 1.45;
     }
     .legend { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); justify-content: flex-end; flex-wrap: wrap; }
     .legend span { display: flex; align-items: center; gap: 3px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; }
 
-    /* OCR 처리 중 로딩 팝업 */
     .ocr-overlay {
       display: none; position: fixed; inset: 0; background: rgba(9, 13, 22, 0.85);
       z-index: 100; flex-direction: column; align-items: center; justify-content: center;
@@ -178,110 +227,90 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .ocr-status { font-size: 13px; color: #fff; font-weight: 600; }
 
-    /* Duracarb 2026 재종표 */
-    .dura-2026-wrap { overflow-x:auto; margin-top:8px; border:1px solid var(--border); border-radius:10px; }
-    .dura-note{margin:0 0 8px;color:#fbbf24;font-size:11px;font-weight:700;line-height:1.5;}
-.dura-2026-table { width:958px; min-width:958px; max-width:none; table-layout:fixed; border-collapse:collapse; font-size:10.5px; text-align:left; }
-    .dura-2026-table col.kind { width:90px; }
-    .dura-2026-table col.color { width:48px; }
-    .dura-2026-table col.grade { width:100px; }
-    .dura-2026-table col.iso { width:120px; }
-    .dura-2026-table col.app { width:300px; }
-    .dura-2026-table col.comp { width:100px; }
-    .dura-2026-table th, .dura-2026-table td { padding:7px 7px; border-bottom:1px solid var(--border); border-right:1px solid var(--border); vertical-align:middle; box-sizing:border-box; }
-    .dura-2026-table th:last-child, .dura-2026-table td:last-child { border-right:none; }
-    .dura-2026-table th { background:#0f172a; color:var(--accent); white-space:nowrap; font-weight:800; text-align:center; vertical-align:middle; }
+    .dura-2026-wrap { width:100%; overflow-x:auto; box-sizing:border-box; margin-top:8px; border:1px solid var(--border); border-radius:10px; }
+    .dura-2026-table {
+      width:1168px; min-width:1168px; max-width:1168px;
+      table-layout:fixed; border-collapse:collapse;
+      font-size:10.5px; text-align:left; box-sizing:border-box;
+    }
+    .dura-2026-table col:nth-child(1) { width:90px; }
+    .dura-2026-table col:nth-child(2) { width:48px; }
+    .dura-2026-table col:nth-child(3) { width:100px; }
+    .dura-2026-table col:nth-child(4) { width:120px; }
+    .dura-2026-table col:nth-child(5),
+    .dura-2026-table col:nth-child(6),
+    .dura-2026-table col:nth-child(7),
+    .dura-2026-table col:nth-child(8),
+    .dura-2026-table col:nth-child(9) { width:42px; }
+    .dura-2026-table col:nth-child(10) { width:300px; }
+    .dura-2026-table col:nth-child(11),
+    .dura-2026-table col:nth-child(12),
+    .dura-2026-table col:nth-child(13) { width:100px; }
+
+    .dura-2026-table th, .dura-2026-table td {
+      padding:7px; border-bottom:1px solid var(--border); border-right:1px solid var(--border);
+      vertical-align:middle; box-sizing:border-box; margin:0;
+    }
+    .dura-2026-table th:last-child, .dura-2026-table td:last-child { border-right:1px solid var(--border); }
+    .dura-2026-table th { background:var(--thead-bg); color:var(--thead-text); white-space:nowrap; font-weight:800; text-align:center; }
     .dura-2026-table tr:last-child td { border-bottom:none; }
-    .dura-2026-table .dura-kind { width:90px; font-weight:800; color:#e2e8f0; background:rgba(255,255,255,.025); white-space:nowrap; text-align:center; vertical-align:middle; }
-    .dura-2026-table .dura-color { width:48px; min-width:48px; max-width:48px; text-align:center; vertical-align:middle; padding-left:7px; padding-right:7px; }
-    .dura-swatch { display:inline-block; width:18px; height:18px; border-radius:4px; border:1px solid rgba(255,255,255,.25); vertical-align:middle; }
+    .dura-2026-table .dura-kind { font-weight:800; color:var(--text); background:var(--row-even); white-space:nowrap; text-align:center; }
+    .dura-2026-table .dura-color { text-align:center; }
+    .dura-swatch { display:inline-block; width:18px; height:18px; border-radius:4px; border:1px solid rgba(128,128,128,.5); vertical-align:middle; }
     .dura-black { background:#111; }
     .dura-yellow { background:#facc15; }
     .dura-gray { background:#737373; }
     .dura-metal { background:linear-gradient(135deg,#d4d4d8,#71717a); }
-    .dura-grade { font-weight:900; color:#fff; white-space:nowrap; text-align:center; vertical-align:middle; }
-    .dura-iso { font-weight:800; line-height:1.45; white-space:nowrap; text-align:center; vertical-align:middle; }
-    .dura-p { color:#60a5fa; } .dura-m { color:#facc15; } .dura-k { color:#f87171; }
-    .dura-n { color:#4ade80; } .dura-s { color:#fb923c; } .dura-h { color:#c4b5fd; }
-    .dura-app { color:#e2e8f0; line-height:1.45; text-align:left; vertical-align:middle; width:300px; }
-    .dura-competitor { color:#cbd5e1; line-height:1.45; text-align:center; vertical-align:middle; }
-    .dura-note { margin-top:8px; color:var(--text-muted); font-size:9.5px; line-height:1.5; }
+    .dura-grade { font-weight:900; color:var(--text); white-space:nowrap; text-align:center; }
+    .dura-iso { font-weight:800; line-height:1.45; white-space:nowrap; text-align:center; }
+    .dura-p { color:#60a5fa; } .dura-m { color:#eab308; } .dura-k { color:#ef4444; }
+    .dura-n { color:#22c55e; } .dura-s { color:#f97316; } .dura-h { color:#a78bfa; }
+    .dura-app { color:var(--text); line-height:1.45; text-align:left; }
+    .dura-competitor { color:var(--text-muted); line-height:1.45; text-align:center; }
+    .dura-2026-table thead tr:nth-child(2) th:nth-child(-n+5) {
+      height:78px; padding:4px 2px;
+      writing-mode:vertical-rl; text-orientation:mixed;
+      text-align:center;
+    }
+    .dura-2026-table .dura-app-mark { padding:7px 2px; text-align:center; vertical-align:middle; }
+    .dura-app-dot { display:inline-block; color:var(--text-muted); font-size:16px; line-height:1; font-weight:900; }
 
-    /* G/M 코드 및 조건표 스타일 */
-    .data-table-wrap {
-      overflow-x: auto;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
+    .dura-filter-tabs { display:flex; gap:5px; flex-wrap:wrap; margin:8px 0 4px; }
+    .dura-filter-btn {
+      padding:5px 10px; font-size:11px; font-weight:700; border-radius:14px;
+      border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted);
+      cursor:pointer; transition:all 0.15s;
     }
-    .data-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11.5px;
-      text-align: left;
-    }
-    .data-table th, .data-table td {
-      padding: 8px 10px;
-      border-bottom: 1px solid var(--border);
-    }
-    .data-table th {
-      background: #0f172a;
-      color: var(--accent);
-      font-weight: 700;
-      white-space: nowrap;
-    }
+    .dura-filter-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
+    .dura-2026-table tr.dura-hidden { display:none; }
+
+    .data-table-wrap { overflow-x: auto; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left; }
+    .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .data-table th { background: var(--thead-bg); color: var(--thead-text); font-weight: 700; white-space: nowrap; }
     .data-table tr:last-child td { border-bottom: none; }
-    .data-table tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    .data-table tr:nth-child(even) { background: var(--row-even); }
 
     .code-tag {
-      display: inline-block;
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: monospace;
-      font-weight: bold;
-      white-space: nowrap;
+      display: inline-block; background: rgba(56, 189, 248, 0.15); color: var(--accent);
+      padding: 2px 6px; border-radius: 4px; font-family: monospace; font-weight: bold; white-space: nowrap;
     }
-    .badge {
-      display: inline-block;
-      font-size: 9.5px;
-      font-weight: 700;
-      padding: 2px 5px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
-    .badge-lathe { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
-    .badge-mct { background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4); }
-    .badge-common { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.4); }
-    .badge-m { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 5px; border-radius: 4px; white-space: nowrap; }
+    .badge-lathe { background: rgba(245, 158, 11, 0.2); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-mct { background: rgba(14, 165, 233, 0.2); color: #0284c7; border: 1px solid rgba(14, 165, 233, 0.4); }
+    .badge-common { background: rgba(148, 163, 184, 0.2); color: #64748b; border: 1px solid rgba(148, 163, 184, 0.4); }
+    .badge-m { background: rgba(239, 68, 68, 0.2); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.4); }
 
-    .filter-tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
     .tab-btn {
-      flex: 1;
-      padding: 7px 4px;
-      font-size: 11.5px;
-      font-weight: 700;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #090d16;
-      color: var(--text-muted);
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.15s;
+      flex: 1; padding: 7px 4px; font-size: 11.5px; font-weight: 700; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--input-bg); color: var(--text-muted);
+      cursor: pointer; text-align: center; transition: all 0.15s;
     }
-    .tab-btn.active {
-      background: var(--primary);
-      border-color: var(--accent);
-      color: #fff;
-    }
+    .tab-btn.active { background: var(--primary); border-color: var(--accent); color: #fff; }
 
     .material-tools { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0 8px; }
-    .material-tools input, .material-tools select { flex:1; min-width:120px; background:#090d16; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:8px; font-size:11px; }
+    .material-tools input, .material-tools select { flex:1; min-width:120px; background:var(--input-bg); color:var(--text); border:1px solid var(--border); border-radius:6px; padding:8px; font-size:11px; }
     .material-meta { font-size:10px; color:var(--text-muted); margin:6px 0; }
     .material-table { min-width: 760px; }
     .material-table th, .material-table td { white-space: nowrap; }
@@ -291,115 +320,48 @@
     .material-table th:nth-child(4), .material-table td:nth-child(4) { min-width: 105px; }
     .material-table th:nth-child(5), .material-table td:nth-child(5) { min-width: 65px; }
     .material-table th:nth-child(6), .material-table td:nth-child(6) { white-space:normal; min-width:150px; }
-    /* Duracarb CBN User Guide - mobile friendly */
+
     .cbn-guide-card { padding-bottom: 18px; }
     .cbn-guide-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:14px; }
     .cbn-kicker { font-size:10px; letter-spacing:.14em; color:var(--accent); font-weight:800; margin-bottom:3px; }
-    .cbn-guide-head h2 { font-size:20px; line-height:1.2; }
-    .cbn-page-badge { flex:none; padding:5px 8px; border:1px solid var(--border); border-radius:999px; color:var(--text-muted); font-size:10px; }
-    .cbn-example { padding:14px 12px; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg, rgba(56,189,248,.08), rgba(15,23,42,.7)); margin-bottom:12px; }
-    .cbn-example-code { font-size:clamp(20px,5.4vw,34px); font-weight:900; letter-spacing:.02em; word-spacing:20px; text-align:center; line-height:1.15; word-break:keep-all; }
+    .cbn-guide-head h2 { font-size:20px; line-height:1.2; color:var(--text); }
+    .cbn-example { padding:14px 12px; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg, rgba(56,189,248,.08), var(--card-bg)); margin-bottom:12px; }
+    .cbn-example-code { font-size:clamp(20px,5.4vw,34px); font-weight:900; letter-spacing:.02em; word-spacing:14px; text-align:center; line-height:1.15; word-break:keep-all; color:var(--text); }
     .cbn-example-code span { color:var(--accent); }
-    .cbn-code-map { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-top:10px; }
-    .cbn-code-map span { font-size:9px; text-align:center; color:var(--text-muted); }
-    .cbn-code-map b { display:block; color:var(--text); font-size:11px; margin-bottom:2px; }
-    .cbn-grid-top, .cbn-grid-bottom { display:grid; gap:10px; }
-    .cbn-example-map {
-      display:grid;
-      grid-template-columns:repeat(7, minmax(0, 1fr));
-      gap:6px;
-      margin-top:12px;
-    }
-    .cbn-example-map-five {
-      grid-template-columns:repeat(4, minmax(0, 1fr));
-      width:100%;
-      margin-left:0;
-      margin-right:0;
-    }
-    .cbn-example-item {
-      min-width:0;
-      text-align:center;
-      padding:7px 4px 8px;
-      border:1px solid var(--border);
-      border-radius:8px;
-      background:var(--surface);
-    }
-    .cbn-example-basic {
-      text-align:left;
-      padding-left:8px;
-      padding-right:8px;
-    }
-    .cbn-example-title, .cbn-example-num, .cbn-example-label {
-      font-size:9px;
-      color:var(--text-muted);
-      font-weight:700;
-      line-height:1.2;
-    }
-    .cbn-example-value {
-      margin-top:3px;
-      font-size:17px;
-      line-height:1.1;
-      font-weight:900;
-      color:var(--text);
-      letter-spacing:.2px;
-    }
+    .cbn-example-map { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:6px; margin-top:12px; }
+    .cbn-example-map-four { grid-template-columns:repeat(4, minmax(0, 1fr)); width:100%; margin-left:0; margin-right:0; }
+    .cbn-example-item { min-width:0; text-align:center; padding:7px 4px 8px; border:1px solid var(--border); border-radius:8px; background:var(--surface); }
+    .cbn-example-num, .cbn-example-label { font-size:9px; color:var(--text-muted); font-weight:700; line-height:1.2; }
+    .cbn-example-value { margin-top:3px; font-size:17px; line-height:1.1; font-weight:900; color:var(--text); letter-spacing:.2px; }
     .cbn-code-blue { color:#3b82f6; }
-    .cbn-example-basic .cbn-example-value {
-      font-size:13px;
-      letter-spacing:0;
-    }
-    .cbn-example-label {
-      margin-top:3px;
-      font-size:8.5px;
-    }
     .cbn-example-item .cbn-example-num,
-    .cbn-example-item .cbn-example-label {
-      display:inline;
-      vertical-align:middle;
+    .cbn-example-item .cbn-example-label { display:inline; vertical-align:middle; }
+    .cbn-example-item .cbn-example-label { margin-left:3px; }
+    .cbn-grid-row1 {
+      display:grid; gap:10px; margin-bottom:10px;
+      grid-template-columns: 0.65fr 0.85fr 1.15fr 1.5fr;
     }
-    .cbn-example-item .cbn-example-label {
-      margin-left:3px;
+    .cbn-grid-row2 {
+      display:grid; gap:10px;
+      grid-template-columns: 1fr 1fr;
     }
-    .cbn-example-grade {
-      grid-column:span 1;
-    }
-
-    .cbn-grid-top { grid-template-columns:repeat(3,1fr); margin-bottom:10px; }
-    .cbn-grid-bottom { grid-template-columns:1fr 1fr 1.25fr; }
-    .cbn-info-box { background:rgba(148,163,184,.08); border:1px solid var(--border); border-radius:10px; padding:11px; min-width:0; }
-    .cbn-info-box h3 { font-size:12px; margin-bottom:8px; }
-    .cbn-empty-box { min-height:112px; }
-    .cbn-empty-note { font-size:10px; color:var(--text-muted); line-height:1.5; }
-    .cbn-list { list-style:none; display:grid; gap:6px; font-size:11px; line-height:1.35; }
+    .cbn-info-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:11px; min-width:0; }
+    .cbn-info-box h3 { font-size:12px; margin-bottom:8px; color:var(--text); }
+    .cbn-list { list-style:none; display:grid; gap:6px; font-size:11px; line-height:1.35; color:var(--text); }
     .cbn-list li::before { content:'•'; color:var(--accent); margin-right:5px; }
-    .cbn-mini-table { width:100%; border-collapse:collapse; font-size:9.5px; background:rgba(15,23,42,.5); }
-    .cbn-mini-table th, .cbn-mini-table td { border:1px solid var(--border); padding:4px 3px; text-align:center; white-space:nowrap; }
+    .cbn-mini-table { width:100%; border-collapse:collapse; font-size:9.5px; background:var(--input-bg); }
+    .cbn-mini-table th, .cbn-mini-table td { border:1px solid var(--border); padding:4px 3px; text-align:center; white-space:nowrap; color:var(--text); }
     .cbn-mini-table th { background:rgba(250,204,21,.82); color:#111827; font-weight:800; }
-    .cbn-mini-table td { background:rgba(255,255,255,.03); }
+    .cbn-mini-table td { background:var(--row-even); }
     .cbn-angle-table td:first-child, .cbn-angle-table th:first-child { width:42%; }
-    .cbn-honing-diagram { position:relative; height:92px; margin:10px 0; border:1px solid var(--border); border-radius:10px; background:rgba(148,163,184,.06); overflow:hidden; }
-    .diagram-line { position:absolute; height:1px; background:var(--text-muted); transform-origin:left center; }
-    .diagram-main { left:8%; top:48%; width:45%; }
-    .diagram-slant { left:31%; top:48%; width:25%; transform:rotate(22deg); }
-    .diagram-honing-line { left:56%; top:49%; width:18%; transform:rotate(-90deg); }
-    .diagram-angle-line { left:56%; top:49%; width:13%; transform:rotate(-145deg); }
-    .diagram-label { position:absolute; font-size:9px; color:var(--text-muted); font-weight:700; }
-    .diagram-length { left:28%; top:14%; }
-    .diagram-honing { left:57%; top:15%; }
-    .diagram-angle { left:66%; top:57%; }
     .cbn-grade-section { margin-top:12px; }
-    .cbn-grade-subtitle { font-size:10px; color:var(--text-muted); margin:-3px 0 10px; }
     .cbn-grade-group-title { font-size:12px; font-weight:800; color:var(--text); margin:12px 0 6px; }
     .cbn-grade-table-wrap { margin-top:0; }
     .cbn-grade-table { font-size:10.5px; }
     .cbn-grade-table th, .cbn-grade-table td { padding:7px 7px; vertical-align:top; }
-    .cbn-grade-table th { white-space:nowrap; }
     .cbn-grade-table td:nth-child(1), .cbn-grade-table td:nth-child(2), .cbn-grade-table td:nth-child(3) { white-space:nowrap; }
     .cbn-recommend { color:var(--accent); font-size:9.5px; font-weight:700; }
-    .cbn-note { margin-top:12px; padding:9px 10px; border-radius:8px; background:rgba(56,189,248,.06); color:var(--text-muted); font-size:10px; line-height:1.55; }
 
-    /* ISO 그룹 색상 - 배경/테두리 없이 글자 색상만 표시 */
-    .iso-badge { display:inline; min-width:0; padding:0; margin-right:4px; border:0; border-radius:0; background:none !important; font-weight:900; font-size:11px; white-space:nowrap; }
     .iso-p { color:#3b82f6; }
     .iso-m { color:#eab308; }
     .iso-k { color:#ef4444; }
@@ -407,7 +369,6 @@
     .iso-s { color:#f97316; }
     .iso-h { color:#a8a29e; }
     .material-table .material-group-cell { white-space:nowrap; font-weight:700; }
-    .material-table .material-group-cell strong { font-weight:800; }
     .material-table .iso-row-p { color:#3b82f6; }
     .material-table .iso-row-m { color:#eab308; }
     .material-table .iso-row-k { color:#ef4444; }
@@ -417,10 +378,8 @@
     .iso-cell { font-weight:700; }
 
     @media (max-width: 680px) {
-      .cbn-grid-top { grid-template-columns:1fr; }
-      .cbn-grid-bottom { grid-template-columns:1fr; }
-      .cbn-grade-box { width:100%; }
-      .cbn-code-map { grid-template-columns:repeat(4,1fr); row-gap:8px; }
+      .cbn-grid-row1 { grid-template-columns: 1fr 1fr; }
+      .cbn-grid-row2 { grid-template-columns: 1fr; }
       .cbn-mini-table { font-size:10px; }
       .cbn-mini-table th, .cbn-mini-table td { padding:5px 3px; }
       .cbn-grade-table { font-size:10px; }
@@ -428,138 +387,10 @@
       .cbn-grade-table td:nth-child(4) { white-space:normal; line-height:1.4; }
     }
 
-    .discount-rounded {
-      font-size: 11px;
-      color: var(--accent);
-      margin: 0 0 5px 2px;
-      min-height: 14px;
-    }
-  </style>
-<style>
-/* Duracarb 2026 table refinement - fixed by colgroup */
-.dura-2026-wrap{width:100%;overflow-x:auto;box-sizing:border-box;}
-.dura-2026-table{width:980px !important;min-width:980px !important;max-width:980px !important;table-layout:fixed !important;border-collapse:collapse !important;box-sizing:border-box !important;}
-.dura-2026-table th,.dura-2026-table td{box-sizing:border-box !important;padding:7px !important;margin:0 !important;border-right:1px solid var(--border) !important;border-bottom:1px solid var(--border) !important;vertical-align:middle !important;}
-.dura-2026-table th{text-align:center !important;}
-.dura-2026-table col:nth-child(1){width:90px !important;}
-.dura-2026-table col:nth-child(2){width:48px !important;}
-.dura-2026-table col:nth-child(3){width:100px !important;}
-.dura-2026-table col:nth-child(4){width:120px !important;}
-.dura-2026-table col:nth-child(5){width:322px !important;}
-.dura-2026-table col:nth-child(6),.dura-2026-table col:nth-child(7),.dura-2026-table col:nth-child(8){width:100px !important;}
-.dura-2026-table .dura-color{width:48px !important;min-width:48px !important;max-width:48px !important;text-align:center !important;}
-.dura-2026-table .dura-app{width:322px !important;}
-.dura-2026-table th:last-child,.dura-2026-table td:last-child{border-right:none !important;}
-</style><style id="dura-final-fix">
-.dura-2026-wrap{width:100%;overflow-x:auto;box-sizing:border-box;}
-.dura-2026-table{width:980px !important;min-width:980px !important;max-width:980px !important;table-layout:fixed !important;border-collapse:collapse !important;box-sizing:border-box !important;}
-.dura-2026-table col:nth-child(1){width:90px !important;}
-.dura-2026-table col:nth-child(2){width:48px !important;}
-.dura-2026-table col:nth-child(3){width:100px !important;}
-.dura-2026-table col:nth-child(4){width:120px !important;}
-.dura-2026-table col:nth-child(5){width:322px !important;}
-.dura-2026-table col:nth-child(6),.dura-2026-table col:nth-child(7),.dura-2026-table col:nth-child(8){width:100px !important;}
-.dura-2026-table th,.dura-2026-table td{box-sizing:border-box !important;padding:7px !important;margin:0 !important;border-right:1px solid var(--border) !important;border-bottom:1px solid var(--border) !important;}
-.dura-2026-table th:nth-child(1),.dura-2026-table td:nth-child(1){width:90px !important;}
-.dura-2026-table th:nth-child(2),.dura-2026-table td:nth-child(2){width:48px !important;min-width:48px !important;max-width:48px !important;text-align:center !important;}
-.dura-2026-table th:nth-child(3),.dura-2026-table td:nth-child(3){width:100px !important;}
-.dura-2026-table th:nth-child(4),.dura-2026-table td:nth-child(4){width:120px !important;}
-.dura-2026-table th:nth-child(5),.dura-2026-table td:nth-child(5){width:322px !important;}
-.dura-2026-table th:nth-child(6),.dura-2026-table td:nth-child(6),.dura-2026-table th:nth-child(7),.dura-2026-table td:nth-child(7),.dura-2026-table th:nth-child(8),.dura-2026-table td:nth-child(8){width:100px !important;}
-.dura-2026-table .dura-color{width:48px !important;min-width:48px !important;max-width:48px !important;text-align:center !important;}
-.dura-2026-table .dura-app{width:322px !important;}
-.dura-2026-table th:last-child,.dura-2026-table td:last-child{border-right:none !important;}
-</style>
-<style>
-.dura-2026-table col.color { width:48px !important; }
-.dura-2026-table td.dura-color, .dura-2026-table th:nth-child(2) { width:48px !important; min-width:48px !important; max-width:48px !important; padding-left:0 !important; padding-right:0 !important; text-align:center !important; }
-.dura-2026-table td.dura-color { box-sizing:border-box !important; }
-</style><style>
-.dura-2026-table td.dura-color,
-.dura-2026-table th.dura-color {
-  width:48px !important;
-  min-width:48px !important;
-  max-width:48px !important;
-  padding:7px 7px !important;
-  box-sizing:border-box !important;
-  text-align:center !important;
-  vertical-align:middle !important;
-}
-.dura-2026-table td.dura-grade {
-  width:100px !important;
-  min-width:100px !important;
-  max-width:100px !important;
-  box-sizing:border-box !important;
-}
-</style>
-<style id="dura-application-fix">
-/* PDF의 '어플리케이션' 5개 분류(터닝/밀링/드릴링/컷그립/엔드밀) 반영 */
-.dura-2026-wrap{width:100%;overflow-x:auto;box-sizing:border-box;}
-.dura-2026-table{
-  width:1168px !important;
-  min-width:1168px !important;
-  max-width:1168px !important;
-  table-layout:fixed !important;
-  border-collapse:collapse !important;
-}
-.dura-2026-table col:nth-child(1){width:90px !important;}
-.dura-2026-table col:nth-child(2){width:48px !important;}
-.dura-2026-table col:nth-child(3){width:100px !important;}
-.dura-2026-table col:nth-child(4){width:120px !important;}
-.dura-2026-table col:nth-child(5),
-.dura-2026-table col:nth-child(6),
-.dura-2026-table col:nth-child(7),
-.dura-2026-table col:nth-child(8),
-.dura-2026-table col:nth-child(9){width:42px !important;}
-.dura-2026-table col:nth-child(10){width:300px !important;}
-.dura-2026-table col:nth-child(11),
-.dura-2026-table col:nth-child(12),
-.dura-2026-table col:nth-child(13){width:100px !important;}
-
-.dura-2026-table th,
-.dura-2026-table td{
-  box-sizing:border-box !important;
-  padding:7px !important;
-  vertical-align:middle !important;
-}
-.dura-2026-table thead tr:nth-child(2) th:nth-child(-n+5){
-  width:42px !important;
-  min-width:42px !important;
-  max-width:42px !important;
-  height:78px !important;
-  padding:4px 2px !important;
-  writing-mode:vertical-rl;
-  text-orientation:mixed;
-  text-align:center !important;
-}
-.dura-2026-table .dura-app-mark{
-  width:42px !important;
-  min-width:42px !important;
-  max-width:42px !important;
-  padding:7px 2px !important;
-  text-align:center !important;
-  vertical-align:middle !important;
-}
-.dura-app-dot{
-  display:inline-block;
-  color:#6b7280;
-  font-size:16px;
-  line-height:1;
-  font-weight:900;
-}
-.dura-2026-table .dura-app{
-  width:300px !important;
-  min-width:300px !important;
-  max-width:300px !important;
-  color:#e2e8f0;
-  line-height:1.45;
-  text-align:left;
-  vertical-align:middle;
-}
+    .discount-rounded { font-size: 11px; color: var(--accent); margin: 0 0 5px 2px; min-height: 14px; }
 </style>
 </head>
 <body>
-<!-- OCR 진행 오버레이 -->
 <div class="ocr-overlay" id="ocrOverlay">
 <div class="ocr-spinner"></div>
 <div class="ocr-status" id="ocrStatus">모니터 사진을 분석하는 중... (0%)</div>
@@ -572,12 +403,8 @@
 <div class="hbc-role">Support Tool</div>
 </div>
 <div class="hbc-bottom">
-<div class="hbc-row">
-<span>📱 <a href="tel:01065992582">---------------------------------</a></span>
-</div>
-<div class="hbc-row">
-<span>✉ <a href="mailto:gurmmania@gmail.com"><strong>--------------------------------</strong></a></span>
-</div>
+<div class="hbc-row"><span>📱 <a href="tel:01065992582">---------------------------------</a></span></div>
+<div class="hbc-row"><span>✉ <a href="mailto:gurmmania@gmail.com"><strong>--------------------------------</strong></a></span></div>
 </div>
 </div>
 <button class="btn-back" id="btnHome" onclick="goHome()" style="display: none;">‹ 홈으로</button>
@@ -585,92 +412,57 @@
 <div class="container">
 <div id="view-main">
 <div class="main-grid">
-<div class="menu-btn" onclick="openView('lathe-path')">
-          CNC 선반 경로
-          <span>2축 가공 &amp; C/T 시뮬레이터</span>
-</div>
-<div class="menu-btn" onclick="openView('mct-path')">
-          MCT 밀링 경로
-          <span>3축 가공 &amp; C/T 시뮬레이터</span>
-</div>
-<div class="menu-btn" onclick="openView('lathe-calc')">
-          선반 절삭조건 계산
-          <span>Vc ↔ RPM &amp; 조도(Rz)</span>
-</div>
-<div class="menu-btn" onclick="openView('mct-calc')">
-          밀링 절삭조건 계산
-          <span>N ↔ Vc &amp; F ↔ Fz &amp; 공출량(Q)</span>
-</div>
-<!-- 5번: 듀라카브 2026 재종표 -->
-<div class="menu-btn" onclick="openView('duracarb-2026')">
-          Duracarb 재종표
-          <span>2026년 &amp; 타 메이커 대응</span>
-</div>
-<div class="menu-btn" onclick="openView('mat-calc')">
-          재질별 절삭조건
-          <span>ISO 그룹별 권장 &amp; 재질 대응표</span>
-</div>
-<div class="menu-btn" onclick="openView('discount-calc')">
-          할인율 계산기
-          <span>정가별 할인 &amp; 납품가</span>
-</div>
-<div class="menu-btn" onclick="openView('cbn-guide')">
-          Duracarb CBN
-          <span>인서트 규격 선정법 · CBN User Guide</span>
-</div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">
-          Duracarb 터닝
-        </div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">
-          Duracarb 밀링
-        </div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">
-          Duracarb 홈 가공
-        </div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">
-          Duracarb 드릴링
-        </div>
-<div class="menu-btn" onclick="openView('gcode-calc')">
-          G / M 코드 일람
-          <span>선반 &amp; MCT 사이클 분류</span>
-</div>
-<div class="menu-btn" onclick="openView('future-update')">
-          추후 업데이트 예정
-        </div>
+<div class="menu-btn" onclick="openView('lathe-path')">CNC 선반 경로<span>2축 가공 &amp; C/T 시뮬레이터</span></div>
+<div class="menu-btn" onclick="openView('mct-path')">MCT 밀링 경로<span>3축 가공 &amp; C/T 시뮬레이터</span></div>
+<div class="menu-btn" onclick="openView('lathe-calc')">선반 절삭조건 계산<span>Vc ↔ RPM &amp; 조도(Rz)</span></div>
+<div class="menu-btn" onclick="openView('mct-calc')">밀링 절삭조건 계산<span>N ↔ Vc &amp; F ↔ Fz &amp; 공출량(Q)</span></div>
+<div class="menu-btn" onclick="openView('duracarb-2026')">Duracarb 재종표<span>2026년 &amp; 타 메이커 대응</span></div>
+<div class="menu-btn" onclick="openView('mat-calc')">재질별 절삭조건<span>ISO 그룹별 권장 &amp; 재질 대응표</span></div>
+<div class="menu-btn" onclick="openView('discount-calc')">할인율 계산기<span>정가별 할인 &amp; 납품가</span></div>
+<div class="menu-btn" onclick="openView('cbn-guide')">Duracarb CBN<span>CBN User Guide</span></div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">Duracarb 터닝<span>공식 사이트 · Turning</span></div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">Duracarb 밀링<span>공식 사이트 · Milling</span></div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">Duracarb 홈 가공<span>공식 사이트 · Grooving</span></div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">Duracarb 드릴링<span>공식 사이트 · Drilling</span></div>
+<div class="menu-btn" onclick="openView('gcode-calc')">G / M 코드 일람<span>선반 &amp; MCT 분류</span></div>
+<div class="menu-btn" onclick="toggleTheme()">모드 변경<span>Dark Mode &amp; Light Mode</span></div>
 </div>
 <div class="home-footer-note">
-<strong>사진인식 안됩니다.</strong><br/> 
+<strong>사진인식 안됩니다.</strong><br/>
         따로 카메라로 사진 찍으시고 AI로 텍스트 추출 후<br/>
         복사 붙여놓기로 경로 보는 것을 추천합니다.<br/>
 <br/>
 <strong>혹시 모르니 공유하시면 절대 안됩니다.</strong><br/>
         쓰다 문제 생길 시 책임 안집니다ㅎㅎㅎ <br/>
         계산기 쓰시고 주소는 https://uunu88.github.io/calc/ 입니다.
-        
       </div>
 </div>
-<!-- 1. CNC 선반 화면 -->
+
+<!-- CNC 선반 화면 -->
 <div class="sub-view" id="view-lathe-path">
 <div class="card">
 <div class="card-head-row">
 <label>선반 G코드 (사진 인식 / 파일 드롭)</label>
 <div class="head-actions">
-<button class="btn-cam-ocr" onclick="document.getElementById('latheCameraInput').click()">📷 사진 인식</button>
+<button class="btn-file-load" onclick="document.getElementById('latheCameraInput').click()">📷 사진 인식</button>
 <input accept="image/*" capture="environment" id="latheCameraInput" onchange="handleImageOCR(event, 'latheGcode')" style="display:none;" type="file"/>
 <button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">📁 NC 파일</button>
 <input accept=".nc,.txt,.tap,.gcode" id="latheFileInput" onchange="loadFileContent(event, 'latheGcode')" style="display:none;" type="file"/>
+<button class="btn-file-load" onclick="loadLathePreset()">예제</button>
 </div>
 </div>
 <textarea id="latheGcode" onclick="debouncedSyncLathe(this)" onkeyup="debouncedSyncLathe(this)" placeholder="선반 G코드를 붙여넣거나 [📷 사진 인식]으로 CNC 화면을 촬영하세요..."></textarea>
 <div class="btn-row" style="margin-top: 4px;">
 <button class="btn-run" onclick="parseAndDrawLathe()">경로 생성</button>
 <button class="btn-sub" onclick="resetLatheView()">화면 맞춤</button>
+<button class="btn-sub btn-clear" onclick="clearGcode('latheGcode','lathe')">지우기</button>
 </div>
 <div class="legend" style="margin-top:5px;">
 <span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
 <span><span class="dot" style="background:#ffffff;"></span>절삭</span>
+<span><span class="dot" style="background:#22c55e;"></span>G71/G76</span>
 <span><span class="dot" style="background:#00ffff;"></span>선택블록</span>
-<span style="color:#94a3b8;">휠/핀치: 줌, 드래그: 이동</span>
+<span style="color:var(--text-muted);">휠/핀치: 줌, 드래그: 이동</span>
 </div>
 </div>
 <div class="viewport" id="latheBox"><canvas id="latheCanvas"></canvas></div>
@@ -684,38 +476,42 @@
 <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
 <span>속도</span>
 <select class="speed-select" id="latheSpeed">
-<option value="2">2 배속</option>
+<option selected="" value="2">2 배속</option>
 <option value="5">5 배속</option>
-<option selected="" value="10">10 배속</option>
+<option value="10">10 배속</option>
 <option value="20">20 배속</option>
 </select>
 </div>
 </div>
 </div>
+<div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyLatheReport" onclick="copyReport('latheReport','copyLatheReport')">📋 복사</button></div>
 <div class="info-box" id="latheReport">G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.</div>
 </div>
-<!-- 2. MCT 밀링 화면 -->
+
+<!-- MCT 밀링 화면 -->
 <div class="sub-view" id="view-mct-path">
 <div class="card">
 <div class="card-head-row">
 <label>MCT 3축 G코드 (사진 인식 &amp; C/T 연산)</label>
 <div class="head-actions">
-<button class="btn-cam-ocr" onclick="document.getElementById('mctCameraInput').click()">📷 사진 인식</button>
+<button class="btn-file-load" onclick="document.getElementById('mctCameraInput').click()">📷 사진 인식</button>
 <input accept="image/*" capture="environment" id="mctCameraInput" onchange="handleImageOCR(event, 'mctGcode')" style="display:none;" type="file"/>
 <button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">📁 NC 파일</button>
 <input accept=".nc,.txt,.tap,.gcode" id="mctFileInput" onchange="loadFileContent(event, 'mctGcode')" style="display:none;" type="file"/>
+<button class="btn-file-load" onclick="loadMctPreset()">예제</button>
 </div>
 </div>
 <textarea id="mctGcode" onclick="debouncedSyncMct(this)" onkeyup="debouncedSyncMct(this)" placeholder="MCT 3축 G코드를 붙여넣거나 [📷 사진 인식]으로 화면을 촬영하세요..."></textarea>
 <div class="btn-row" style="margin-top: 4px;">
 <button class="btn-run" onclick="parseAndDrawMCT()">3D 경로 생성</button>
 <button class="btn-sub" onclick="resetMctView()">뷰 리셋</button>
+<button class="btn-sub btn-clear" onclick="clearGcode('mctGcode','mct')">지우기</button>
 </div>
 <div class="legend" style="margin-top:5px;">
 <span><span class="dot" style="background:#facc15;"></span>G00(급속)</span>
 <span><span class="dot" style="background:#ffffff;"></span>G01/원호(절삭)</span>
 <span><span class="dot" style="background:#00ffff;"></span>선택선</span>
-<span style="color:#94a3b8;">1손가락: 궤도회전 / 2손가락: 줌</span>
+<span style="color:var(--text-muted);">1손가락: 궤도회전 / 2손가락: 줌</span>
 </div>
 </div>
 <div class="viewport" id="mctBox"><canvas id="mctCanvas"></canvas></div>
@@ -729,17 +525,19 @@
 <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
 <span>속도</span>
 <select class="speed-select" id="mctSpeed">
-<option value="2">2 배속</option>
+<option selected="" value="2">2 배속</option>
 <option value="5">5 배속</option>
-<option selected="" value="10">10 배속</option>
+<option value="10">10 배속</option>
 <option value="20">20 배속</option>
 </select>
 </div>
 </div>
 </div>
+<div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyMctReport" onclick="copyReport('mctReport','copyMctReport')">📋 복사</button></div>
 <div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
 </div>
-<!-- 3. CNC 선반 계산기 -->
+
+<!-- CNC 선반 계산기 -->
 <div class="sub-view" id="view-lathe-calc">
 <div class="card">
 <label>가공 직경 Φ (mm)</label>
@@ -753,101 +551,87 @@
 <label>인서트 노즈 R (mm)</label>
 <input id="l_nr" oninput="calcLathe(1)" placeholder="예: 0.8" step="0.4" type="number"/>
 </div>
+<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyLatheCalc" onclick="copyReport('latheCalcReport','copyLatheCalc')">📋 복사</button></div>
 <div class="info-box" id="latheCalcReport">입력하면 실시간 상호 산출됩니다.</div>
 </div>
-<!-- 4. 밀링 계산기 -->
+
+<!-- 밀링 계산기 -->
 <div class="sub-view" id="view-mct-calc">
 <div class="card">
 <div class="input-grid-2">
-<div>
-<label>직경 Φ (mm)</label>
-<input id="m_dia" oninput="onMctDiaChange()" placeholder="예: 10" type="number"/>
-</div>
-<div>
-<label>날 수 (Z)</label>
-<input id="m_teeth" oninput="onMctTeethChange()" placeholder="예: 4" type="number"/>
-</div>
+<div><label>직경 Φ (mm)</label><input id="m_dia" oninput="onMctDiaChange()" placeholder="예: 10" type="number"/></div>
+<div><label>날 수 (Z)</label><input id="m_teeth" oninput="onMctTeethChange()" placeholder="예: 4" type="number"/></div>
 </div>
 <div class="input-grid-2">
-<div>
-<label>주축 회전수 N (RPM)</label>
-<input id="m_rpm" oninput="calcMctParam(2)" placeholder="예: 3820" type="number"/>
-</div>
-<div>
-<label>절삭속도 Vc (m/min)</label>
-<input id="m_vc" oninput="calcMctParam(1)" placeholder="예: 120" type="number"/>
-</div>
+<div><label>주축 회전수 N (RPM)</label><input id="m_rpm" oninput="calcMctParam(2)" placeholder="예: 3820" type="number"/></div>
+<div><label>절삭속도 Vc (m/min)</label><input id="m_vc" oninput="calcMctParam(1)" placeholder="예: 120" type="number"/></div>
 </div>
 <div class="input-grid-2">
-<div>
-<label>이송 FEED (F mm/min)</label>
-<input id="m_feed" oninput="calcMctFeed(2)" placeholder="예: 764" type="number"/>
-</div>
-<div>
-<label>날당 이송 Fz (mm/t)</label>
-<input id="m_fz" oninput="calcMctFeed(1)" placeholder="예: 0.05" step="0.005" type="number"/>
-</div>
+<div><label>이송 FEED (F mm/min)</label><input id="m_feed" oninput="calcMctFeed(2)" placeholder="예: 764" type="number"/></div>
+<div><label>날당 이송 Fz (mm/t)</label><input id="m_fz" oninput="calcMctFeed(1)" placeholder="예: 0.05" step="0.005" type="number"/></div>
 </div>
 <div class="input-grid-2">
-<div>
-<label>절삭 폭 ae (mm)</label>
-<input id="m_ae" oninput="updateMctChipRate()" placeholder="예: 5" type="number"/>
-</div>
-<div>
-<label>절삭 깊이 ap (mm)</label>
-<input id="m_ap" oninput="updateMctChipRate()" placeholder="예: 2" type="number"/>
+<div><label>절삭 폭 ae (mm)</label><input id="m_ae" oninput="updateMctChipRate()" placeholder="예: 5" type="number"/></div>
+<div><label>절삭 깊이 ap (mm)</label><input id="m_ap" oninput="updateMctChipRate()" placeholder="예: 2" type="number"/></div>
 </div>
 </div>
-</div>
+<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">📋 복사</button></div>
 <div class="info-box" id="mctCalcReport">입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
 </div>
-<!-- 5. Duracarb 2026 재종표 -->
+
+<!-- Duracarb 2026 재종표 -->
 <div class="sub-view" id="view-duracarb-2026">
 <div class="card">
+<div class="dura-filter-tabs" id="duraFilterTabs">
+<button class="dura-filter-btn active" data-app="all" onclick="setDuraFilter('all', this)">전체</button>
+<button class="dura-filter-btn" data-app="turn" onclick="setDuraFilter('turn', this)">터닝</button>
+<button class="dura-filter-btn" data-app="mill" onclick="setDuraFilter('mill', this)">밀링</button>
+<button class="dura-filter-btn" data-app="drill" onclick="setDuraFilter('drill', this)">드릴링</button>
+<button class="dura-filter-btn" data-app="cut" onclick="setDuraFilter('cut', this)">컷그립</button>
+<button class="dura-filter-btn" data-app="end" onclick="setDuraFilter('end', this)">엔드밀</button>
+</div>
 <div class="dura-2026-wrap">
-<table class="dura-2026-table">
+<table class="dura-2026-table" id="duraTable">
 <colgroup><col class="kind"/><col class="color"/><col class="grade"/><col class="iso"/><col class="appmark"/><col class="appmark"/><col class="appmark"/><col class="appmark"/><col class="appmark"/><col class="appdesc"/><col class="comp"/><col class="comp"/><col class="comp"/></colgroup>
-<div class="dura-note"></div><thead><tr><th rowspan="2">구분</th><th rowspan="2">색상</th><th rowspan="2">재종</th><th rowspan="2">ISO 적용범위</th><th colspan="5">어플리케이션</th><th rowspan="2">피삭재 적용 / 추천 가공</th><th rowspan="2">TaeguTec</th><th colspan="2">경쟁사 대응 규격</th></tr><tr><th>터닝</th><th>밀링</th><th>드릴링</th><th>컷그립</th><th>엔드밀</th><th>Korloy</th><th>Kyocera</th></tr></thead>
+<thead><tr><th rowspan="2">구분</th><th rowspan="2">색상</th><th rowspan="2">재종</th><th rowspan="2">ISO 적용범위</th><th colspan="5">어플리케이션</th><th rowspan="2">피삭재 적용 / 추천 가공</th><th rowspan="2">TaeguTec</th><th colspan="2">경쟁사 대응 규격</th></tr><tr><th>터닝</th><th>밀링</th><th>드릴링</th><th>컷그립</th><th>엔드밀</th><th>Korloy</th><th>Kyocera</th></tr></thead>
 <tbody>
-<tr><td class="dura-kind" rowspan="7">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC820</td><td class="dura-iso dura-k">K10 - K20</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">회주철, 덕타일주철의 일반 터닝</td><td class="dura-competitor">TT7015</td><td class="dura-competitor">NC6110</td><td class="dura-competitor">CA4515</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9005</td><td class="dura-iso dura-p">P05 - P15</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 초고속 연속 터닝</td><td class="dura-competitor">TT8105</td><td class="dura-competitor">NC3205</td><td class="dura-competitor">CA5505<br/>CA510</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9015</td><td class="dura-iso dura-p">P10 - P25</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 고속 터닝</td><td class="dura-competitor">TT8115</td><td class="dura-competitor">NC3010</td><td class="dura-competitor">VP5115<br/>CA5515</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9025</td><td class="dura-iso dura-p">P15 - P35</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 터닝</td><td class="dura-competitor">TT8125</td><td class="dura-competitor">NC3120</td><td class="dura-competitor">VP5125<br/>CA5525</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC8035</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M30 - M40</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">연강, 저탄소 합금강의 중삭 터닝<br/>스테인리스강의 중속 및 저속 가공</td><td class="dura-competitor">TT5100<br/>TT9225</td><td class="dura-competitor">NC9025</td><td class="dura-competitor">CP5530<br/>CA6525</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7040</td><td class="dura-iso dura-p">P10 - P30</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">탄소강, 합금강의 드릴 가공용</td><td class="dura-competitor">TT7400</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7800</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M45</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">탄소강, 합금강의 황삭 가공<br/>스테인리스강의 중속 가공</td><td class="dura-competitor">TT8525B</td><td class="dura-competitor">NCM535<br/>PC5300</td><td class="dura-competitor">CA6535<br/>PR1535</td></tr>
-<tr><td class="dura-kind" rowspan="13">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5010</td><td class="dura-iso"><span class="dura-m">M05 - M25</span><br/><span class="dura-s">S05 - S25</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">스테인리스강 및 내열합금의 광범위한 터닝</td><td class="dura-competitor">TT5030</td><td class="dura-competitor">PC8110</td><td class="dura-competitor">PR1005<br/>PR930</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9320</td><td class="dura-iso"><span class="dura-p">P05 - P25</span><br/><span class="dura-k">K05 - K25</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 밀링<br/>주철의 급단속 밀링</td><td class="dura-competitor">TT7080</td><td class="dura-competitor">PC3600</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC7070</td><td class="dura-iso dura-p">P20 - P40</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 밀링</td><td class="dura-competitor">TT7070</td><td class="dura-competitor">PC3500</td><td class="dura-competitor">PP8030</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP7320</td><td class="dura-iso dura-k">K05 - K20</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">덕타일 주철과 회주철의 일반가공</td><td class="dura-competitor">TT6080</td><td class="dura-competitor">PC6510</td><td class="dura-competitor">PK9105</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP5320</td><td class="dura-iso"><span class="dura-p">P15 - P35</span><br/><span class="dura-m">M10 - M30</span><br/><span class="dura-s">S15 - S25</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강, 내열합금강의 일반가공<br/>금형강의 중삭과 황삭 가공</td><td class="dura-competitor">TT9080</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP8330</td><td class="dura-iso"><span class="dura-p">P30 - P50</span><br/><span class="dura-m">M30 - M50</span><br/><span class="dura-s">S30 - S50</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강의 단속 및 황삭 가공<br/>내열 합금의 저속 및 단속 가공</td><td class="dura-competitor">TT8080</td><td class="dura-competitor">PC9035<br/>PC5300</td><td class="dura-competitor">PR1535<br/>PR1225</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC9800</td><td class="dura-iso"><span class="dura-p">P15 - P35</span><br/><span class="dura-m">M10 - M30</span><br/><span class="dura-k">K10 - K30</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">강과 스테인리스강 일반 가공용 재종</td><td class="dura-competitor">TT9030</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PP8030</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5030</td><td class="dura-iso"><span class="dura-m">M05 - M30</span><br/><span class="dura-p">P10 - P30</span><br/><span class="dura-s">S10 - S20</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강과 스테인리스강 중, 황삭에 적합<br/>드릴가공에서 뛰어난 내마모성</td><td class="dura-competitor">TT9130</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PR830<br/>PR925<br/>PR1025</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DP5015<br/>(DC980N)</td><td class="dura-iso"><span class="dura-p">P10 - P30</span><br/><span class="dura-m">M15 - M30</span><br/><span class="dura-k">K10 - K30</span><br/><span class="dura-s">S10 - S40</span><br/><span class="dura-h">H10 - H30</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">합금강, 프리하든강, 스테인리스강, 내열합금강의 가공용 (40&lt;HRC&lt;55)<br/>중속 및 고속 가공용</td><td class="dura-competitor">TT5515</td><td class="dura-competitor">YG-1<br/>X-POWER S</td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DP5025</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M20 - M40</span><br/><span class="dura-s">S20 - S40</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">탄소강, 합금강, 스테인리스강, 내열합금강의 일반가공용 (&lt;40 HRC)<br/>중속 및 고속 가공용</td><td class="dura-competitor">TT5525</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9020</td><td class="dura-iso"><span class="dura-p">P25 - P45</span><br/><span class="dura-m">M25 - M45</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 절삭용</td><td class="dura-competitor">TT7210</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC9235</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M40</span><br/><span class="dura-s">S30 - S40</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">스테인리스강, 내열합금, 저탄소강 등의 단속 및 중·저속용 고인성 재종</td><td class="dura-competitor">TT8020</td><td class="dura-competitor">PC5300</td><td class="dura-competitor">PM9915<br/>PM0015</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC154</td><td class="dura-iso dura-p">P20 - P35</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강의 경·중절삭 및 황삭용</td><td class="dura-competitor">TT7220</td><td class="dura-competitor">PC3535</td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-kind" rowspan="4">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DN9020</td><td class="dura-iso dura-p">P15 - P25</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 절삭용</td><td class="dura-competitor">P20</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC325M</td><td class="dura-iso dura-p">P30 - P40</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">P30</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC210</td><td class="dura-iso dura-k">K10</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">주철 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">K10</td><td class="dura-competitor">H01</td><td class="dura-competitor">VK10</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC208<br/>(DC210)</td><td class="dura-iso dura-n">N10</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">알루미늄, 비철금속의 일반 가공<br/>비코팅</td><td class="dura-competitor">UF10</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
-<tr><td class="dura-kind" rowspan="2">서멧</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC610</td><td class="dura-iso"><span class="dura-p">P05 - P15</span><br/><span class="dura-m">M05 - M15</span><br/><span class="dura-k">K05 - K15</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강, 주철, 스테인리스강의 정삭<br/>강의 일반 석삭 및 홈 절삭</td><td class="dura-competitor">CT3000</td><td class="dura-competitor">CN1000</td><td class="dura-competitor">TN60</td></tr>
-<tr><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DPT110</td><td class="dura-iso"><span class="dura-p">P05 - P20</span><br/><span class="dura-m">M05 - M20</span><br/><span class="dura-k">K05 - K20</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강 및 주철의 고속 정삭 가공<br/>양호한 표면 조도</td><td class="dura-competitor">PV3010</td><td class="dura-competitor">CC1500</td><td class="dura-competitor">PV710<br/>PV720</td></tr>
+<!-- CVD 그룹 -->
+<tr data-kind="CVD"><td class="dura-kind" rowspan="7">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC820</td><td class="dura-iso dura-k">K10 - K20</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">회주철, 덕타일주철의 일반 터닝</td><td class="dura-competitor">TT7015</td><td class="dura-competitor">NC6110</td><td class="dura-competitor">CA4515</td></tr>
+<tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9005</td><td class="dura-iso dura-p">P05 - P15</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 초고속 연속 터닝</td><td class="dura-competitor">TT8105</td><td class="dura-competitor">NC3205</td><td class="dura-competitor">CA5505<br/>CA510</td></tr>
+<tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9015</td><td class="dura-iso dura-p">P10 - P25</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 고속 터닝</td><td class="dura-competitor">TT8115</td><td class="dura-competitor">NC3010</td><td class="dura-competitor">VP5115<br/>CA5515</td></tr>
+<tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9025</td><td class="dura-iso dura-p">P15 - P35</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 터닝</td><td class="dura-competitor">TT8125</td><td class="dura-competitor">NC3120</td><td class="dura-competitor">VP5125<br/>CA5525</td></tr>
+<tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC8035</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M30 - M40</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">연강, 저탄소 합금강의 중삭 터닝<br/>스테인리스강의 중속 및 저속 가공</td><td class="dura-competitor">TT5100<br/>TT9225</td><td class="dura-competitor">NC9025</td><td class="dura-competitor">CP5530<br/>CA6525</td></tr>
+<tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7040</td><td class="dura-iso dura-p">P10 - P30</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">탄소강, 합금강의 드릴 가공용</td><td class="dura-competitor">TT7400</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7800</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M45</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">탄소강, 합금강의 황삭 가공<br/>스테인리스강의 중속 가공</td><td class="dura-competitor">TT8525B</td><td class="dura-competitor">NCM535<br/>PC5300</td><td class="dura-competitor">CA6535<br/>PR1535</td></tr>
+<!-- PVD 그룹 -->
+<tr data-kind="PVD"><td class="dura-kind" rowspan="13">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5010</td><td class="dura-iso"><span class="dura-m">M05 - M25</span><br/><span class="dura-s">S05 - S25</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">스테인리스강 및 내열합금의 광범위한 터닝</td><td class="dura-competitor">TT5030</td><td class="dura-competitor">PC8110</td><td class="dura-competitor">PR1005<br/>PR930</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9320</td><td class="dura-iso"><span class="dura-p">P05 - P25</span><br/><span class="dura-k">K05 - K25</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 밀링<br/>주철의 급단속 밀링</td><td class="dura-competitor">TT7080</td><td class="dura-competitor">PC3600</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC7070</td><td class="dura-iso dura-p">P20 - P40</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 밀링</td><td class="dura-competitor">TT7070</td><td class="dura-competitor">PC3500</td><td class="dura-competitor">PP8030</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP7320</td><td class="dura-iso dura-k">K05 - K20</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">덕타일 주철과 회주철의 일반가공</td><td class="dura-competitor">TT6080</td><td class="dura-competitor">PC6510</td><td class="dura-competitor">PK9105</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP5320</td><td class="dura-iso"><span class="dura-p">P15 - P35</span><br/><span class="dura-m">M10 - M30</span><br/><span class="dura-s">S15 - S25</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강, 내열합금강의 일반가공<br/>금형강의 중삭과 황삭 가공</td><td class="dura-competitor">TT9080</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP8330</td><td class="dura-iso"><span class="dura-p">P30 - P50</span><br/><span class="dura-m">M30 - M50</span><br/><span class="dura-s">S30 - S50</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강의 단속 및 황삭 가공<br/>내열 합금의 저속 및 단속 가공</td><td class="dura-competitor">TT8080</td><td class="dura-competitor">PC9035<br/>PC5300</td><td class="dura-competitor">PR1535<br/>PR1225</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC9800</td><td class="dura-iso"><span class="dura-p">P15 - P35</span><br/><span class="dura-m">M10 - M30</span><br/><span class="dura-k">K10 - K30</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">강과 스테인리스강 일반 가공용 재종</td><td class="dura-competitor">TT9030</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PP8030</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5030</td><td class="dura-iso"><span class="dura-m">M05 - M30</span><br/><span class="dura-p">P10 - P30</span><br/><span class="dura-s">S10 - S20</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강과 스테인리스강 중, 황삭에 적합<br/>드릴가공에서 뛰어난 내마모성</td><td class="dura-competitor">TT9130</td><td class="dura-competitor">PC9530</td><td class="dura-competitor">PR830<br/>PR925<br/>PR1025</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DP5015<br/>(DC980N)</td><td class="dura-iso"><span class="dura-p">P10 - P30</span><br/><span class="dura-m">M15 - M30</span><br/><span class="dura-k">K10 - K30</span><br/><span class="dura-s">S10 - S40</span><br/><span class="dura-h">H10 - H30</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">합금강, 프리하든강, 스테인리스강, 내열합금강의 가공용 (40&lt;HRC&lt;55)<br/>중속 및 고속 가공용</td><td class="dura-competitor">TT5515</td><td class="dura-competitor">YG-1<br/>X-POWER S</td><td class="dura-competitor"></td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DP5025</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M20 - M40</span><br/><span class="dura-s">S20 - S40</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">탄소강, 합금강, 스테인리스강, 내열합금강의 일반가공용 (&lt;40 HRC)<br/>중속 및 고속 가공용</td><td class="dura-competitor">TT5525</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9020</td><td class="dura-iso"><span class="dura-p">P25 - P45</span><br/><span class="dura-m">M25 - M45</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 절삭용</td><td class="dura-competitor">TT7210</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC9235</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M40</span><br/><span class="dura-s">S30 - S40</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">스테인리스강, 내열합금, 저탄소강 등의 단속 및 중·저속용 고인성 재종</td><td class="dura-competitor">TT8020</td><td class="dura-competitor">PC5300</td><td class="dura-competitor">PM9915<br/>PM0015</td></tr>
+<tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC154</td><td class="dura-iso dura-p">P20 - P35</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강의 경·중절삭 및 황삭용</td><td class="dura-competitor">TT7220</td><td class="dura-competitor">PC3535</td><td class="dura-competitor"></td></tr>
+<!-- 초경 그룹 -->
+<tr data-kind="초경"><td class="dura-kind" rowspan="4">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DN9020</td><td class="dura-iso dura-p">P15 - P25</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 절삭용</td><td class="dura-competitor">P20</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
+<tr data-kind="초경"><td class="dura-kind" style="display:none">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC325M</td><td class="dura-iso dura-p">P30 - P40</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">P30</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
+<tr data-kind="초경"><td class="dura-kind" style="display:none">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC210</td><td class="dura-iso dura-k">K10</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">주철 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">K10</td><td class="dura-competitor">H01</td><td class="dura-competitor">VK10</td></tr>
+<tr data-kind="초경"><td class="dura-kind" style="display:none">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC208<br/>(DC210)</td><td class="dura-iso dura-n">N10</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">알루미늄, 비철금속의 일반 가공<br/>비코팅</td><td class="dura-competitor">UF10</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
+<!-- 서멧 그룹 -->
+<tr data-kind="서멧"><td class="dura-kind" rowspan="2">서멧</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC610</td><td class="dura-iso"><span class="dura-p">P05 - P15</span><br/><span class="dura-m">M05 - M15</span><br/><span class="dura-k">K05 - K15</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강, 주철, 스테인리스강의 정삭<br/>강의 일반 석삭 및 홈 절삭</td><td class="dura-competitor">CT3000</td><td class="dura-competitor">CN1000</td><td class="dura-competitor">TN60</td></tr>
+<tr data-kind="서멧"><td class="dura-kind" style="display:none">서멧</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DPT110</td><td class="dura-iso"><span class="dura-p">P05 - P20</span><br/><span class="dura-m">M05 - M20</span><br/><span class="dura-k">K05 - K20</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강 및 주철의 고속 정삭 가공<br/>양호한 표면 조도</td><td class="dura-competitor">PV3010</td><td class="dura-competitor">CC1500</td><td class="dura-competitor">PV710<br/>PV720</td></tr>
 </tbody>
 </table>
 </div>
 </div>
 </div>
-<!-- 14. 추후 업데이트 예정 -->
-<div class="sub-view" id="view-future-update">
-<div class="card">
-<div class="card-head-row"><h2>추후 업데이트 예정</h2></div>
-<div class="info-box">새로운 기능과 자료를 준비 중입니다.</div>
-</div>
-</div>
-<!-- 5. G / M 코드 일람 화면 -->
+
+<!-- G / M 코드 일람 -->
 <div class="sub-view" id="view-gcode-calc">
 <div class="card">
 <div class="filter-tabs">
@@ -861,29 +645,21 @@
 <div class="data-table-wrap">
 <table class="data-table" id="codeTable">
 <thead>
-<tr>
-<th style="width: 72px;">코드</th>
-<th style="width: 60px;">구분</th>
-<th style="width: 110px;">기능 명칭</th>
-<th>상세 지령 및 설명</th>
-</tr>
+<tr><th style="width: 72px;">코드</th><th style="width: 60px;">구분</th><th style="width: 110px;">기능 명칭</th><th>상세 지령 및 설명</th></tr>
 </thead>
 <tbody>
-<!-- 공통 기본 G코드 -->
 <tr data-cat="common"><td><span class="code-tag">G00</span></td><td><span class="badge badge-common">공용</span></td><td>급속 위치결정</td><td>가공물 비절삭 구간 급속 이송 (간섭 주의)</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G01</span></td><td><span class="badge badge-common">공용</span></td><td>직선 보간</td><td>지정된 절삭 이송속도(F)로 직선 가공</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G02</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CW)</td><td>시계 방향 원호 가공 (R값 또는 I, J, K 벡터)</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G03</span></td><td><span class="badge badge-common">공용</span></td><td>원호 보간 (CCW)</td><td>반시계 방향 원호 가공</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G04</span></td><td><span class="badge badge-common">공용</span></td><td>Dwell (휴지)</td><td>일정 시간 이송 대기 (홈 가공 칩 끊기, 바닥 정삭)</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G28</span></td><td><span class="badge badge-common">공용</span></td><td>기계원점 복귀</td><td>중간 경유점 경유 후 1기계원점 복귀</td></tr>
-<!-- 버그 수정: 선반 노즈R 및 밀링 공구경 보정 취소 명칭 명확화 -->
 <tr data-cat="common"><td><span class="code-tag">G40</span></td><td><span class="badge badge-common">공용</span></td><td>공구경/노즈R 보정 취소</td><td>공구 반경 및 노즈R 보정 벡터 해제</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G41</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 좌측</td><td>진행방향 기준 좌측 보정 (MCT 하향절삭 필수)</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G42</span></td><td><span class="badge badge-common">공용</span></td><td>경보정 우측</td><td>진행방향 기준 공구 우측 보정</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G54~G59</span></td><td><span class="badge badge-common">공용</span></td><td>공작물 좌표계</td><td>가공 원점 1번~6번 지정</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G90</span></td><td><span class="badge badge-common">공용</span></td><td>절대 지령 모드</td><td>좌표계 원점(0,0) 기준 이동 명령</td></tr>
 <tr data-cat="common"><td><span class="code-tag">G91</span></td><td><span class="badge badge-common">공용</span></td><td>증분 지령 모드</td><td>현재 공구 위치 기준 상대적 이동</td></tr>
-<!-- CNC 선반 전용 및 복합 반복 사이클 -->
 <tr data-cat="lathe"><td><span class="code-tag">G70</span></td><td><span class="badge badge-lathe">선반</span></td><td>정삭 가공 사이클</td><td>G71/G72/G73 황삭 후 지정 블록(P~Q) 다듬질</td></tr>
 <tr data-cat="lathe"><td><span class="code-tag">G71</span></td><td><span class="badge badge-lathe">선반</span></td><td>외경/내경 황삭 사이클</td><td>Z축 길이방향 외경/내경 자동 황삭 가공</td></tr>
 <tr data-cat="lathe"><td><span class="code-tag">G72</span></td><td><span class="badge badge-lathe">선반</span></td><td>단면 황삭 사이클</td><td>X축 방향(단면) 횡방향 자동 황삭 가공</td></tr>
@@ -895,7 +671,6 @@
 <tr data-cat="lathe"><td><span class="code-tag">G96</span></td><td><span class="badge badge-lathe">선반</span></td><td>주속 일정 제어</td><td>직경 변화에 따른 RPM 자동 가변 (Vc 유지)</td></tr>
 <tr data-cat="lathe"><td><span class="code-tag">G97</span></td><td><span class="badge badge-lathe">선반</span></td><td>주속 일정 취소</td><td>고정 회전수 제어 (RPM 고정 모드)</td></tr>
 <tr data-cat="lathe"><td><span class="code-tag">G99</span></td><td><span class="badge badge-lathe">선반</span></td><td>회전당 이송</td><td>회전당 피드(mm/rev) 모드 지정</td></tr>
-<!-- 밀링(MCT) 전용 및 고정 사이클 -->
 <tr data-cat="mct"><td><span class="code-tag">G17/18/19</span></td><td><span class="badge badge-mct">MCT</span></td><td>평면 선택</td><td>G17(XY 평면), G18(ZX 평면), G19(YZ 평면)</td></tr>
 <tr data-cat="mct"><td><span class="code-tag">G43</span></td><td><span class="badge badge-mct">MCT</span></td><td>공구장(+) 보정</td><td>공구 길이 양(+) 보정 지령 (H 번호 지정)</td></tr>
 <tr data-cat="mct"><td><span class="code-tag">G49</span></td><td><span class="badge badge-mct">MCT</span></td><td>공구장 보정 취소</td><td>공구 길이 보정 오프셋 해제</td></tr>
@@ -910,7 +685,6 @@
 <tr data-cat="mct"><td><span class="code-tag">G94</span></td><td><span class="badge badge-mct">MCT</span></td><td>분당 이송</td><td>분당 이송 피드(mm/min) 모드</td></tr>
 <tr data-cat="mct"><td><span class="code-tag">G98</span></td><td><span class="badge badge-mct">MCT</span></td><td>초기점 복귀</td><td>고정 사이클 완료 후 초기 Z 높이로 복귀</td></tr>
 <tr data-cat="mct"><td><span class="code-tag">G99</span></td><td><span class="badge badge-mct">MCT</span></td><td>R점 복귀</td><td>고정 사이클 완료 후 안전 R점으로 복귀</td></tr>
-<!-- 보조 기능 (M 코드) -->
 <tr data-cat="mcode"><td><span class="code-tag">M00</span></td><td><span class="badge badge-m">M코드</span></td><td>프로그램 무조건 정지</td><td>장비 일시정지 (가공물 확인, 칩 제거, 계측)</td></tr>
 <tr data-cat="mcode"><td><span class="code-tag">M01</span></td><td><span class="badge badge-m">M코드</span></td><td>선택적 정지</td><td>Optional Stop 스위치 ON일 때만 정지</td></tr>
 <tr data-cat="mcode"><td><span class="code-tag">M02</span></td><td><span class="badge badge-m">M코드</span></td><td>프로그램 종료</td><td>자동 운전 종료 (복귀 없이 멈춤)</td></tr>
@@ -930,40 +704,25 @@
 </div>
 </div>
 </div>
-<!-- 7. 할인율 계산기 화면 -->
+
+<!-- 할인율 계산기 -->
 <div class="sub-view" id="view-discount-calc">
 <div class="card">
 <label>정가 (원)</label>
 <input id="discountBasePrice" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 10000" step="1" type="number"/>
 <div class="input-grid-2">
-<div>
-<label>직접 입력 할인배율</label>
-<input id="dealerDiscountRatio" max="1" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 0.7" step="0.01" type="number"/>
+<div><label>직접 입력 할인배율</label><input id="dealerDiscountRatio" max="1" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 0.7" step="0.01" type="number"/></div>
+<div><label>대리점 매입가 (원)</label><input id="dealerPurchasePrice" min="0" oninput="syncDiscountFromPurchase()" placeholder="예: 7000" step="1" type="number"/><div class="discount-rounded" id="dealerPurchaseRounded">1의 자리 반올림: -</div></div>
 </div>
-<div>
-<label>대리점 매입가 (원)</label>
-<input id="dealerPurchasePrice" min="0" oninput="syncDiscountFromPurchase()" placeholder="예: 7000" step="1" type="number"/>
-<div class="discount-rounded" id="dealerPurchaseRounded">1의 자리 반올림: -</div>
-</div>
-</div>
-<div class="btn-row">
-<button class="btn-sub" onclick="resetDiscountCalc()" style="flex: 1;">초기화</button>
-</div>
+<div class="btn-row"><button class="btn-sub" onclick="resetDiscountCalc()" style="flex: 1;">초기화</button></div>
 </div>
 <div class="card">
 <label>유저 납품가 가산율 (%)</label>
 <div class="input-grid-2">
-<div>
-<input id="userDeliveryPercent" oninput="calculateUserDelivery()" placeholder="예: 10" step="0.01" type="number"/>
+<div><input id="userDeliveryPercent" oninput="calculateUserDelivery()" placeholder="예: 10" step="0.01" type="number"/></div>
+<div><input id="userDeliveryPrice" placeholder="유저 납품가" readonly="" type="text"/><div class="discount-rounded" id="userDeliveryRounded">1의 자리 반올림: -</div></div>
 </div>
-<div>
-<input id="userDeliveryPrice" placeholder="유저 납품가" readonly="" type="text"/>
-<div class="discount-rounded" id="userDeliveryRounded">1의 자리 반올림: -</div>
-</div>
-</div>
-<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
-          대리점 매입가에 입력한 가산율을 적용합니다.
-        </div>
+<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">대리점 매입가에 입력한 가산율을 적용합니다.</div>
 </div>
 <div class="card">
 <div class="card-head-row">
@@ -980,7 +739,8 @@
 </div>
 </div>
 </div>
-<!-- 8. Duracarb CBN 화면 : PDF 3페이지를 모바일용 UI로 재구성 -->
+
+<!-- Duracarb CBN -->
 <div class="sub-view" id="view-cbn-guide">
 <div class="card cbn-guide-card">
 <div class="cbn-guide-head">
@@ -991,35 +751,19 @@
 </div>
 <div class="cbn-example">
 <div class="cbn-example-code">CNGA 120408 <span>4F5E</span> DB2027</div>
-<div class="cbn-example-map cbn-example-map-five">
-<div class="cbn-example-item">
-<div class="cbn-example-value cbn-code-blue">4</div>
-<div class="cbn-example-num">3</div>
-<div class="cbn-example-label">타입</div>
-</div>
-<div class="cbn-example-item">
-<div class="cbn-example-value cbn-code-blue">F</div>
-<div class="cbn-example-num">4</div>
-<div class="cbn-example-label">인선폭</div>
-</div>
-<div class="cbn-example-item">
-<div class="cbn-example-value cbn-code-blue">5</div>
-<div class="cbn-example-num">5</div>
-<div class="cbn-example-label">인선각도</div>
-</div>
-<div class="cbn-example-item">
-<div class="cbn-example-value cbn-code-blue">E</div>
-<div class="cbn-example-num">6</div>
-<div class="cbn-example-label">호닝</div>
+<div class="cbn-example-map cbn-example-map-four">
+<div class="cbn-example-item"><div class="cbn-example-value cbn-code-blue">4</div><div class="cbn-example-num">3</div><div class="cbn-example-label">타입</div></div>
+<div class="cbn-example-item"><div class="cbn-example-value cbn-code-blue">F</div><div class="cbn-example-num">4</div><div class="cbn-example-label">인선폭</div></div>
+<div class="cbn-example-item"><div class="cbn-example-value cbn-code-blue">5</div><div class="cbn-example-num">5</div><div class="cbn-example-label">인선각도</div></div>
+<div class="cbn-example-item"><div class="cbn-example-value cbn-code-blue">E</div><div class="cbn-example-num">6</div><div class="cbn-example-label">호닝</div></div>
 </div>
 </div>
-</div>
-<div class="cbn-grid-top">
-<div class="cbn-info-box cbn-empty-box">
+<div class="cbn-grid-row1">
+<div class="cbn-info-box">
 <h3>1. 형상</h3>
 <ul class="cbn-list"><li>예: CNGA</li></ul>
 </div>
-<div class="cbn-info-box cbn-empty-box">
+<div class="cbn-info-box">
 <h3>2. 사이즈</h3>
 <ul class="cbn-list"><li>예: 120408</li></ul>
 </div>
@@ -1033,8 +777,6 @@
 <li><b>W</b> : 와이퍼 타입</li>
 </ul>
 </div>
-</div>
-<div class="cbn-grid-bottom">
 <div class="cbn-info-box">
 <h3>4. 인선폭</h3>
 <table class="cbn-mini-table">
@@ -1051,6 +793,8 @@
 </tbody>
 </table>
 </div>
+</div>
+<div class="cbn-grid-row2">
 <div class="cbn-info-box">
 <h3>5. 인선각도</h3>
 <table class="cbn-mini-table cbn-angle-table">
@@ -1088,9 +832,7 @@
 <div class="cbn-grade-group-title">고경고강 · HRc 55–60</div>
 <div class="data-table-wrap cbn-grade-table-wrap">
 <table class="data-table cbn-grade-table">
-<thead>
-<tr><th>CBN 함량 %</th><th>재종명</th><th>유형</th><th>추천 가공</th></tr>
-</thead>
+<thead><tr><th>CBN 함량 %</th><th>재종명</th><th>유형</th><th>추천 가공</th></tr></thead>
 <tbody>
 <tr><td>55–60</td><td>DB2005</td><td>TIP</td><td>약, 중 단속</td></tr>
 <tr><td>60–65</td><td>DB2015</td><td>TIP</td><td>연속 및 약, 중 단속<br/><span class="cbn-recommend">Tip 제품의 제1 추천 재종</span></td></tr>
@@ -1105,9 +847,7 @@
 <div class="cbn-grade-group-title">주철</div>
 <div class="data-table-wrap cbn-grade-table-wrap">
 <table class="data-table cbn-grade-table">
-<thead>
-<tr><th>CBN 함량 %</th><th>재종명</th><th>유형</th><th>추천 가공</th></tr>
-</thead>
+<thead><tr><th>CBN 함량 %</th><th>재종명</th><th>유형</th><th>추천 가공</th></tr></thead>
 <tbody>
 <tr><td>75</td><td>DB7005</td><td>TIP</td><td>연속 및 단속</td></tr>
 <tr><td>75</td><td>DB7006</td><td>Solid Brazing</td><td>황삭 및 준정삭</td></tr>
@@ -1121,66 +861,23 @@
 </div>
 </div>
 </div>
-<!-- 6. 재질별 추천 가공조건 화면 -->
+
+<!-- 재질별 추천 가공조건 -->
 <div class="sub-view" id="view-mat-calc">
 <div class="card">
-<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
-          * 초경 인서트 기준 일반적인 중간 조건 가이드입니다. 툴 형상 및 장비 강성에 따라 조정하십시오.
-        </div>
+<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">* 초경 인서트 기준 일반적인 중간 조건 가이드입니다. 툴 형상 및 장비 강성에 따라 조정하십시오.</div>
 <div class="data-table-wrap">
 <table class="data-table">
 <thead>
-<tr>
-<th>피삭재 그룹</th>
-<th>대표 강종</th>
-<th>Vc (m/min)</th>
-<th>선반 f (mm/rev)</th>
-<th>밀링 Fz (mm/t)</th>
-</tr>
+<tr><th>피삭재 그룹</th><th>대표 강종</th><th>Vc (m/min)</th><th>선반 f (mm/rev)</th><th>밀링 Fz (mm/t)</th></tr>
 </thead>
 <tbody>
-<tr>
-<td class="iso-cell iso-p"><strong>P 탄소강/합금강</strong></td>
-<td class="iso-cell iso-p"><strong>SM45C, SCM440</strong></td>
-<td>160 ~ 280</td>
-<td>0.15 ~ 0.40</td>
-<td>0.08 ~ 0.20</td>
-</tr>
-<tr>
-<td class="iso-cell iso-m"><strong>M 스테인리스강</strong></td>
-<td class="iso-cell iso-m"><strong>SUS304, SUS316</strong></td>
-<td>100 ~ 200</td>
-<td>0.10 ~ 0.25</td>
-<td>0.05 ~ 0.12</td>
-</tr>
-<tr>
-<td class="iso-cell iso-k"><strong>K 주철</strong></td>
-<td class="iso-cell iso-k"><strong>GC250, GCD450</strong></td>
-<td>150 ~ 300</td>
-<td>0.20 ~ 0.45</td>
-<td>0.10 ~ 0.25</td>
-</tr>
-<tr>
-<td class="iso-cell iso-n"><strong>N 알루미늄/비철</strong></td>
-<td class="iso-cell iso-n"><strong>AL6061, AL7075</strong></td>
-<td>300 ~ 800+</td>
-<td>0.15 ~ 0.50</td>
-<td>0.10 ~ 0.30</td>
-</tr>
-<tr>
-<td class="iso-cell iso-s"><strong>S 내열합금/티타늄</strong></td>
-<td class="iso-cell iso-s"><strong>Inconel, Ti-6Al-4V</strong></td>
-<td>30 ~ 70</td>
-<td>0.08 ~ 0.18</td>
-<td>0.04 ~ 0.08</td>
-</tr>
-<tr>
-<td class="iso-cell iso-h"><strong>H 고경도강</strong></td>
-<td class="iso-cell iso-h"><strong>SKD11, 열처리강(50HRC+)</strong></td>
-<td>50 ~ 120</td>
-<td>0.05 ~ 0.15</td>
-<td>0.03 ~ 0.08</td>
-</tr>
+<tr><td class="iso-cell iso-p"><strong>P 탄소강/합금강</strong></td><td class="iso-cell iso-p"><strong>SM45C, SCM440</strong></td><td>160 ~ 280</td><td>0.15 ~ 0.40</td><td>0.08 ~ 0.20</td></tr>
+<tr><td class="iso-cell iso-m"><strong>M 스테인리스강</strong></td><td class="iso-cell iso-m"><strong>SUS304, SUS316</strong></td><td>100 ~ 200</td><td>0.10 ~ 0.25</td><td>0.05 ~ 0.12</td></tr>
+<tr><td class="iso-cell iso-k"><strong>K 주철</strong></td><td class="iso-cell iso-k"><strong>GC250, GCD450</strong></td><td>150 ~ 300</td><td>0.20 ~ 0.45</td><td>0.10 ~ 0.25</td></tr>
+<tr><td class="iso-cell iso-n"><strong>N 알루미늄/비철</strong></td><td class="iso-cell iso-n"><strong>AL6061, AL7075</strong></td><td>300 ~ 800+</td><td>0.15 ~ 0.50</td><td>0.10 ~ 0.30</td></tr>
+<tr><td class="iso-cell iso-s"><strong>S 내열합금/티타늄</strong></td><td class="iso-cell iso-s"><strong>Inconel, Ti-6Al-4V</strong></td><td>30 ~ 70</td><td>0.08 ~ 0.18</td><td>0.04 ~ 0.08</td></tr>
+<tr><td class="iso-cell iso-h"><strong>H 고경도강</strong></td><td class="iso-cell iso-h"><strong>SKD11, 열처리강(50HRC+)</strong></td><td>50 ~ 120</td><td>0.05 ~ 0.15</td><td>0.03 ~ 0.08</td></tr>
 </tbody>
 </table>
 </div>
@@ -1202,16 +899,284 @@
 </div>
 </div>
 </div>
+</div>
+
 <script>
     let currentCategory = 'all';
 
-    /* ---------------- 공통 유틸 및 OCR 처리기 ---------------- */
+    /* 테마 토글 */
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
+      }
+      if (typeof latheSegments !== 'undefined' && latheSegments.length) drawLatheScreen();
+      if (typeof mctMoves !== 'undefined' && mctMoves.length) drawMctScreen();
+    }
+    function toggleTheme() {
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const next = isLight ? 'dark' : 'light';
+      try { localStorage.setItem('cnc_theme', next); } catch (e) {}
+      applyTheme(next);
+    }
+
+    /* 리포트 복사 */
+    async function copyReport(reportId, btnId) {
+      const text = document.getElementById(reportId).innerText;
+      const btn = document.getElementById(btnId);
+      if (!text) return;
+      try {
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = '✓ 복사됨';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1400);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); btn.textContent = '✓ 복사됨'; } catch (e2) {}
+        document.body.removeChild(ta);
+        setTimeout(() => { btn.textContent = '📋 복사'; btn.classList.remove('copied'); }, 1400);
+      }
+    }
+
+    /* G코드 예제 프리셋 */
+    const LATHE_PRESET = `O0001 (LATHE SAMPLE)
+
+M62
+G28U0W0M8
+
+N1(DNMG150408)
+G50S2500
+T0100M8
+G0G96X46.0Z10.0S250T101M3
+G0Z0.3
+G1X16.0F0.25
+G0X39.1W0.3
+G1Z-1.1F0.25
+X37.1Z0.5F0.18
+G0X39.1W0.2
+G1Z-16.92F0.23
+U1.0
+G0Z-7.53
+G1X39.15F0.25
+X37.7Z-11.12F0.17
+Z-16.92F0.25
+X39.6
+X41.8Z-18.0
+U2.0W1.0F0.4
+G0X150.0Z150.0M9
+G28W0.
+M1
+
+N2(CCMT09T3085)
+G50S2500
+T0200M8
+G0G97X23.34Z10.0S2200T202M3
+Z5.0
+G1Z2.0F1.0
+Z-15.2F0.22
+X21.8Z-15.7
+G0Z-0.3
+G1X32.2F0.2
+W0.5
+G0X22.0
+Z-0.8
+G1X32.2F0.2
+W0.5
+G0X26.3
+G1Z-0.75F0.25
+X23.2Z-2.3F0.17
+G0U-2.0Z10.0M9
+G0X150.0Z150.0
+G28W0.
+M1
+
+N3(CCMT09T304) 
+G50S3000 
+T300 
+G0G97X23.84Z10.0S2200T303M3
+G0Z2.0
+G1Z-15.05F0.2
+X21.8Z-15.7
+G0Z-2.674
+G1X23.82F0.2
+G3X24.25Z-2.18R0.6F0.12
+G1X26.1Z-1.255F0.18
+G3X27.088Z-1.05R0.6F0.12
+G1X32.4F0.2
+Z-0.585
+X33.57Z0.0F0.13
+X38.8F0.2
+G0Z10.0M9
+G0X150.0Z150.0
+G28W0
+M1 
+
+N4(VNMG160404)
+G50S2600
+T400M8 
+G0G96X45.0Z10.0S200T404M3 
+G0Z-17.1
+G1X42.0F0.3
+X37.9F0.15
+X37.7F0.1
+X37.2W-0.15F0.07
+X37.9W0.8F0.12
+G0X43.0
+Z1.5
+G0X36.876
+G1Z0.0F0.15
+G3X37.915Z-0.3R0.6F0.1
+G1X38.44Z-0.753F0.12
+G3X38.6Z-1.053R0.6F0.1
+G1Z-7.02F0.15
+X37.2Z-10.7F0.12
+Z-16.88F0.15
+X36.936Z-17.415F0.07
+G04U0.2
+X37.6Z-17.223F0.07
+G3X38.0Z-17.17R0.4F0.12
+G1X39.394F0.15
+G3X40.243Z-17.346R0.6F0.1
+G1X41.21Z-17.83F0.12
+G3X41.56Z-18.253R0.6F0.1
+G1X41.8W-1.5
+G0U10.0Z10.0M9
+G0X150.0Z150.0
+G28W0
+M1
+
+N5(DCMT070204) 
+G50S2500 
+T500 
+G0G97X23.0Z5.0S2400T505M3
+G1Z-5.8F1.0
+X23.7F0.2
+G1X24.84Z-14.8F0.2
+Z-6.6
+X25.84Z-14.5
+Z-6.9
+X23.0F0.25
+G1Z-5.677F0.4
+G1X23.84F0.2
+G2X24.536Z-6.28R0.6F0.15
+G1X26.1Z-6.74F0.12
+G3X26.14Z-6.8R0.1F0.05
+G1Z-14.553F0.15
+U-1.0W0.3
+G0X21.0
+G1Z-17.0F0.4
+X22.0F0.25
+G1X22.2Z-16.05F0.15
+G3X22.9Z-15.547R0.7F0.15
+G1X26.04Z-14.64F0.12
+G2X26.14Z-14.553R0.1F0.05
+G1U-0.06W0.4F0.15
+G0X21.0
+G0Z10.0M9
+G0X150.0Z150.0
+G28W0
+M1 
+
+N6(3MM-R0.4 GROOVE) 
+G50S2500 
+T600M8
+G0G97X43.0Z10.0S2200T606M3 
+Z-10.28
+G1X39.5F0.25
+G75R0.1
+G75X36.67P400F0.07
+G1Z-9.55F0.3
+X38.8F0.15
+G1X36.62Z-10.18F0.1
+G1W-0.1F0.05
+G1X38.0F0.5
+Z-11.023
+G1X37.2F0.15
+X36.727Z-10.613F0.07
+G3X36.62Z-10.413R0.4F0.05
+G1W0.1
+G0X50.0
+G0G97U5.0Z50.0S2000M9
+G28U0W0M5 
+M61
+M12
+M30`;
+
+    const MCT_PRESET = `O0002 (MCT SAMPLE - PLATE MILLING)
+
+G21 G40 G49 G80
+G90 G54
+T01 M06 (D10 ENDMILL)
+S3000 M03
+G00 X-30.0 Y-30.0
+G43 H01 Z50.0 M08
+G00 Z2.0
+G01 Z-3.0 F200
+G01 X30.0 F800
+G01 Y-20.0
+G01 X-30.0
+G01 Y-10.0
+G01 X30.0
+G01 Y0.0
+G01 X-30.0
+G01 Y10.0
+G01 X30.0
+G01 Y20.0
+G01 X-30.0
+G01 Y30.0
+G01 X30.0
+G00 Z50.0
+G00 X0.0 Y0.0
+G01 Z-3.0 F200
+G02 X0.0 Y0.0 I0.0 J-10.0 F600
+G00 Z50.0
+T02 M06 (D8 DRILL)
+S2500 M03
+G00 X15.0 Y15.0
+G43 H02 Z50.0 M08
+G81 X15.0 Y15.0 Z-12.0 R2.0 F250
+X-15.0
+Y-15.0
+X15.0 Y-15.0
+G80
+G00 Z50.0 M09
+G28 G91 Z0.0
+G28 X0.0 Y0.0
+M30`;
+
+    function loadLathePreset() {
+      document.getElementById('latheGcode').value = LATHE_PRESET;
+      parseAndDrawLathe();
+    }
+    function loadMctPreset() {
+      document.getElementById('mctGcode').value = MCT_PRESET;
+      parseAndDrawMCT();
+    }
+
+    /* 뒤로가기 제스처 대응 */
+    function setupBackGesture() {
+      history.replaceState({ view: 'main' }, '');
+      window.addEventListener('popstate', (e) => {
+        const main = document.getElementById('view-main');
+        if (main && main.style.display !== 'none') return;
+        goHome();
+        history.pushState({ view: 'main' }, '');
+      });
+    }
+
+    /* OCR 처리기 */
     function loadFileContent(event, targetId) {
       const file = event.target.files[0];
       if (!file) return;
       readFile(file, targetId);
     }
-
     function readFile(file, targetId) {
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -1221,40 +1186,26 @@
       };
       reader.readAsText(file);
     }
-
-    /* G코드 특화 텍스트 정제기 */
     function cleanGcodeText(rawText) {
       const lines = rawText.split('\n');
       const validLines = [];
-
       for (let raw of lines) {
         let line = raw.trim().toUpperCase();
         if (!line) continue;
-
-        line = line.replace(/GOO/g, 'G00')
-                   .replace(/GO1/g, 'G01')
-                   .replace(/GO2/g, 'G02')
-                   .replace(/GO3/g, 'G03')
-                   .replace(/[;；]/g, '')
-                   .replace(/[\u3000\t]+/g, ' ');
-
-        if (/[NGMXYZUWRJKFSTDHQP]/i.test(line)) {
-          validLines.push(line);
-        }
+        line = line.replace(/GOO/g, 'G00').replace(/GO1/g, 'G01')
+                   .replace(/GO2/g, 'G02').replace(/GO3/g, 'G03')
+                   .replace(/[;；]/g, '').replace(/[\u3000\t]+/g, ' ');
+        if (/[NGMXYZUWRJKFSTDHQP]/i.test(line)) validLines.push(line);
       }
       return validLines.join('\n');
     }
-
-    /* 현장 사진 촬영 & OCR 파이프라인 */
     async function handleImageOCR(event, targetTextareaId) {
       const file = event.target.files[0];
       if (!file) return;
-
       const overlay = document.getElementById('ocrOverlay');
       const statusText = document.getElementById('ocrStatus');
       overlay.style.display = 'flex';
       statusText.innerText = '모니터 사진을 분석하는 중... (0%)';
-
       try {
         const worker = await Tesseract.createWorker({
           logger: m => {
@@ -1264,36 +1215,25 @@
             }
           }
         });
-
         await worker.loadLanguage('eng');
         await worker.initialize('eng');
         await worker.setParameters({
           tessedit_char_whitelist: '0123456789.+-GMXYZUWRJKFSTDHQPON%() '
         });
-
         const res = await worker.recognize(file);
         await worker.terminate();
-
         const cleaned = cleanGcodeText(res.data.text);
         overlay.style.display = 'none';
-
         if (!cleaned) {
           alert('G코드로 판독 가능한 문자를 찾지 못했습니다.\n초점과 조명을 맞춰 다시 촬영해 보세요.');
           return;
         }
-
         const area = document.getElementById(targetTextareaId);
         const approved = confirm('OCR 인식 결과입니다.\n\n' + cleaned + '\n\n확인: 입력하고 시뮬레이션 실행\n취소: 입력하지 않고 직접 수정');
-        if (!approved) {
-          area.value = cleaned;
-          area.focus();
-          return;
-        }
         area.value = cleaned;
-
+        if (!approved) { area.focus(); return; }
         if (targetTextareaId === 'latheGcode') parseAndDrawLathe();
         if (targetTextareaId === 'mctGcode') parseAndDrawMCT();
-
       } catch (err) {
         overlay.style.display = 'none';
         alert('OCR 처리 중 오류가 발생했습니다: ' + err.message);
@@ -1301,27 +1241,18 @@
         event.target.value = '';
       }
     }
-
     function setupDragAndDrop(elementId, targetInputId) {
       const el = document.getElementById(elementId);
       if (!el) return;
       ['dragenter', 'dragover'].forEach(name => {
-        el.addEventListener(name, e => {
-          e.preventDefault();
-          el.classList.add('dragover');
-        });
+        el.addEventListener(name, e => { e.preventDefault(); el.classList.add('dragover'); });
       });
       ['dragleave', 'drop'].forEach(name => {
-        el.addEventListener(name, e => {
-          e.preventDefault();
-          el.classList.remove('dragover');
-        });
+        el.addEventListener(name, e => { e.preventDefault(); el.classList.remove('dragover'); });
       });
       el.addEventListener('drop', e => {
         const dt = e.dataTransfer;
-        if (dt.files && dt.files.length > 0) {
-          readFile(dt.files[0], targetInputId);
-        }
+        if (dt.files && dt.files.length > 0) readFile(dt.files[0], targetInputId);
       });
     }
 
@@ -1330,20 +1261,24 @@
       setupDragAndDrop('latheBox', 'latheGcode');
       setupDragAndDrop('mctGcode', 'mctGcode');
       setupDragAndDrop('mctBox', 'mctGcode');
+      buildRowCache();
+      initDuraFilter();
+      reflowDuraKind();
+      setupBackGesture();
+
+      let savedTheme = 'dark';
+      try { savedTheme = localStorage.getItem('cnc_theme') || 'dark'; } catch (e) {}
+      applyTheme(savedTheme);
     });
 
     /* 할인율 계산기 */
-    function formatWon(value) {
-      return Math.round(value).toLocaleString('ko-KR') + '원';
-    }
-
+    function formatWon(value) { return Math.round(value).toLocaleString('ko-KR') + '원'; }
     function syncDiscountFromRatio() {
       const baseInput = document.getElementById('discountBasePrice').value;
       const ratioInput = document.getElementById('dealerDiscountRatio').value;
       const base = Number(baseInput);
       const ratio = Number(ratioInput);
       const purchase = document.getElementById('dealerPurchasePrice');
-
       if (baseInput !== '' && ratioInput !== '' && Number.isFinite(base) && base > 0 && Number.isFinite(ratio) && ratio >= 0 && ratio <= 1) {
         purchase.value = Math.round(base * ratio);
       } else if (baseInput === '' || ratioInput === '') {
@@ -1351,14 +1286,12 @@
       }
       calculateUserDelivery();
     }
-
     function syncDiscountFromPurchase() {
       const baseInput = document.getElementById('discountBasePrice').value;
       const purchaseInput = document.getElementById('dealerPurchasePrice').value;
       const base = Number(baseInput);
       const purchase = Number(purchaseInput);
       const ratio = document.getElementById('dealerDiscountRatio');
-
       if (baseInput !== '' && purchaseInput !== '' && Number.isFinite(base) && base > 0 && Number.isFinite(purchase) && purchase >= 0) {
         ratio.value = (purchase / base).toFixed(2);
       } else if (purchaseInput === '') {
@@ -1366,11 +1299,7 @@
       }
       calculateUserDelivery();
     }
-
-    function formatRoundedWon(value) {
-      return (Math.round(value / 10) * 10).toLocaleString('ko-KR') + '원';
-    }
-
+    function formatRoundedWon(value) { return (Math.round(value / 10) * 10).toLocaleString('ko-KR') + '원'; }
     function updateRoundedDisplays() {
       const purchaseInput = document.getElementById('dealerPurchasePrice').value;
       const deliveryInput = document.getElementById('userDeliveryPrice').value;
@@ -1384,7 +1313,6 @@
           ? '1의 자리 반올림: ' + formatRoundedWon(deliveryValue)
           : '1의 자리 반올림: -';
     }
-
     function calculateUserDelivery() {
       const purchaseInput = document.getElementById('dealerPurchasePrice').value;
       const percentInput = document.getElementById('userDeliveryPercent').value;
@@ -1392,21 +1320,18 @@
       const percent = Number(percentInput);
       const result = document.getElementById('userDeliveryPrice');
       const rows = document.getElementById('userDeliveryRows');
-
       if (purchaseInput === '' || percentInput === '' || !Number.isFinite(purchase) || purchase < 0 || !Number.isFinite(percent)) {
         result.value = '';
         rows.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
         updateRoundedDisplays();
         return;
       }
-
       const delivery = purchase * (1 + percent / 100);
       result.value = formatWon(delivery);
       updateRoundedDisplays();
       const minPercent = Math.round((percent - 1) * 100);
       const maxPercent = Math.round((percent + 1) * 100);
       let html = '';
-
       for (let i = minPercent; i <= maxPercent; i++) {
         const currentPercent = i / 100;
         const deliveryPrice = purchase * (1 + currentPercent / 100);
@@ -1414,7 +1339,6 @@
       }
       rows.innerHTML = html;
     }
-
     function resetDiscountCalc() {
       document.getElementById('discountBasePrice').value = '';
       document.getElementById('dealerPurchasePrice').value = '';
@@ -1424,7 +1348,6 @@
       updateRoundedDisplays();
       document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
     }
-
 
     function goHome() {
       document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
@@ -1448,13 +1371,13 @@
         'mct-calc': '밀링 절삭조건 계산',
         'duracarb-2026': 'Duracarb 재종표',
         'gcode-calc': '표준 G / M 코드 일람',
-        'future-update': '추후 업데이트 예정',
         'mat-calc': '재질별 추천 절삭조건',
-        'discount-calc': '할인율 계산기'
+        'discount-calc': '할인율 계산기',
+        'cbn-guide': 'Duracarb CBN'
       };
       document.getElementById('headerTitle').innerText = titles[name] || 'CNC / MCT 도우미';
       document.getElementById('view-' + name).style.display = 'flex';
-
+      try { history.pushState({ view: name }, ''); } catch (e) {}
       if (name === 'lathe-path') setTimeout(() => { resizeLathe(); resetLatheView(); }, 60);
       if (name === 'mct-path') setTimeout(() => { resizeMCT(); resetMctView(); }, 60);
     }
@@ -1467,6 +1390,25 @@
       };
     }
 
+    function clearGcode(textareaId, machine) {
+      document.getElementById(textareaId).value = '';
+      if (machine === 'lathe') {
+        pauseLathePlay();
+        latheSegments = [];
+        lathePlayIdx = 0;
+        document.getElementById('latheSeek').value = 100;
+        drawLatheScreen();
+        document.getElementById('latheReport').innerText = 'G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.';
+      } else {
+        pauseMctPlay();
+        mctMoves = [];
+        mctPlayIdx = 0;
+        document.getElementById('mctSeek').value = 100;
+        drawMctScreen();
+        document.getElementById('mctReport').innerText = 'G코드를 넣고 3D 시뮬레이션을 실행하세요.';
+      }
+    }
+
     /* 코드 탭 필터링 */
     function setFilterCat(cat, btn) {
       currentCategory = cat;
@@ -1474,35 +1416,101 @@
       btn.classList.add('active');
       applyTableFilters();
     }
-
-    /* 검색창 및 탭 동시 적용 필터 */
+    let rowCache = null;
+    function buildRowCache() {
+      rowCache = [];
+      document.querySelectorAll('#codeTable tbody tr').forEach(row => {
+        rowCache.push({ row, cat: row.getAttribute('data-cat'), text: row.innerText.toLowerCase() });
+      });
+    }
     function applyTableFilters() {
+      if (!rowCache) buildRowCache();
       const query = document.getElementById('codeSearch').value.toLowerCase();
-      const rows = document.querySelectorAll('#codeTable tbody tr');
-
-      rows.forEach(row => {
-        const cat = row.getAttribute('data-cat');
-        const text = row.innerText.toLowerCase();
-
+      for (const item of rowCache) {
         let matchesCat = false;
-        if (currentCategory === 'all') {
-          matchesCat = true;
-        } else if (currentCategory === 'lathe' && (cat === 'lathe' || cat === 'common')) {
-          matchesCat = true;
-        } else if (currentCategory === 'mct' && (cat === 'mct' || cat === 'common')) {
-          matchesCat = true;
-        } else if (currentCategory === 'mcode' && cat === 'mcode') {
-          matchesCat = true;
-        }
+        if (currentCategory === 'all') matchesCat = true;
+        else if (currentCategory === 'lathe' && (item.cat === 'lathe' || item.cat === 'common')) matchesCat = true;
+        else if (currentCategory === 'mct' && (item.cat === 'mct' || item.cat === 'common')) matchesCat = true;
+        else if (currentCategory === 'mcode' && item.cat === 'mcode') matchesCat = true;
+        const matchesQuery = item.text.includes(query);
+        item.row.style.display = (matchesCat && matchesQuery) ? '' : 'none';
+      }
+    }
 
-        const matchesQuery = text.includes(query);
-        row.style.display = (matchesCat && matchesQuery) ? '' : 'none';
+    /* Duracarb 재종표 필터 */
+    function initDuraFilter() {
+      const rows = document.querySelectorAll('#duraTable tbody tr');
+      rows.forEach(row => {
+        const marks = row.querySelectorAll('.dura-app-mark');
+        const apps = [];
+        const keys = ['turn','mill','drill','cut','end'];
+        marks.forEach((m, i) => {
+          if (m.textContent.trim() === '●') apps.push(keys[i]);
+        });
+        row.setAttribute('data-apps', apps.join(','));
       });
     }
 
-    /* =========================================================
-       1. CNC 선반 시뮬레이터 (원호 호 길이 C/T 정밀화)
-       ========================================================= */
+    function reflowDuraKind() {
+      const rows = [...document.querySelectorAll('#duraTable tbody tr')];
+      rows.forEach(row => {
+        const kt = row.querySelector('.dura-kind');
+        if (kt) {
+          kt.removeAttribute('rowspan');
+          kt.style.display = '';
+        }
+      });
+      const visible = rows.filter(r => r.style.display !== 'none');
+      let i = 0;
+      while (i < visible.length) {
+        const kind = visible[i].getAttribute('data-kind');
+        let j = i + 1;
+        while (j < visible.length && visible[j].getAttribute('data-kind') === kind) j++;
+        const count = j - i;
+        const firstKt = visible[i].querySelector('.dura-kind');
+        if (firstKt) {
+          firstKt.setAttribute('rowspan', count);
+          firstKt.style.display = '';
+        }
+        for (let k = i + 1; k < j; k++) {
+          const kt = visible[k].querySelector('.dura-kind');
+          if (kt) kt.style.display = 'none';
+        }
+        i = j;
+      }
+      rows.forEach(r => {
+        if (r.style.display === 'none') {
+          const kt = r.querySelector('.dura-kind');
+          if (kt) kt.style.display = 'none';
+        }
+      });
+    }
+
+    function setDuraFilter(app, btn) {
+      document.querySelectorAll('#duraFilterTabs .dura-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const rows = document.querySelectorAll('#duraTable tbody tr');
+      rows.forEach(row => {
+        if (app === 'all') { row.style.display = ''; return; }
+        const apps = (row.getAttribute('data-apps') || '').split(',');
+        row.style.display = apps.includes(app) ? '' : 'none';
+      });
+      reflowDuraKind();
+    }
+
+    /* 이동 시간 계산 (가속도 반영) */
+    function calcMoveTimeSec(distMm, feedMmMin, isRapid) {
+      if (distMm <= 0) return 0;
+      const v = isRapid ? (10000 / 60) : (feedMmMin / 60);
+      const a = isRapid ? 3000 : 800;
+      if (v <= 0) return 0;
+      const tFull = v / a;
+      const dFull = v * tFull;
+      if (distMm <= dFull) return 2 * Math.sqrt(distMm / a);
+      return (distMm - dFull) / v + 2 * tFull;
+    }
+
+    /* CNC 선반 시뮬레이터 */
     let latheSegments = [];
     let latheScale = 2.5, lathePanX = 0, lathePanY = 0;
     const lCanvas = document.getElementById('latheCanvas');
@@ -1518,7 +1526,6 @@
       lCanvas.height = box.clientHeight;
       drawLatheScreen();
     }
-
     function resetLatheView() {
       if (latheSegments.length === 0) return;
       let minZ = Infinity, maxZ = -Infinity, minR = Infinity, maxR = -Infinity;
@@ -1534,7 +1541,6 @@
       lathePanY = (lCanvas.height / 2) + ((minR + maxR) / 2 * latheScale);
       drawLatheScreen();
     }
-
     function generateLatheArc(z1, r1, z2, r2, R, I, K, isG03) {
       let cZ, cR, rad;
       if (I !== null || K !== null) {
@@ -1552,38 +1558,35 @@
       } else {
         return { pts: [{ z: z1, r: r1 }, { z: z2, r: r2 }], arcLength: Math.hypot(z2 - z1, r2 - r1) };
       }
-
       let startAng = Math.atan2(r1 - cR, z1 - cZ);
       let endAng = Math.atan2(r2 - cR, z2 - cZ);
       if (isG03) { while (endAng <= startAng) endAng += 2 * Math.PI; }
       else { while (endAng >= startAng) endAng -= 2 * Math.PI; }
-
       const sweep = Math.abs(endAng - startAng);
       const arcLength = rad * sweep;
-
-      const steps = 16, pts = [];
+      const steps = Math.min(256, Math.max(24, Math.ceil(arcLength / 0.5)));
+      const pts = [];
       for (let i = 0; i <= steps; i++) {
-        const theta = startAng + (endAng - startAng) * (i / steps);
+        const t = i / steps;
+        const theta = startAng + (endAng - startAng) * (t * t * (3 - 2 * t));
         pts.push({ z: cZ + rad * Math.cos(theta), r: cR + rad * Math.sin(theta) });
       }
       return { pts, radius: rad, arcLength };
     }
-
-    /* G/M 코드 검증 및 안전 경고 유틸리티 */
     function getUnsupportedCodes(line, machine) {
       const supported = machine === 'lathe'
-        ? new Set(['G00','G01','G02','G03','G04','G28','G50','G96','G97'])
-        : new Set(['G00','G01','G02','G03','G04','G28','G80','G81','G82','G83','G84','G85','G86','G87','G88','G89','G90','G91','G98','G99']);
+        ? new Set(['G00','G01','G02','G03','G04','G28','G50','G70','G71','G72','G73','G74','G75','G76','G92','G96','G97','G99'])
+        : new Set(['G00','G01','G02','G03','G04','G28','G80','G81','G82','G83','G84','G85','G86','G87','G88','G89','G90','G91','G94','G98','G99']);
       const found = (line.match(/G\d{1,2}/g) || []).map(g => 'G' + String(parseInt(g.slice(1),10)).padStart(2,'0'));
       return [...new Set(found.filter(g => !supported.has(g)))];
     }
-
     function showSimulationSafetyNotice(machine, warnings) {
       const head = machine === 'lathe' ? '선반' : 'MCT';
-      const msg = `※ ${head} 시뮬레이션 주의\n경로와 시간은 참고용 추정치입니다. 실제 가공 전 제어기 형식, 좌표계, 공구 길이/보정, 원점복귀, 간섭, 회전수 제한을 반드시 확인하세요.`;
-      if (warnings.length) {
-        alert(msg + '\n\n미지원 또는 확인이 필요한 코드:\n' + warnings.join(', '));
-      }
+      const reportId = machine === 'lathe' ? 'latheReport' : 'mctReport';
+      const box = document.getElementById(reportId);
+      let note = `\n\n[주의] ${head} 경로·시간은 참고용 추정치입니다.\n실제 가공 전 제어기 형식, 좌표계, 공구 길이/보정, 원점복귀, 간섭, 회전수 제한을 반드시 확인하세요.`;
+      if (warnings.length) note += `\n미지원 또는 확인 필요 코드: ${warnings.join(', ')}`;
+      box.innerText += note;
     }
 
     function parseAndDrawLathe() {
@@ -1598,7 +1601,7 @@
       let curTool = '초기설정';
       let toolStats = {};
       const warnings = new Set();
-      const RAPID_SPEED = 10000, TOOL_CHANGE_TIME = 1.0;
+      const TOOL_CHANGE_TIME = 1.0;
       latheSegments = [];
 
       function getBucket(t) {
@@ -1606,32 +1609,137 @@
         return toolStats[t];
       }
 
+      let g71First = null;
+      let g76First = null;
+
       for (let idx = 0; idx < rawLines.length; idx++) {
         let raw = rawLines[idx];
         let line = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
         if (!line || line.startsWith('%')) continue;
         getUnsupportedCodes(line, 'lathe').forEach(code => warnings.add(code));
 
-        const tM = line.match(/T(\d{4}|\d{2})/);
-        if (tM) { curTool = 'T' + tM[1]; getBucket(curTool).time += TOOL_CHANGE_TIME; }
+        const tM = line.match(/T(\d{2,4})/);
+        if (tM) {
+          const key = 'T' + tM[1].slice(0, 2);
+          if (curTool !== key) { getBucket(key).time += TOOL_CHANGE_TIME; curTool = key; }
+        }
 
         const g4M = line.match(/G0?4\s*([UXP])([\d\.]+)/);
         if (g4M) {
           const dVal = parseFloat(g4M[2]);
           getBucket(curTool).time += (g4M[1] === 'P' && dVal >= 100) ? dVal / 1000.0 : dVal;
         }
-
         const g50M = line.match(/G50.*?S(\d+)/);
         if (g50M) maxRpm = parseFloat(g50M[1]);
-        
-        // 버그 수정: G97 모드 진입 시 isG96 = false로 정확히 전환
         if (line.includes('G96')) isG96 = true;
         if (line.includes('G97')) isG96 = false;
-
         const sM = line.match(/S(\d+)/);
         if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
         const fM = line.match(/F([\d\.]+)/);
         if (fM) curFeed = Math.max(0.001, parseFloat(fM[1]));
+
+        const g71a = line.match(/G71\s+U([\d\.]+)\s+R([\d\.]+)/);
+        if (g71a) {
+          g71First = { U: parseFloat(g71a[1]), R: parseFloat(g71a[2]) };
+          continue;
+        }
+        const g71b = line.match(/G71\s+P(\d+)\s+Q(\d+)(?:\s+U([\-\d\.]+))?(?:\s+W([\-\d\.]+))?/);
+        if (g71b && g71First) {
+          const pNum = parseInt(g71b[1]), qNum = parseInt(g71b[2]);
+          const profileBlocks = [];
+          let inRange = false;
+          for (let k = idx + 1; k < rawLines.length; k++) {
+            const lk = rawLines[k].replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
+            const nMatch = lk.match(/N(\d+)/);
+            if (nMatch) {
+              const nNum = parseInt(nMatch[1]);
+              if (nNum === pNum) inRange = true;
+              if (inRange) profileBlocks.push({ line: lk, idx: k });
+              if (nNum === qNum) { inRange = false; break; }
+            } else if (inRange) {
+              profileBlocks.push({ line: lk, idx: k });
+            }
+          }
+          const profile = [];
+          let pX = null, pZ = null;
+          for (const pb of profileBlocks) {
+            const xm = pb.line.match(/X([\-\d\.]+)/);
+            const zm = pb.line.match(/Z([\-\d\.]+)/);
+            if (xm) pX = parseFloat(xm[1]);
+            if (zm) pZ = parseFloat(zm[1]);
+            if (pX !== null && pZ !== null) profile.push({ x: pX, z: pZ, idx: pb.idx });
+          }
+          if (profile.length >= 2) {
+            const minX = Math.min(...profile.map(p => p.x));
+            const maxX = Math.max(...profile.map(p => p.x));
+            const stockX = maxX + 4;
+            const dCut = g71First.U;
+            if (!dCut || dCut <= 0 || !isFinite(dCut)) { g71First = null; continue; }
+            for (let p = 0; p < profile.length - 1; p++) {
+              const a = profile[p], b = profile[p + 1];
+              const r1 = a.x / 2, r2 = b.x / 2;
+              const dz = b.z - a.z;
+              const dist = Math.hypot(r2 - r1, dz);
+              const avgDia = Math.max(5, (Math.abs(a.x) + Math.abs(b.x)) / 2);
+              const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+              const safeRpm = Math.max(1, activeRpm || 100);
+              const sec = calcMoveTimeSec(dist, curFeed * safeRpm, false);
+              const bkt = getBucket(curTool);
+              bkt.cutTime += sec; bkt.dist += dist; bkt.time += sec;
+              latheSegments.push({ z1: a.z, r1: a.x / 2, z2: b.z, r2: b.x / 2, type: 'G71-PROFILE', pts: null, lineIdx: b.idx });
+            }
+            const zStart = Math.min(...profile.map(p => p.z));
+            const zEnd = Math.max(...profile.map(p => p.z));
+            for (let x = stockX - dCut; x > minX + dCut; x -= dCut) {
+              const r = x / 2;
+              const avgDia = Math.max(5, x);
+              const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+              const safeRpm = Math.max(1, activeRpm || 100);
+              const distCut = Math.abs(zEnd - zStart);
+              const sec = calcMoveTimeSec(distCut, curFeed * safeRpm, false);
+              const bkt = getBucket(curTool);
+              bkt.cutTime += sec; bkt.dist += distCut; bkt.time += sec;
+              latheSegments.push({ z1: zStart, r1: r, z2: zEnd, r2: r, type: 'G71-ROUGH', pts: null, lineIdx: idx });
+            }
+            const lastP = profile[profile.length - 1];
+            curX = lastP.x; curZ = lastP.z;
+          }
+          g71First = null;
+          continue;
+        }
+
+        const g76a = line.match(/G76\s+P(\d+)\s+Q(\d+)\s+R([\d\.]+)/);
+        if (g76a) { g76First = { P: g76a[1], Q: parseFloat(g76a[2]), R: parseFloat(g76a[3]) }; continue; }
+        const g76b = line.match(/G76\s+X([\d\.]+)\s+Z([\-\d\.]+)\s+P(\d+)\s+Q(\d+)\s+F([\d\.]+)/);
+        if (g76b && g76First) {
+          const tX = parseFloat(g76b[1]);
+          const tZ = parseFloat(g76b[2]);
+          const threadHeight = parseFloat(g76b[3]) / 1000;
+          const firstDepth = parseFloat(g76b[4]) / 1000;
+          const pitch = parseFloat(g76b[5]);
+          const startX = tX + 2 * threadHeight;
+          const threadLength = Math.abs(curZ - tZ);
+          const numPasses = 8;
+          let currentX = startX;
+          let depthStep = firstDepth;
+          for (let pass = 0; pass < numPasses; pass++) {
+            const r = currentX / 2;
+            const avgDia = Math.max(5, currentX);
+            const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+            const safeRpm = Math.max(1, activeRpm || 100);
+            const feedEff = pitch * safeRpm;
+            const sec = calcMoveTimeSec(threadLength, feedEff, false);
+            const bkt = getBucket(curTool);
+            bkt.cutTime += sec; bkt.dist += threadLength; bkt.time += sec;
+            latheSegments.push({ z1: curZ, r1: r, z2: tZ, r2: r, type: 'G76-THREAD', pts: null, lineIdx: idx });
+            depthStep *= 0.8;
+            currentX -= 2 * depthStep;
+            if (currentX <= tX) break;
+          }
+          curX = tX; curZ = tZ;
+          g76First = null;
+          continue;
+        }
 
         const gMatches = line.match(/G\d+/g);
         if (gMatches) {
@@ -1643,22 +1751,18 @@
             else if (num === 3) modalG = 'G03';
           });
         }
-
         if (line.includes('G28')) {
           latheSegments.push({ z1: curZ, r1: curX / 2, z2: 250, r2: 125, type: 'G00', pts: null, lineIdx: idx });
           curX = 250; curZ = 250;
           continue;
         }
-
         let targetX = curX, targetZ = curZ;
         const xm = line.match(/X([\-\d\.]+)/);
         const zm = line.match(/Z([\-\d\.]+)/);
         const um = line.match(/U([\-\d\.]+)/);
         const wm = line.match(/W([\-\d\.]+)/);
-        
         if (xm) targetX = parseFloat(xm[1]);
         else if (um) targetX = curX + parseFloat(um[1]);
-
         if (zm) targetZ = parseFloat(zm[1]);
         else if (wm) targetZ = curZ + parseFloat(wm[1]);
 
@@ -1667,7 +1771,6 @@
           const dz = targetZ - curZ;
           let dist = Math.hypot(Math.abs(r2) - Math.abs(r1), dz);
           let arcPts = null;
-
           if (modalG === 'G02' || modalG === 'G03') {
             const rm = line.match(/R([\-\d\.]+)/);
             const im = line.match(/I([\-\d\.]+)/);
@@ -1676,18 +1779,16 @@
             arcPts = res.pts;
             if (res.arcLength) dist = res.arcLength;
           }
-
           const b = getBucket(curTool);
           let sec = 0;
           if (modalG === 'G00') {
-            sec = (dist / RAPID_SPEED) * 60;
+            sec = calcMoveTimeSec(dist, 0, true);
             b.rapidTime += sec;
           } else {
             const avgDia = Math.max(5, (Math.abs(curX) + Math.abs(targetX)) / 2);
-            let activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+            const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
             const safeRpm = Math.max(1, activeRpm || 100);
-            // 선반 F는 일반적으로 mm/rev로 가정합니다. 제어기 설정에 따라 달라질 수 있습니다.
-            sec = (dist / (curFeed * safeRpm)) * 60;
+            sec = calcMoveTimeSec(dist, curFeed * safeRpm, false);
             b.cutTime += sec; b.dist += dist;
           }
           b.time += sec;
@@ -1706,42 +1807,46 @@
       for (const [t, d] of Object.entries(toolStats)) {
         total += d.time; totalCut += d.cutTime; totalRapid += d.rapidTime;
         if (t === '초기설정') continue;
-        const m = Math.floor(d.time / 60), s = Math.round(d.time % 60);
+        const tsec = Math.round(d.time);
+        const m = Math.floor(tsec / 60), s = tsec % 60;
         report += `• ${t.padEnd(8)} : ${m}:${s < 10 ? '0' : ''}${s} (${d.time.toFixed(1)}초)\n`;
       }
       report += `------------------------------------\n`;
-      report += `전체 가공 시간 : ${Math.floor(total/60)}:${Math.round(total%60) < 10 ? '0':''}${Math.round(total%60)} (총 ${Math.round(total)}초)\n`;
+      const tsecT = Math.round(total);
+      report += `전체 가공 시간 : ${Math.floor(tsecT/60)}:${tsecT % 60 < 10 ? '0':''}${tsecT % 60} (총 ${tsecT}초)\n`;
       report += `[상세] 절삭: ${totalCut.toFixed(1)}s | 급속: ${totalRapid.toFixed(1)}s\n`;
-      report += `\n[주의] 급속 ${RAPID_SPEED} mm/min, F는 mm/rev 가정\n`;
+      report += `\n[주의] 가속도 모델 반영 (급속 a≈3000, 절삭 a≈800 mm/s²)\n`;
       document.getElementById('latheReport').innerText = report;
       showSimulationSafetyNotice('lathe', [...warnings]);
     }
 
     function drawLatheScreen() {
+      const cs = getComputedStyle(document.documentElement);
+      const canvasTop = cs.getPropertyValue('--canvas-top').trim() || '#2b4491';
+      const canvasBottom = cs.getPropertyValue('--canvas-bottom').trim() || '#4361b5';
+      const axisLine = cs.getPropertyValue('--axis-line').trim() || 'rgba(255,255,255,0.4)';
+      const cutLine = cs.getPropertyValue('--cut-line').trim() || '#ffffff';
+      const rapidLine = cs.getPropertyValue('--rapid-line').trim() || '#facc15';
       const grad = lCtx.createLinearGradient(0, 0, 0, lCanvas.height);
-      grad.addColorStop(0, '#2b4491');
-      grad.addColorStop(1, '#4361b5');
+      grad.addColorStop(0, canvasTop);
+      grad.addColorStop(1, canvasBottom);
       lCtx.fillStyle = grad;
       lCtx.fillRect(0, 0, lCanvas.width, lCanvas.height);
-
-      lCtx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      lCtx.strokeStyle = axisLine;
       lCtx.lineWidth = 1;
       lCtx.setLineDash([4, 4]);
-      lCtx.beginPath();
-      lCtx.moveTo(0, lathePanY); lCtx.lineTo(lCanvas.width, lathePanY);
-      lCtx.stroke();
-      lCtx.beginPath();
-      lCtx.moveTo(lathePanX, 0); lCtx.lineTo(lathePanX, lCanvas.height);
-      lCtx.stroke();
+      lCtx.beginPath(); lCtx.moveTo(0, lathePanY); lCtx.lineTo(lCanvas.width, lathePanY); lCtx.stroke();
+      lCtx.beginPath(); lCtx.moveTo(lathePanX, 0); lCtx.lineTo(lathePanX, lCanvas.height); lCtx.stroke();
       lCtx.setLineDash([]);
-
       const count = Math.min(lathePlayIdx, latheSegments.length);
       for (let i = 0; i < count; i++) {
         const s = latheSegments[i];
         lCtx.beginPath();
-        lCtx.strokeStyle = (s.lineIdx === latheSelectedLineIdx) ? '#00ffff' : (s.type === 'G00' ? '#facc15' : '#ffffff');
-        lCtx.lineWidth = (s.type === 'G00') ? 1.2 : 1.7;
-
+        if (s.lineIdx === latheSelectedLineIdx) { lCtx.strokeStyle = '#00ffff'; lCtx.lineWidth = 3; }
+        else if (s.type === 'G71-PROFILE') { lCtx.strokeStyle = '#22c55e'; lCtx.lineWidth = 2; }
+        else if (s.type === 'G71-ROUGH') { lCtx.strokeStyle = 'rgba(34,197,94,0.55)'; lCtx.lineWidth = 1.2; }
+        else if (s.type === 'G76-THREAD') { lCtx.strokeStyle = '#a78bfa'; lCtx.lineWidth = 1.6; }
+        else { lCtx.strokeStyle = (s.type === 'G00') ? rapidLine : cutLine; lCtx.lineWidth = (s.type === 'G00') ? 1.2 : 1.7; }
         if (s.pts && s.pts.length > 0) {
           const startPt = s.pts[0];
           lCtx.moveTo(lathePanX + startPt.z * latheScale, lathePanY - startPt.r * latheScale);
@@ -1770,12 +1875,8 @@
       latheScale *= zoomFactor;
       drawLatheScreen();
     }, { passive: false });
-
     let lIsDrag = false, lLastMouse = { x: 0, y: 0 };
-    lBox.addEventListener('pointerdown', e => {
-      lIsDrag = true;
-      lLastMouse = { x: e.clientX, y: e.clientY };
-    });
+    lBox.addEventListener('pointerdown', e => { lIsDrag = true; lLastMouse = { x: e.clientX, y: e.clientY }; });
     window.addEventListener('pointerup', () => lIsDrag = false);
     window.addEventListener('pointermove', e => {
       if (!lIsDrag) return;
@@ -1784,7 +1885,6 @@
       lLastMouse = { x: e.clientX, y: e.clientY };
       drawLatheScreen();
     });
-
     let lTouchDist = 0;
     lBox.addEventListener('touchstart', e => {
       if (e.touches.length === 2) {
@@ -1830,7 +1930,7 @@
     }
     function latheAnimLoop(timestamp) {
       if (!latheIsPlaying) return;
-      const speedVal = parseFloat(document.getElementById('latheSpeed').value) || 10;
+      const speedVal = parseFloat(document.getElementById('latheSpeed').value) || 2;
       if (timestamp - latheLastTime >= Math.max(16, 200 / speedVal)) {
         if (lathePlayIdx < latheSegments.length) {
           lathePlayIdx++;
@@ -1858,13 +1958,10 @@
       drawLatheScreen();
     }
 
-    /* =========================================================
-       2. MCT 3축 밀링 시뮬레이터 & C/T 연산
-       ========================================================= */
+    /* MCT 3축 밀링 시뮬레이터 */
     const mCanvas = document.getElementById('mctCanvas');
     const mCtx = mCanvas.getContext('2d');
     let mctMoves = [];
-
     let mRotZ = -30 * Math.PI / 180;
     let mRotElev = 30 * Math.PI / 180;
     let mScale = 1.8, mPanX = 0, mPanY = 0;
@@ -1881,13 +1978,11 @@
       mPanY = mCanvas.height / 2 + 10;
       drawMctScreen();
     }
-
     function resetMctView() {
       mRotZ = -30 * Math.PI / 180;
       mRotElev = 30 * Math.PI / 180;
       mPanX = mCanvas.width / 2;
       mPanY = mCanvas.height / 2 + 10;
-
       if (mctMoves.length === 0) {
         mScale = 1.8;
       } else {
@@ -1901,56 +1996,22 @@
       }
       drawMctScreen();
     }
-
     function project3D(x, y, z) {
       const cosZ = Math.cos(mRotZ), sinZ = Math.sin(mRotZ);
       const cosE = Math.cos(mRotElev), sinE = Math.sin(mRotElev);
-
       const rx = x * cosZ - y * sinZ;
       const ry = x * sinZ + y * cosZ;
-
       const px = mPanX + rx * mScale;
       const py = mPanY - (ry * sinE + z * cosE) * mScale;
-
       return { px, py };
-    }
-
-    function calcMctArcLength(x1, y1, z1, x2, y2, z2, R, I, J, isG03) {
-      let cx, cy, rad;
-      const dx = x2 - x1, dy = y2 - y1, dz = z2 - z1;
-      const chord = Math.hypot(dx, dy);
-
-      if (I !== null || J !== null) {
-        cx = x1 + (I || 0); cy = y1 + (J || 0);
-        rad = Math.hypot(x1 - cx, y1 - cy);
-      } else if (R !== null) {
-        rad = Math.abs(R);
-        if (chord === 0 || chord > 2 * rad) return Math.hypot(dx, dy, dz);
-        const h = Math.sqrt(Math.max(0, rad * rad - (chord / 2) * (chord / 2)));
-        const sign = (isG03 ? 1 : -1) * (R < 0 ? -1 : 1);
-        cx = (x1 + x2) / 2 + sign * h * (-dy / chord);
-        cy = (y1 + y2) / 2 + sign * h * (dx / chord);
-      } else {
-        return Math.hypot(dx, dy, dz);
-      }
-
-      let a1 = Math.atan2(y1 - cy, x1 - cx);
-      let a2 = Math.atan2(y2 - cy, x2 - cx);
-      if (isG03) { while (a2 <= a1) a2 += 2 * Math.PI; }
-      else { while (a2 >= a1) a2 -= 2 * Math.PI; }
-
-      const arc2D = rad * Math.abs(a2 - a1);
-      return Math.hypot(arc2D, dz);
     }
 
     function parseAndDrawMCT() {
       const gcode = document.getElementById('mctGcode').value.trim();
       if (!gcode) { alert('MCT G코드를 입력하세요.'); return; }
-
       resizeMCT();
       stopMctPlay();
       const lines = gcode.split('\n');
-      
       let cur = { x: 0, y: 0, z: 0 };
       let modalG = 'G00';
       let isG91 = false;
@@ -1961,39 +2022,27 @@
       let curTool = '초기설정';
       let toolStats = {};
       const warnings = new Set();
-      const RAPID_SPEED = 10000;
       const TOOL_CHANGE_TIME = 3.0;
 
       function getMctBucket(t) {
         if (!toolStats[t]) toolStats[t] = { time: 0, cutTime: 0, rapidTime: 0, dist: 0 };
         return toolStats[t];
       }
-
       function addMctMove(x1, y1, z1, x2, y2, z2, type, lIdx, moveDist, points = null) {
         const d = (moveDist !== undefined) ? moveDist : Math.hypot(x2 - x1, y2 - y1, z2 - z1);
         const b = getMctBucket(curTool);
-        let sec = 0;
-        if (type === 'G00') {
-          sec = (d / RAPID_SPEED) * 60;
-          b.rapidTime += sec;
-        } else {
-          sec = (d / curFeed) * 60;
-          b.cutTime += sec;
-          b.dist += d;
-        }
+        const sec = type === 'G00' ? calcMoveTimeSec(d, 0, true) : calcMoveTimeSec(d, curFeed, false);
+        if (type === 'G00') b.rapidTime += sec;
+        else { b.cutTime += sec; b.dist += d; }
         b.time += sec;
         mctMoves.push({ x1, y1, z1, x2, y2, z2, type, lineIdx: lIdx, points });
       }
-
-      // 원호를 실제 곡선 점으로 변환합니다. (I/J 중심지정 및 R 지정 지원)
       function buildMctArcPoints(x1, y1, z1, x2, y2, z2, R, I, J, isG03) {
         let cx, cy, rad;
         const dx = x2 - x1, dy = y2 - y1;
         const chord = Math.hypot(dx, dy);
-
         if (I !== null || J !== null) {
-          cx = x1 + (I || 0);
-          cy = y1 + (J || 0);
+          cx = x1 + (I || 0); cy = y1 + (J || 0);
           rad = Math.hypot(x1 - cx, y1 - cy);
         } else if (R !== null && chord > 0 && chord <= 2 * Math.abs(R)) {
           rad = Math.abs(R);
@@ -2001,70 +2050,50 @@
           const sign = (isG03 ? 1 : -1) * (R < 0 ? -1 : 1);
           cx = (x1 + x2) / 2 + sign * h * (-dy / chord);
           cy = (y1 + y2) / 2 + sign * h * (dx / chord);
-        } else {
-          return null;
-        }
-
+        } else { return null; }
         if (!isFinite(rad) || rad <= 0) return null;
-
         let a1 = Math.atan2(y1 - cy, x1 - cx);
         let a2 = Math.atan2(y2 - cy, x2 - cx);
         let delta;
-
-        // 시작점과 끝점이 같고 I/J가 있으면 360도 원호로 처리
         if (Math.abs(dx) < 1e-9 && Math.abs(dy) < 1e-9 && (I !== null || J !== null)) {
           delta = isG03 ? 2 * Math.PI : -2 * Math.PI;
         } else {
-          if (isG03) {
-            while (a2 <= a1) a2 += 2 * Math.PI;
-          } else {
-            while (a2 >= a1) a2 -= 2 * Math.PI;
-          }
+          if (isG03) { while (a2 <= a1) a2 += 2 * Math.PI; }
+          else { while (a2 >= a1) a2 -= 2 * Math.PI; }
           delta = a2 - a1;
         }
-
-        const count = Math.max(16, Math.ceil(Math.abs(delta) * rad / 2));
+        const arcLen = Math.abs(delta) * rad;
+        const count = Math.min(512, Math.max(24, Math.ceil(arcLen / 0.5)));
         const pts = [];
         for (let k = 0; k <= count; k++) {
           const t = k / count;
-          const a = a1 + delta * t;
-          pts.push({
-            x: cx + rad * Math.cos(a),
-            y: cy + rad * Math.sin(a),
-            z: z1 + (z2 - z1) * t
-          });
+          const st = t * t * (3 - 2 * t);
+          const a = a1 + delta * st;
+          pts.push({ x: cx + rad * Math.cos(a), y: cy + rad * Math.sin(a), z: z1 + (z2 - z1) * st });
         }
-        return { points: pts, length: Math.hypot(Math.abs(delta) * rad, z2 - z1) };
+        return { points: pts, length: Math.hypot(arcLen, z2 - z1) };
       }
 
       mctMoves = [];
-
       lines.forEach((raw, idx) => {
         let l = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
         if (!l || l.startsWith('%')) return;
         getUnsupportedCodes(l, 'mct').forEach(code => warnings.add(code));
-
         const tM = l.match(/T(\d+)/);
-        if (tM) curTool = 'T' + String(tM[1]).padStart(2, '0');
+        if (tM) curTool = 'T' + String(tM[1]).slice(0, 2).padStart(2, '0');
         if (/(^|\s)M0?6(?:\s|$)/.test(l)) getMctBucket(curTool).time += TOOL_CHANGE_TIME;
-
         if (/(^|\s)M0?[34](?:\s|$)/.test(l)) getMctBucket(curTool).time += 0.5;
         if (/(^|\s)M0?5(?:\s|$)/.test(l)) getMctBucket(curTool).time += 0.5;
         if (l.includes('M19')) getMctBucket(curTool).time += 1.0;
-
         const g4M = l.match(/G0?4\s*([PX])([\d\.]+)/);
         if (g4M) {
           const dVal = parseFloat(g4M[2]);
           getMctBucket(curTool).time += (g4M[1] === 'P' && dVal >= 100) ? dVal / 1000.0 : dVal;
         }
-
         if (l.includes('G90')) isG91 = false;
         if (l.includes('G91')) isG91 = true;
-
         const fM = l.match(/F([\d\.]+)/);
         if (fM) curFeed = Math.max(1, parseFloat(fM[1]));
-
-        // 버그 수정: G28 Z축 복귀 시 이동선(addMctMove)을 추가하고 궤적 및 C/T에 정상 반영
         if (l.includes('G28')) {
           if (l.includes('Z')) {
             const retZ = 50;
@@ -2073,47 +2102,27 @@
           }
           return;
         }
-
-        // 작업좌표 오프셋 설정은 실제 공구 이동이 아니므로 경로에서 제외
         if (/^G10(?:L\d+)?/.test(l)) return;
-        // 서브프로그램 호출/복귀 자체는 경로가 아니며, 본문이 없으면 그 형상을 재현할 수 없음
         if (/^M98\b|^M99\b/.test(l)) return;
-
         if (l.includes('G80')) activeCycle = null;
         if (l.includes('G98')) isG98 = true;
         if (l.includes('G99')) isG98 = false;
-
         const cycleMatch = l.match(/G8[1-9]/);
-        if (cycleMatch) {
-          activeCycle = cycleMatch[0];
-          cycleRetractZ = cur.z;
-        }
-
-        // G0X..., G1X..., G3I...처럼 공백 없는 밀링 코드도 인식
+        if (cycleMatch) { activeCycle = cycleMatch[0]; cycleRetractZ = cur.z; }
         const gMotion = l.match(/G(00|01|02|03|0|1|2|3)(?=[A-Z\s]|$)/);
-        if (gMotion) {
-          modalG = 'G' + gMotion[1].padStart(2, '0');
-          activeCycle = null;
-        }
-
+        if (gMotion) { modalG = 'G' + gMotion[1].padStart(2, '0'); activeCycle = null; }
         const xm = l.match(/X([\-\d\.]+)/);
         const ym = l.match(/Y([\-\d\.]+)/);
         const zm = l.match(/Z([\-\d\.]+)/);
         const rm = l.match(/R([\-\d\.]+)/);
         const im = l.match(/I([\-\d\.]+)/);
         const jm = l.match(/J([\-\d\.]+)/);
-
-        let hasX = xm !== null;
-        let hasY = ym !== null;
-        let hasZ = zm !== null;
-
+        let hasX = xm !== null, hasY = ym !== null, hasZ = zm !== null;
         let nX = hasX ? (isG91 ? cur.x + parseFloat(xm[1]) : parseFloat(xm[1])) : cur.x;
         let nY = hasY ? (isG91 ? cur.y + parseFloat(ym[1]) : parseFloat(ym[1])) : cur.y;
         let nZ = hasZ ? (isG91 ? cur.z + parseFloat(zm[1]) : parseFloat(zm[1])) : cur.z;
-
         if (rm) cycleR = parseFloat(rm[1]);
         if (zm && activeCycle) cycleZ = isG91 ? cur.z + parseFloat(zm[1]) : parseFloat(zm[1]);
-
         if (activeCycle) {
           const isDrillAction = hasX || hasY || (cycleMatch && hasZ);
           if (isDrillAction) {
@@ -2121,27 +2130,21 @@
               addMctMove(cur.x, cur.y, cur.z, nX, nY, cur.z, 'G00', idx);
               cur.x = nX; cur.y = nY;
             }
-
             if (cur.z !== cycleR) {
               addMctMove(cur.x, cur.y, cur.z, cur.x, cur.y, cycleR, 'G00', idx);
               cur.z = cycleR;
             }
-
             addMctMove(cur.x, cur.y, cycleR, cur.x, cur.y, cycleZ, 'G01', idx);
-
             const retZ = isG98 ? cycleRetractZ : cycleR;
             addMctMove(cur.x, cur.y, cycleZ, cur.x, cur.y, retZ, 'G00', idx);
             cur.z = retZ;
             return;
           }
         }
-
         const isArc = modalG === 'G02' || modalG === 'G03';
         const R = rm ? parseFloat(rm[1]) : null;
         const I = im ? parseFloat(im[1]) : null;
         const J = jm ? parseFloat(jm[1]) : null;
-
-        // G3I-66 / G2I-66처럼 끝점 없이 원 한 바퀴를 도는 블록 지원
         if (isArc && (I !== null || J !== null) &&
             Math.abs(nX - cur.x) < 1e-9 && Math.abs(nY - cur.y) < 1e-9 &&
             Math.abs(nZ - cur.z) < 1e-9) {
@@ -2169,26 +2172,32 @@
       for (const [t, d] of Object.entries(toolStats)) {
         total += d.time; totalCut += d.cutTime; totalRapid += d.rapidTime;
         if (t === '초기설정') continue;
-        const m = Math.floor(d.time / 60), s = Math.round(d.time % 60);
+        const tsec = Math.round(d.time);
+        const m = Math.floor(tsec / 60), s = tsec % 60;
         report += `• ${t.padEnd(8)} : ${m}:${s < 10 ? '0' : ''}${s} (${d.time.toFixed(1)}초)\n`;
       }
       report += `------------------------------------\n`;
-      report += `전체 가공 시간 : ${Math.floor(total/60)}:${Math.round(total%60) < 10 ? '0':''}${Math.round(total%60)} (총 ${Math.round(total)}초)\n`;
+      const tsecT = Math.round(total);
+      report += `전체 가공 시간 : ${Math.floor(tsecT/60)}:${tsecT % 60 < 10 ? '0':''}${tsecT % 60} (총 ${tsecT}초)\n`;
       report += `[상세] 절삭: ${totalCut.toFixed(1)}s | 급속: ${totalRapid.toFixed(1)}s\n`;
+      report += `\n[주의] 가속도 모델 반영 (급속 a≈3000, 절삭 a≈800 mm/s²)\n`;
       document.getElementById('mctReport').innerText = report;
       showSimulationSafetyNotice('mct', [...warnings]);
     }
 
     function drawMctScreen() {
+      const cs = getComputedStyle(document.documentElement);
+      const canvasTop = cs.getPropertyValue('--canvas-top').trim() || '#2b4491';
+      const canvasBottom = cs.getPropertyValue('--canvas-bottom').trim() || '#4361b5';
+      const cutLine = cs.getPropertyValue('--cut-line').trim() || '#ffffff';
+      const rapidLine = cs.getPropertyValue('--rapid-line').trim() || '#facc15';
       const grad = mCtx.createLinearGradient(0, 0, 0, mCanvas.height);
-      grad.addColorStop(0, '#2b4491');
-      grad.addColorStop(1, '#4361b5');
+      grad.addColorStop(0, canvasTop);
+      grad.addColorStop(1, canvasBottom);
       mCtx.fillStyle = grad;
       mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-
       const o = project3D(0, 0, 0);
       const xA = project3D(20, 0, 0), yA = project3D(0, 20, 0), zA = project3D(0, 0, 20);
-
       function drawAxis(pTo, col, label) {
         mCtx.strokeStyle = col; mCtx.fillStyle = col; mCtx.lineWidth = 2.2;
         mCtx.beginPath(); mCtx.moveTo(o.px, o.py); mCtx.lineTo(pTo.px, pTo.py); mCtx.stroke();
@@ -2198,22 +2207,13 @@
       drawAxis(xA, '#ef4444', 'X');
       drawAxis(yA, '#22c55e', 'Y');
       drawAxis(zA, '#38bdf8', 'Z');
-
       const count = Math.min(mctPlayIdx, mctMoves.length);
       let lastP = null;
-
       for (let i = 0; i < count; i++) {
         const m = mctMoves[i];
         mCtx.beginPath();
-
-        if (m.lineIdx === mctSelectedLineIdx) {
-          mCtx.strokeStyle = '#00ffff';
-          mCtx.lineWidth = 3.5;
-        } else {
-          mCtx.strokeStyle = (m.type === 'G00') ? '#facc15' : '#ffffff';
-          mCtx.lineWidth = (m.type === 'G00') ? 1.3 : 1.7;
-        }
-
+        if (m.lineIdx === mctSelectedLineIdx) { mCtx.strokeStyle = '#00ffff'; mCtx.lineWidth = 3.5; }
+        else { mCtx.strokeStyle = (m.type === 'G00') ? rapidLine : cutLine; mCtx.lineWidth = (m.type === 'G00') ? 1.3 : 1.7; }
         if (m.points && m.points.length > 1) {
           const first = project3D(m.points[0].x, m.points[0].y, m.points[0].z);
           mCtx.moveTo(first.px, first.py);
@@ -2231,7 +2231,6 @@
         }
         mCtx.stroke();
       }
-
       if (lastP && mctPlayIdx > 0 && mctPlayIdx <= mctMoves.length) {
         mCtx.fillStyle = '#ef4444';
         mCtx.strokeStyle = '#ffffff';
@@ -2257,8 +2256,6 @@
       if (mctMoves.length === 0) return;
       if (mctIsPlaying) pauseMctPlay(); else startMctPlay();
     }
-
-    // 버그 수정: mct용 애니메이션 변수(mctAnimReq, mctLastTime)로 전면 정상화
     function startMctPlay() {
       if (mctPlayIdx >= mctMoves.length) mctPlayIdx = 0;
       mctIsPlaying = true;
@@ -2267,10 +2264,9 @@
       cancelAnimationFrame(mctAnimReq);
       mctAnimReq = requestAnimationFrame(mctAnimLoop);
     }
-
     function mctAnimLoop(timestamp) {
       if (!mctIsPlaying) return;
-      const speedVal = parseFloat(document.getElementById('mctSpeed').value) || 10;
+      const speedVal = parseFloat(document.getElementById('mctSpeed').value) || 2;
       if (timestamp - mctLastTime >= Math.max(16, 200 / speedVal)) {
         if (mctPlayIdx < mctMoves.length) {
           mctPlayIdx++;
@@ -2281,20 +2277,17 @@
       }
       mctAnimReq = requestAnimationFrame(mctAnimLoop);
     }
-
     function pauseMctPlay() {
       mctIsPlaying = false;
       cancelAnimationFrame(mctAnimReq);
       document.getElementById('btnMctPlay').innerText = '재생 ▶';
     }
-
     function stopMctPlay() {
       pauseMctPlay();
       mctPlayIdx = mctMoves.length;
       document.getElementById('mctSeek').value = 100;
       drawMctScreen();
     }
-
     function onMctSeek(val) {
       pauseMctPlay();
       mctPlayIdx = Math.round((val / 100) * mctMoves.length);
@@ -2307,12 +2300,8 @@
       mScale *= (e.deltaY < 0 ? 1.15 : 0.85);
       drawMctScreen();
     }, { passive: false });
-
     let mIsDrag = false, mLastMouse = { x: 0, y: 0 };
-    mBox.addEventListener('pointerdown', e => {
-      mIsDrag = true;
-      mLastMouse = { x: e.clientX, y: e.clientY };
-    });
+    mBox.addEventListener('pointerdown', e => { mIsDrag = true; mLastMouse = { x: e.clientX, y: e.clientY }; });
     window.addEventListener('pointerup', () => mIsDrag = false);
     window.addEventListener('pointermove', e => {
       if (!mIsDrag) return;
@@ -2321,7 +2310,6 @@
       mLastMouse = { x: e.clientX, y: e.clientY };
       drawMctScreen();
     });
-
     let mTouchDist = 0;
     mBox.addEventListener('touchstart', e => {
       if (e.touches.length === 2) {
@@ -2332,73 +2320,58 @@
       if (e.touches.length === 2) {
         e.preventDefault();
         const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        if (mTouchDist > 0) {
-          mScale *= (dist / mTouchDist);
-          drawMctScreen();
-        }
+        if (mTouchDist > 0) { mScale *= (dist / mTouchDist); drawMctScreen(); }
         mTouchDist = dist;
       }
     }, { passive: false });
 
-    /* =========================================================
-       3. CNC 선반 절삭 계산기
-       ========================================================= */
+    /* CNC 선반 절삭 계산기 */
     function calcLathe(mode) {
       const d = parseFloat(document.getElementById('l_dia').value);
       const vcIn = document.getElementById('l_vc');
       const rpmIn = document.getElementById('l_rpm');
-      const fIn = document.getElementById('l_feed');
-      const nrIn = document.getElementById('l_nr');
-      
-      const f = parseFloat(fIn.value) || 0.35;
-      const nr = parseFloat(nrIn.value) || 0.8;
-      if (!d || d <= 0) return;
-
+      const f = parseFloat(document.getElementById('l_feed').value) || 0.35;
+      const nr = parseFloat(document.getElementById('l_nr').value) || 0.8;
       let vc = 0, rpm = 0;
-      if (mode === 1 && vcIn.value) {
+      if (mode === 1 && vcIn.value && d > 0) {
         vc = parseFloat(vcIn.value);
         rpm = Math.round((1000 * vc) / (Math.PI * d));
         rpmIn.value = rpm;
-      } else if (mode === 2 && rpmIn.value) {
+      } else if (mode === 2 && rpmIn.value && d > 0) {
         rpm = parseFloat(rpmIn.value);
-        vc = ((Math.PI * d * rpm) / 1000).toFixed(1);
+        vc = parseFloat(((Math.PI * d * rpm) / 1000).toFixed(1));
         vcIn.value = vc;
-      } else return;
-
+      } else {
+        vc = vcIn.value ? parseFloat(vcIn.value) : '-';
+        rpm = rpmIn.value ? parseFloat(rpmIn.value) : '-';
+      }
       const rz = ((f * f) / (8 * nr)) * 1000;
+      const feedRate = (typeof rpm === 'number' && rpm > 0) ? (rpm * f).toFixed(1) + ' mm/min' : '-';
       document.getElementById('latheCalcReport').innerText =
-        `[계산 결과]\n• 주축 속도 (N) : ${rpm} RPM\n• 절삭 속도 (Vc) : ${vc} m/min\n• 분당 피드 : ${(rpm * f).toFixed(1)} mm/min\n• 이론 조도 Rz : ${rz.toFixed(1)} ㎛ (Ra 약 ${(rz/4).toFixed(2)} ㎛)`;
+        `[계산 결과]\n` +
+        `• 주축 속도 (N)  : ${rpm} RPM\n` +
+        `• 절삭 속도 (Vc) : ${vc} m/min\n` +
+        `• 분당 피드      : ${feedRate}\n` +
+        `• 이론 조도 Rz   : ${rz.toFixed(1)} ㎛ (Ra 약 ${(rz/4).toFixed(2)} ㎛)`;
     }
 
-    /* =========================================================
-       4. 밀링 절삭 계산기
-       ========================================================= */
+    /* 밀링 절삭 계산기 */
     function onMctDiaChange() {
       const d = parseFloat(document.getElementById('m_dia').value);
       const vcIn = document.getElementById('m_vc');
       const rpmIn = document.getElementById('m_rpm');
-
       if (!d || d <= 0) return;
-      if (vcIn.value) {
-        calcMctParam(1);
-      } else if (rpmIn.value) {
-        calcMctParam(2);
-      }
+      if (vcIn.value) calcMctParam(1);
+      else if (rpmIn.value) calcMctParam(2);
     }
-
     function onMctTeethChange() {
       const z = parseFloat(document.getElementById('m_teeth').value);
       const feedIn = document.getElementById('m_feed');
       const fzIn = document.getElementById('m_fz');
-
       if (!z || z <= 0) return;
-      if (feedIn.value) {
-        calcMctFeed(2);
-      } else if (fzIn.value) {
-        calcMctFeed(1);
-      }
+      if (feedIn.value) calcMctFeed(2);
+      else if (fzIn.value) calcMctFeed(1);
     }
-
     function calcMctParam(mode) {
       const d = parseFloat(document.getElementById('m_dia').value);
       const vcIn = document.getElementById('m_vc');
@@ -2406,9 +2379,7 @@
       const z = parseFloat(document.getElementById('m_teeth').value);
       const fzIn = document.getElementById('m_fz');
       const feedIn = document.getElementById('m_feed');
-
       let currentRpm = 0;
-
       if (mode === 1) {
         const vc = parseFloat(vcIn.value);
         if (d && d > 0 && !isNaN(vc)) {
@@ -2422,49 +2393,32 @@
           vcIn.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
         }
       }
-
       if (currentRpm > 0 && z && z > 0) {
         if (feedIn.value !== "") {
           const f = parseFloat(feedIn.value);
-          if (!isNaN(f)) {
-            fzIn.value = parseFloat((f / (z * currentRpm)).toFixed(4));
-          }
+          if (!isNaN(f)) fzIn.value = parseFloat((f / (z * currentRpm)).toFixed(4));
         } else if (fzIn.value !== "") {
           const fz = parseFloat(fzIn.value);
-          if (!isNaN(fz)) {
-            feedIn.value = Math.round(fz * z * currentRpm);
-          }
+          if (!isNaN(fz)) feedIn.value = Math.round(fz * z * currentRpm);
         }
       }
-
       updateMctChipRate();
     }
-
     function calcMctFeed(mode) {
       const z = parseFloat(document.getElementById('m_teeth').value);
       const rpm = parseFloat(document.getElementById('m_rpm').value);
       const fzIn = document.getElementById('m_fz');
       const feedIn = document.getElementById('m_feed');
-
-      if (!z || !rpm || z <= 0 || rpm <= 0) {
-        updateMctChipRate();
-        return;
-      }
-
+      if (!z || !rpm || z <= 0 || rpm <= 0) { updateMctChipRate(); return; }
       if (mode === 1) {
         const fz = parseFloat(fzIn.value);
-        if (!isNaN(fz)) {
-          feedIn.value = Math.round(fz * z * rpm);
-        }
+        if (!isNaN(fz)) feedIn.value = Math.round(fz * z * rpm);
       } else if (mode === 2) {
         const f = parseFloat(feedIn.value);
-        if (!isNaN(f)) {
-          fzIn.value = parseFloat((f / (z * rpm)).toFixed(4));
-        }
+        if (!isNaN(f)) fzIn.value = parseFloat((f / (z * rpm)).toFixed(4));
       }
       updateMctChipRate();
     }
-
 
     const materialData = [
       ['P 탄소강/합금강','S10C','1010','C10','A29','저탄소강'],['P 탄소강/합금강','S20C','1020','C22','A29','저탄소강'],['P 탄소강/합금강','S45C','1045','C45','A29','중탄소강'],['P 탄소강/합금강','S50C','1050','C50','A29','중탄소강'],['P 탄소강/합금강','SCM415','4115','16MnCr5','A29','침탄용 합금강'],['P 탄소강/합금강','SCM420','4120','20MnCr5','A29','침탄용 합금강'],['P 탄소강/합금강','SCM435','4135','34CrMo4','A29','조질용'],['P 탄소강/합금강','SCM440','4140','42CrMo4','A29','조질용'],['P 탄소강/합금강','SNCM439','4340','36CrNiMo6','A29','고강도 조질용'],['P 탄소강/합금강','SMn443','1144','36S20','A29','쾌삭강'],
@@ -2483,12 +2437,7 @@
         const groupLabel=r[0].replace(/^[PMKNSH]\s+/,'');
         return '<tr class="iso-row-'+iso+'">' +
           '<td class="material-group-cell"><strong>'+r[0].charAt(0)+' '+groupLabel+'</strong></td>' +
-          '<td>'+r[1]+'</td>' +
-          '<td>'+r[2]+'</td>' +
-          '<td>'+r[3]+'</td>' +
-          '<td>'+r[4]+'</td>' +
-          '<td>'+r[5]+'</td>' +
-          '</tr>';
+          '<td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td><td>'+r[4]+'</td><td>'+r[5]+'</td></tr>';
       }).join('');
       document.getElementById('materialCount').textContent=`표시 ${rows.length} / 전체 ${materialData.length}개`;
     }
@@ -2503,12 +2452,10 @@
       const fzIn = document.getElementById('m_fz').value;
       const ae = parseFloat(document.getElementById('m_ae').value) || 0;
       const ap = parseFloat(document.getElementById('m_ap').value) || 0;
-
       const f = parseFloat(feedIn) || 0;
       const fz = parseFloat(fzIn) || 0;
       const vc = vcIn ? parseFloat(vcIn) : (d > 0 && rpm > 0 ? ((Math.PI * d * rpm) / 1000).toFixed(1) : '-');
       const qVal = ((ae * ap * f) / 1000).toFixed(2);
-
       document.getElementById('mctCalcReport').innerText =
         `=== 밀링 절삭조건 산출 ===\n` +
         `• 주축 회전수 (N) : ${rpm ? rpm + ' RPM' : '-'} | Vc: ${vc} m/min\n` +
