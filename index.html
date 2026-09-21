@@ -328,7 +328,7 @@
     .cbn-kicker { font-size:10px; letter-spacing:.14em; color:var(--accent); font-weight:800; margin-bottom:3px; }
     .cbn-guide-head h2 { font-size:20px; line-height:1.2; color:var(--text); }
     .cbn-example { padding:14px 12px; border:1px solid var(--border); border-radius:12px; background:linear-gradient(135deg, rgba(56,189,248,.08), var(--card-bg)); margin-bottom:12px; }
-    .cbn-example-code { font-size:clamp(20px,5.4vw,34px); font-weight:900; letter-spacing:.02em; word-spacing:14px; text-align:center; line-height:1.15; word-break:keep-all; color:var(--text); }
+    .cbn-example-code { font-size:clamp(14px,4.3vw,30px); font-weight:900; letter-spacing:0; word-spacing:6px; text-align:center; line-height:1.15; word-break:keep-all; color:var(--text); }
     .cbn-example-code span { color:var(--accent); }
     .cbn-example-map { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:6px; margin-top:12px; }
     .cbn-example-map-four { grid-template-columns:repeat(4, minmax(0, 1fr)); width:100%; margin-left:0; margin-right:0; }
@@ -449,7 +449,6 @@
 <input accept="image/*" capture="environment" id="latheCameraInput" onchange="handleImageOCR(event, 'latheGcode')" style="display:none;" type="file"/>
 <button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">📁 NC 파일</button>
 <input accept=".nc,.txt,.tap,.gcode" id="latheFileInput" onchange="loadFileContent(event, 'latheGcode')" style="display:none;" type="file"/>
-<button class="btn-file-load" onclick="loadLathePreset()">예제</button>
 </div>
 </div>
 <textarea id="latheGcode" onclick="debouncedSyncLathe(this)" onkeyup="debouncedSyncLathe(this)" placeholder="선반 G코드를 붙여넣거나 [📷 사진 인식]으로 CNC 화면을 촬영하세요..."></textarea>
@@ -473,6 +472,7 @@
 <div style="display:flex; gap:5px;">
 <button class="btn-player" id="btnLathePlay" onclick="toggleLathePlay()">재생 ▶</button>
 <button class="btn-player" onclick="stopLathePlay()">정지 ■</button>
+<button class="btn-player" onclick="loadLathePreset()">예제</button>
 </div>
 <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
 <span>속도</span>
@@ -499,7 +499,6 @@
 <input accept="image/*" capture="environment" id="mctCameraInput" onchange="handleImageOCR(event, 'mctGcode')" style="display:none;" type="file"/>
 <button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">📁 NC 파일</button>
 <input accept=".nc,.txt,.tap,.gcode" id="mctFileInput" onchange="loadFileContent(event, 'mctGcode')" style="display:none;" type="file"/>
-<button class="btn-file-load" onclick="loadMctPreset()">예제</button>
 </div>
 </div>
 <textarea id="mctGcode" onclick="debouncedSyncMct(this)" onkeyup="debouncedSyncMct(this)" placeholder="MCT 3축 G코드를 붙여넣거나 [📷 사진 인식]으로 화면을 촬영하세요..."></textarea>
@@ -522,6 +521,7 @@
 <div style="display:flex; gap:5px;">
 <button class="btn-player" id="btnMctPlay" onclick="toggleMctPlay()">재생 ▶</button>
 <button class="btn-player" onclick="stopMctPlay()">정지 ■</button>
+<button class="btn-player" onclick="loadMctPreset()">예제</button>
 </div>
 <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
 <span>속도</span>
@@ -1527,13 +1527,22 @@ M30`;
       lCanvas.height = box.clientHeight;
       drawLatheScreen();
     }
-    function resetLatheView() {
+      function resetLatheView() {
       if (latheSegments.length === 0) return;
+      // 급속(G00) 이동은 화면 맞춤에서 제외 → 절삭 구간만 확대해서 보여줌
+      const cutSegs = latheSegments.filter(s => s.type !== 'G00');
+      const useSegs = cutSegs.length ? cutSegs : latheSegments;
       let minZ = Infinity, maxZ = -Infinity, minR = Infinity, maxR = -Infinity;
-      latheSegments.forEach(s => {
-        minZ = Math.min(minZ, s.z1, s.z2); maxZ = Math.max(maxZ, s.z1, s.z2);
-        minR = Math.min(minR, s.r1, s.r2); maxR = Math.max(maxR, s.r1, s.r2);
+      const expand = (z, r) => {
+        if (!isFinite(z) || !isFinite(r)) return;
+        minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
+        minR = Math.min(minR, r); maxR = Math.max(maxR, r);
+      };
+      useSegs.forEach(s => {
+        expand(s.z1, s.r1); expand(s.z2, s.r2);
+        if (s.pts) s.pts.forEach(p => expand(p.z, p.r));
       });
+      if (!isFinite(minZ)) { minZ = 0; maxZ = 10; minR = 0; maxR = 10; }
       const pad = 24;
       const spanZ = Math.max(10, maxZ - minZ);
       const spanR = Math.max(10, maxR - minR);
