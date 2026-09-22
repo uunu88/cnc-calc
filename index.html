@@ -2779,13 +2779,26 @@ M30`;
 
       let chipLine = '';
       if (fz > 0 && ae > 0 && d > 0) {
+        /* 리드각에 따라 적정 기준 다르게 적용 */
+        let minHm, maxHm, mode;
+        if (krDeg >= 60) {
+          minHm = 0.05; maxHm = 0.15;
+          mode = '일반 밀링';
+        } else if (krDeg >= 30) {
+          minHm = 0.03; maxHm = 0.12;
+          mode = '중간 리드각';
+        } else {
+          minHm = 0.01; maxHm = 0.08;
+          mode = '하이피드';
+        }
+
         let status = '';
-        if (hm < 0.02) status = '⚠ 너무 얇음 → 마모 촉진 (이송 Fz ↑ 권장)';
-        else if (hm > 0.15) status = '⚠ 너무 두꺼움 → 치핑 위험 (이송 Fz ↓ 권장)';
-        else status = '✅ 적정 범위';
+        if (hm < minHm) status = `⚠ 너무 얇음 → 마모 촉진 (이송 Fz ↑ 권장) [${mode} 기준 ${minHm}~${maxHm}mm]`;
+        else if (hm > maxHm) status = `⚠ 너무 두꺼움 → 치핑 위험 (이송 Fz ↓ 권장) [${mode} 기준 ${minHm}~${maxHm}mm]`;
+        else status = `✅ 적정 범위 [${mode} 기준 ${minHm}~${maxHm}mm]`;
 
         chipLine =
-          `\n\n[칩 두께 계산 · 리드각 ${krDeg}°]\n` +
+          `\n\n[칩 두께 계산 · 리드각 ${krDeg}° · ${mode}]\n` +
           `• 평균 칩 두께 (hm)  = ${hm.toFixed(4)} mm\n` +
           `• 최대 칩 두께 (hex) = ${hex.toFixed(4)} mm\n` +
           `• 판정: ${status}`;
