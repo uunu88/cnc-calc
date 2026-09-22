@@ -3003,5 +3003,16 @@ M30`;
         `   지령 예) G02/G03 ... R${progR.toFixed(3)}${warn}`;
     }
 </script>
+    
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('SW 등록됨:', reg.scope))
+        .catch(err => console.log('SW 등록 실패:', err));
+    });
+  }
+</script>
 </body>
 </html>
