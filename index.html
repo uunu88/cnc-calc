@@ -12,6 +12,17 @@
 <meta content="#0f172a" name="theme-color"/>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 <style>
+    /* 숫자 입력창 화살표(스피너) 제거 */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+    }
+
     :root {
       --bg: #090d16;
       --card-bg: #131b2e;
@@ -173,6 +184,14 @@
     .viewport:active { cursor: grabbing; }
     canvas { width: 100%; height: 100%; display: block; }
 
+    .viewport-save-btn {
+      position: absolute; top: 8px; right: 8px; z-index: 10;
+      background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11px;
+      font-weight: 700; cursor: pointer; backdrop-filter: blur(4px);
+    }
+    .viewport-save-btn:active { background: rgba(0, 0, 0, 0.85); }
+
     .player-bar {
       background: var(--header-bg); border: 1px solid var(--border); border-radius: 8px;
       padding: 6px 10px; display: flex; flex-direction: column; gap: 6px;
@@ -211,7 +230,7 @@
     .info-box {
       background: var(--report-bg); border: 1px solid var(--border); border-radius: 8px;
       padding: 8px; font-family: monospace; font-size: 11px; color: var(--report-text);
-      max-height: 130px; overflow-y: auto; white-space: pre-wrap; line-height: 1.45;
+      white-space: pre-wrap; line-height: 1.45;
     }
     .legend { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); justify-content: flex-end; flex-wrap: wrap; }
     .legend span { display: flex; align-items: center; gap: 3px; }
@@ -283,10 +302,17 @@
       border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted);
       cursor:pointer; transition:all 0.15s;
     }
-    .dura-filter-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
-    .dura-2026-table tr.dura-hidden { display:none; }
+   .dura-filter-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
 
-    .data-table-wrap { overflow-x: auto; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); }
+.dura-zoom-bar { display:flex; gap:5px; align-items:center; margin:8px 0 4px; flex-wrap:wrap; }
+.dura-zoom-btn {
+  padding:4px 10px; font-size:11px; font-weight:700; border-radius:14px;
+  border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted);
+  cursor:pointer; transition:all 0.15s;
+}
+.dura-zoom-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
+
+.data-table-wrap { overflow-x: auto; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); }
     .data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left; }
     .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
     .data-table th { background: var(--thead-bg); color: var(--thead-text); font-weight: 700; white-space: nowrap; }
@@ -390,6 +416,16 @@
     }
 
     .discount-rounded { font-size: 11px; color: var(--accent); margin: 0 0 5px 2px; min-height: 14px; }
+
+    /* 나사·탭·R 계산기 전용 */
+    .screw-result-box {
+      background: linear-gradient(135deg, rgba(56,189,248,.12), var(--card-bg));
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; text-align: center; margin: 8px 0;
+    }
+    .screw-result-label { font-size: 10px; letter-spacing: .12em; color: var(--text-muted); font-weight: 800; margin-bottom: 4px; }
+    .screw-result-value { font-size: clamp(26px, 8vw, 42px); font-weight: 900; color: var(--accent); letter-spacing: -1px; line-height: 1.1; }
+    .screw-result-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
 </style>
 </head>
 <body>
@@ -417,15 +453,15 @@
 <div class="menu-btn" onclick="openView('lathe-path')">CNC 선반 경로<span>2축 가공 &amp; C/T 시뮬레이터</span></div>
 <div class="menu-btn" onclick="openView('mct-path')">MCT 밀링 경로<span>3축 가공 &amp; C/T 시뮬레이터</span></div>
 <div class="menu-btn" onclick="openView('lathe-calc')">선반 절삭조건 계산<span>Vc ↔ RPM &amp; 조도(Rz)</span></div>
-<div class="menu-btn" onclick="openView('mct-calc')">밀링 절삭조건 계산<span>N ↔ Vc &amp; F ↔ Fz &amp; 공출량(Q)</span></div>
+<div class="menu-btn" onclick="openView('mct-calc')">밀링 절삭조건 계산<span>Vc / Fz &amp; 공출량(Q) &amp; 칩 두께(hm)</span></div>
 <div class="menu-btn" onclick="openView('duracarb-2026')">Duracarb 재종표<span>2026년 &amp; 타 메이커 대응</span></div>
 <div class="menu-btn" onclick="openView('mat-calc')">재질별 절삭조건<span>ISO 그룹별 권장 &amp; 재질 대응표</span></div>
 <div class="menu-btn" onclick="openView('discount-calc')">할인율 계산기<span>정가별 할인 &amp; 납품가</span></div>
+<div class="menu-btn" onclick="openView('tool-cost')">공구비 계산기<span>개당 공구비 &amp; 월 공구비 계산</span></div>
+<div class="menu-btn" onclick="openView('screw-calc')">나사·탭·R 계산기<span>탭 드릴 &amp; 피치 &amp; 원호 R</span></div>
 <div class="menu-btn" onclick="openView('cbn-guide')">Duracarb CBN<span>CBN User Guide</span></div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">Duracarb 터닝<span>공식 사이트 · Turning</span></div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">Duracarb 밀링<span>공식 사이트 · Milling</span></div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">Duracarb 홈 가공<span>공식 사이트 · Grooving</span></div>
-<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">Duracarb 드릴링<span>공식 사이트 · Drilling</span></div>
+<div class="menu-btn" onclick="openView('dura-turnmill-link')">Duracarb 터닝/밀링<span>공식 사이트 · Turning &amp; Milling</span></div>
+<div class="menu-btn" onclick="openView('dura-link')">Duracarb 홈/드릴<span>공식 사이트 · Grooving &amp; Drilling</span></div>
 <div class="menu-btn" onclick="openView('gcode-calc')">G / M 코드 일람<span>선반 &amp; MCT 분류</span></div>
 <div class="menu-btn" onclick="toggleTheme()">모드 변경<span>Dark Mode &amp; Light Mode</span></div>
 </div>
@@ -465,7 +501,10 @@
 <span style="color:var(--text-muted);">휠/핀치: 줌, 드래그: 이동</span>
 </div>
 </div>
-<div class="viewport" id="latheBox"><canvas id="latheCanvas"></canvas></div>
+<div class="viewport" id="latheBox">
+<canvas id="latheCanvas"></canvas>
+<button class="viewport-save-btn" onclick="saveCanvasAsImage('latheCanvas','선반')" onpointerdown="event.stopPropagation()">📷 저장</button>
+</div>
 <div class="player-bar">
 <input class="seek-slider" id="latheSeek" max="100" min="0" oninput="onLatheSeek(this.value)" type="range" value="100"/>
 <div class="player-controls">
@@ -514,7 +553,10 @@
 <span style="color:var(--text-muted);">1손가락: 궤도회전 / 2손가락: 줌</span>
 </div>
 </div>
-<div class="viewport" id="mctBox"><canvas id="mctCanvas"></canvas></div>
+<div class="viewport" id="mctBox">
+<canvas id="mctCanvas"></canvas>
+<button class="viewport-save-btn" onclick="saveCanvasAsImage('mctCanvas','MCT')" onpointerdown="event.stopPropagation()">📷 저장</button>
+</div>
 <div class="player-bar">
 <input class="seek-slider" id="mctSeek" max="100" min="0" oninput="onMctSeek(this.value)" type="range" value="100"/>
 <div class="player-controls">
@@ -575,6 +617,25 @@
 <div><label>절삭 폭 ae (mm)</label><input id="m_ae" oninput="updateMctChipRate()" placeholder="예: 5" type="number"/></div>
 <div><label>절삭 깊이 ap (mm)</label><input id="m_ap" oninput="updateMctChipRate()" placeholder="예: 2" type="number"/></div>
 </div>
+<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
+<div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">칩 두께 계산</div>
+<div class="input-grid-2">
+<div>
+<label>커터 리드각 (κr)</label>
+<select id="m_leadAngle" onchange="updateMctChipRate()">
+<option value="90">90°</option>
+<option value="75">75°</option>
+<option value="45">45°</option>
+<option value="15">15°</option>
+</select>
+</div>
+<div>
+<label>리드각 직접 입력 (°)</label>
+<input id="m_leadAngleCustom" min="1" max="90" oninput="updateMctChipRate()" placeholder="예: 10" step="1" type="number"/>
+</div>
+</div>
+<div style="font-size:10px; color:var(--text-muted); margin-top:4px;">* 직접 입력 시 드롭다운보다 우선 적용됩니다.</div>
+</div>
 </div>
 <div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">📋 복사</button></div>
 <div class="info-box" id="mctCalcReport">입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
@@ -591,12 +652,18 @@
 <button class="dura-filter-btn" data-app="cut" onclick="setDuraFilter('cut', this)">컷그립</button>
 <button class="dura-filter-btn" data-app="end" onclick="setDuraFilter('end', this)">엔드밀</button>
 </div>
+<div class="dura-zoom-bar">
+<span style="font-size:10px; color:var(--text-muted); font-weight:700;">화면 배율</span>
+<button class="dura-zoom-btn" onclick="fitDuraTable(this)">화면 맞춤</button>
+<button class="dura-zoom-btn active" onclick="setDuraZoom(1, this)">100%</button>
+<button class="dura-zoom-btn" onclick="setDuraZoom(0.7, this)">70%</button>
+<button class="dura-zoom-btn" onclick="setDuraZoom(0.5, this)">50%</button>
+</div>
 <div class="dura-2026-wrap">
 <table class="dura-2026-table" id="duraTable">
 <colgroup><col class="kind"/><col class="color"/><col class="grade"/><col class="iso"/><col class="appmark"/><col class="appmark"/><col class="appmark"/><col class="appmark"/><col class="appmark"/><col class="appdesc"/><col class="comp"/><col class="comp"/><col class="comp"/></colgroup>
 <thead><tr><th rowspan="2">구분</th><th rowspan="2">색상</th><th rowspan="2">재종</th><th rowspan="2">ISO 적용범위</th><th colspan="5">어플리케이션</th><th rowspan="2">피삭재 적용 / 추천 가공</th><th rowspan="2">TaeguTec</th><th colspan="2">경쟁사 대응 규격</th></tr><tr><th>터닝</th><th>밀링</th><th>드릴링</th><th>컷그립</th><th>엔드밀</th><th>Korloy</th><th>Kyocera</th></tr></thead>
 <tbody>
-<!-- CVD 그룹 -->
 <tr data-kind="CVD"><td class="dura-kind" rowspan="7">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC820</td><td class="dura-iso dura-k">K10 - K20</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">회주철, 덕타일주철의 일반 터닝</td><td class="dura-competitor">TT7015</td><td class="dura-competitor">NC6110</td><td class="dura-competitor">CA4515</td></tr>
 <tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9005</td><td class="dura-iso dura-p">P05 - P15</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 초고속 연속 터닝</td><td class="dura-competitor">TT8105</td><td class="dura-competitor">NC3205</td><td class="dura-competitor">CA5505<br/>CA510</td></tr>
 <tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC9015</td><td class="dura-iso dura-p">P10 - P25</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 고속 터닝</td><td class="dura-competitor">TT8115</td><td class="dura-competitor">NC3010</td><td class="dura-competitor">VP5115<br/>CA5515</td></tr>
@@ -604,7 +671,6 @@
 <tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC8035</td><td class="dura-iso"><span class="dura-p">P20 - P40</span><br/><span class="dura-m">M30 - M40</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">연강, 저탄소 합금강의 중삭 터닝<br/>스테인리스강의 중속 및 저속 가공</td><td class="dura-competitor">TT5100<br/>TT9225</td><td class="dura-competitor">NC9025</td><td class="dura-competitor">CP5530<br/>CA6525</td></tr>
 <tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7040</td><td class="dura-iso dura-p">P10 - P30</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">탄소강, 합금강의 드릴 가공용</td><td class="dura-competitor">TT7400</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
 <tr data-kind="CVD"><td class="dura-kind" style="display:none">CVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DC7800</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M45</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">탄소강, 합금강의 황삭 가공<br/>스테인리스강의 중속 가공</td><td class="dura-competitor">TT8525B</td><td class="dura-competitor">NCM535<br/>PC5300</td><td class="dura-competitor">CA6535<br/>PR1535</td></tr>
-<!-- PVD 그룹 -->
 <tr data-kind="PVD"><td class="dura-kind" rowspan="13">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DP5010</td><td class="dura-iso"><span class="dura-m">M05 - M25</span><br/><span class="dura-s">S05 - S25</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">스테인리스강 및 내열합금의 광범위한 터닝</td><td class="dura-competitor">TT5030</td><td class="dura-competitor">PC8110</td><td class="dura-competitor">PR1005<br/>PR930</td></tr>
 <tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9320</td><td class="dura-iso"><span class="dura-p">P05 - P25</span><br/><span class="dura-k">K05 - K25</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 밀링<br/>주철의 급단속 밀링</td><td class="dura-competitor">TT7080</td><td class="dura-competitor">PC3600</td><td class="dura-competitor">PP9125<br/>PP0025</td></tr>
 <tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-black"></span></td><td class="dura-grade">DC7070</td><td class="dura-iso dura-p">P20 - P40</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 밀링</td><td class="dura-competitor">TT7070</td><td class="dura-competitor">PC3500</td><td class="dura-competitor">PP8030</td></tr>
@@ -618,12 +684,10 @@
 <tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DP9020</td><td class="dura-iso"><span class="dura-p">P25 - P45</span><br/><span class="dura-m">M25 - M45</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 절삭용</td><td class="dura-competitor">TT7210</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
 <tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC9235</td><td class="dura-iso"><span class="dura-p">P30 - P45</span><br/><span class="dura-m">M30 - M40</span><br/><span class="dura-s">S30 - S40</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">스테인리스강, 내열합금, 저탄소강 등의 단속 및 중·저속용 고인성 재종</td><td class="dura-competitor">TT8020</td><td class="dura-competitor">PC5300</td><td class="dura-competitor">PM9915<br/>PM0015</td></tr>
 <tr data-kind="PVD"><td class="dura-kind" style="display:none">PVD<br/>코팅 초경</td><td class="dura-color"><span class="dura-swatch dura-gray"></span></td><td class="dura-grade">DC154</td><td class="dura-iso dura-p">P20 - P35</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강의 경·중절삭 및 황삭용</td><td class="dura-competitor">TT7220</td><td class="dura-competitor">PC3535</td><td class="dura-competitor"></td></tr>
-<!-- 초경 그룹 -->
 <tr data-kind="초경"><td class="dura-kind" rowspan="4">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DN9020</td><td class="dura-iso dura-p">P15 - P25</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강의 일반 절삭용</td><td class="dura-competitor">P20</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
 <tr data-kind="초경"><td class="dura-kind" style="display:none">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC325M</td><td class="dura-iso dura-p">P30 - P40</td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">P30</td><td class="dura-competitor">A30</td><td class="dura-competitor"></td></tr>
 <tr data-kind="초경"><td class="dura-kind" style="display:none">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC210</td><td class="dura-iso dura-k">K10</td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">주철 밀링용(범용)<br/>비코팅</td><td class="dura-competitor">K10</td><td class="dura-competitor">H01</td><td class="dura-competitor">VK10</td></tr>
 <tr data-kind="초경"><td class="dura-kind" style="display:none">초경</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC208<br/>(DC210)</td><td class="dura-iso dura-n">N10</td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app">알루미늄, 비철금속의 일반 가공<br/>비코팅</td><td class="dura-competitor">UF10</td><td class="dura-competitor"></td><td class="dura-competitor"></td></tr>
-<!-- 서멧 그룹 -->
 <tr data-kind="서멧"><td class="dura-kind" rowspan="2">서멧</td><td class="dura-color"><span class="dura-swatch dura-metal"></span></td><td class="dura-grade">DC610</td><td class="dura-iso"><span class="dura-p">P05 - P15</span><br/><span class="dura-m">M05 - M15</span><br/><span class="dura-k">K05 - K15</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app">강, 주철, 스테인리스강의 정삭<br/>강의 일반 석삭 및 홈 절삭</td><td class="dura-competitor">CT3000</td><td class="dura-competitor">CN1000</td><td class="dura-competitor">TN60</td></tr>
 <tr data-kind="서멧"><td class="dura-kind" style="display:none">서멧</td><td class="dura-color"><span class="dura-swatch dura-yellow"></span></td><td class="dura-grade">DPT110</td><td class="dura-iso"><span class="dura-p">P05 - P20</span><br/><span class="dura-m">M05 - M20</span><br/><span class="dura-k">K05 - K20</span></td><td class="dura-app-mark"><span class="dura-app-dot">●</span></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app-mark"></td><td class="dura-app">강, 스테인리스강 및 주철의 고속 정삭 가공<br/>양호한 표면 조도</td><td class="dura-competitor">PV3010</td><td class="dura-competitor">CC1500</td><td class="dura-competitor">PV710<br/>PV720</td></tr>
 </tbody>
@@ -738,6 +802,27 @@
 </tbody>
 </table>
 </div>
+</div>
+</div>
+
+<!-- 공구비 계산기 -->
+<div class="sub-view" id="view-tool-cost">
+<div class="card">
+<div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">개당 공구비 &amp; 월 공구비 계산</div>
+<div class="input-grid-2">
+<div><label>공구 단가 (원)</label><input id="toolUnitPrice" min="0" oninput="calcToolCost()" placeholder="예: 8000" step="1" type="number"/></div>
+<div><label>인서트 코너 수</label><input id="toolCornerCount" min="1" max="16" oninput="calcToolCost()" placeholder="예: 4" step="1" type="number"/></div>
+</div>
+<div class="input-grid-2">
+<div><label>공구 수명 (ea)</label><input id="toolLifeQty" min="0" oninput="calcToolCost()" placeholder="예: 200" step="1" type="number"/></div>
+<div><label>개당 공구비</label><input id="toolCostPerPiece" placeholder="-" readonly type="text"/></div>
+</div>
+<div class="input-grid-2">
+<div><label>월 생산량 (ea)</label><input id="toolMonthlyQty" min="0" oninput="calcToolCost()" placeholder="선택 입력" step="1" type="number"/></div>
+<div><label>월 공구비</label><input id="toolMonthlyCost" placeholder="월 생산량 입력 시" readonly type="text"/></div>
+</div>
+<div class="info-box-head"><span>계산 상세</span><button class="btn-copy" id="copyToolCost" onclick="copyReport('toolCostReport','copyToolCost')">📋 복사</button></div>
+<div class="info-box" id="toolCostReport">공구 단가, 수명, 코너 수를 입력하세요.</div>
 </div>
 </div>
 
@@ -899,6 +984,112 @@
 <div class="material-meta" id="materialCount"></div>
 </div>
 </div>
+
+<!-- Duracarb 터닝/밀링 링크 -->
+<div class="sub-view" id="view-dura-turnmill-link">
+<div class="card">
+<div style="font-size:11px; color: var(--text-muted); margin-bottom:10px;">Duracarb 공식 사이트 · 기술 자료로 이동합니다.</div>
+<div class="main-grid" style="padding-bottom:0;">
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=turn', '_blank')">터닝<span>Turning · 공식 사이트</span></div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=mill', '_blank')">밀링<span>Milling · 공식 사이트</span></div>
+</div>
+</div>
+</div>
+
+<!-- Duracarb 홈/드릴 링크 -->
+<div class="sub-view" id="view-dura-link">
+<div class="card">
+<div style="font-size:11px; color: var(--text-muted); margin-bottom:10px;">Duracarb 공식 사이트 · 기술 자료로 이동합니다.</div>
+<div class="main-grid" style="padding-bottom:0;">
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">홈 가공<span>Grooving · 공식 사이트</span></div>
+<div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">드릴링<span>Drilling · 공식 사이트</span></div>
+</div>
+</div>
+</div>
+
+<!-- 나사·탭·R 계산기 -->
+<div class="sub-view" id="view-screw-calc">
+<div class="card">
+<div class="dura-filter-tabs" id="screwTabs">
+<button class="dura-filter-btn active" onclick="setScrewTab('tapdrill', this)">탭 드릴</button>
+<button class="dura-filter-btn" onclick="setScrewTab('pitch', this)">나사 피치</button>
+<button class="dura-filter-btn" onclick="setScrewTab('arcr', this)">원호 R 계산</button>
+</div>
+
+<!-- 탭1: 탭 드릴 -->
+<div class="screw-panel" id="screw-panel-tapdrill">
+<div class="input-grid-2">
+<div>
+<label>규격</label>
+<select id="tapDrillType" onchange="updateTapDrillSizes()">
+<option value="M">M (미터 나사)</option>
+<option value="UNC">UNC (통일 거친)</option>
+<option value="UNF">UNF (통일 가는)</option>
+<option value="PT">PT (관용 테이퍼)</option>
+<option value="NPT">NPT (미국 관용)</option>
+</select>
+</div>
+<div>
+<label>호칭</label>
+<select id="tapDrillSize" onchange="updateTapDrillResult()"></select>
+</div>
+</div>
+<div class="screw-result-box">
+<div class="screw-result-label">TAP DRILL</div>
+<div class="screw-result-value" id="tapDrillValue">-</div>
+<div class="screw-result-sub" id="tapDrillSub">규격과 호칭을 선택하세요</div>
+</div>
+<div class="info-box-head"><span>상세 정보</span><button class="btn-copy" id="copyTapDrill" onclick="copyReport('tapDrillReport','copyTapDrill')">📋 복사</button></div>
+<div class="info-box" id="tapDrillReport">규격과 호칭을 선택하면 드릴 직경이 표시됩니다.</div>
+</div>
+
+<!-- 탭2: 나사 피치 -->
+<div class="screw-panel" id="screw-panel-pitch" style="display:none;">
+<div class="dura-filter-tabs" id="pitchFilter">
+<button class="dura-filter-btn active" onclick="setPitchFilter('all', this)">전체</button>
+<button class="dura-filter-btn" onclick="setPitchFilter('M', this)">M</button>
+<button class="dura-filter-btn" onclick="setPitchFilter('UNC', this)">UNC</button>
+<button class="dura-filter-btn" onclick="setPitchFilter('UNF', this)">UNF</button>
+<button class="dura-filter-btn" onclick="setPitchFilter('PT', this)">PT</button>
+<button class="dura-filter-btn" onclick="setPitchFilter('NPT', this)">NPT</button>
+</div>
+<div style="font-size:10px; color:var(--text-muted); margin:4px 0 6px;">* G76 지령 참고값: P는 나사높이(마이크론), Q는 첫 절입량(마이크론). 제어기·조건에 따라 조정하세요.</div>
+<div class="data-table-wrap">
+<table class="data-table">
+<thead><tr><th>규격</th><th>피치(mm)</th><th>나사높이(mm)</th><th>첫 절입(mm)</th><th>G76 (P/Q)</th></tr></thead>
+<tbody id="pitchRows"></tbody>
+</table>
+</div>
+</div>
+
+<!-- 탭3: 원호 R -->
+<div class="screw-panel" id="screw-panel-arcr" style="display:none;">
+<label>노즈 R (mm)</label>
+<div class="input-grid-2">
+<select id="arcrNoseR" onchange="onArcRNoseChange()">
+<option value="0.2">0.2</option>
+<option value="0.4">0.4</option>
+<option value="0.8" selected>0.8</option>
+<option value="1.2">1.2</option>
+</select>
+<input id="arcrNoseRCustom" oninput="calcArcR()" placeholder="직접 입력 (선택)" step="0.1" type="number"/>
+</div>
+<label>도면 R (mm)</label>
+<input id="arcrDrawingR" oninput="calcArcR()" placeholder="예: 3.0" step="0.1" type="number"/>
+<label>코너 종류</label>
+<div class="input-grid-2">
+<button class="tab-btn active" id="arcrOuterBtn" onclick="setArcRType('outer')">외경 코너</button>
+<button class="tab-btn" id="arcrInnerBtn" onclick="setArcRType('inner')">내경 코너</button>
+</div>
+<div class="screw-result-box">
+<div class="screw-result-label">PROGRAM R</div>
+<div class="screw-result-value" id="arcrValue">-</div>
+<div class="screw-result-sub" id="arcrSub">값을 입력하세요</div>
+</div>
+<div class="info-box-head"><span>계산 상세</span><button class="btn-copy" id="copyArcR" onclick="copyReport('arcrReport','copyArcR')">📋 복사</button></div>
+<div class="info-box" id="arcrReport">노즈R과 도면 R을 입력하세요.</div>
+</div>
+</div>
 </div>
 </div>
 
@@ -922,6 +1113,32 @@
       const next = isLight ? 'dark' : 'light';
       try { localStorage.setItem('cnc_theme', next); } catch (e) {}
       applyTheme(next);
+    }
+
+    /* 이미지 저장 */
+    function saveCanvasAsImage(canvasId, prefix) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const d = new Date();
+      const dateStr = d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0');
+      const filename = prefix + '_' + dateStr + '.png';
+      try {
+        canvas.toBlob(function(blob) {
+          if (!blob) { alert('이미지 변환 실패'); return; }
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = filename;
+          link.href = url;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(url), 1500);
+        }, 'image/png');
+      } catch (e) {
+        alert('이미지 저장 오류: ' + e.message);
+      }
     }
 
     /* 리포트 복사 */
@@ -1266,6 +1483,8 @@ M30`;
       initDuraFilter();
       reflowDuraKind();
       setupBackGesture();
+      updateTapDrillSizes();
+      renderPitchTable();
 
       let savedTheme = 'dark';
       try { savedTheme = localStorage.getItem('cnc_theme') || 'dark'; } catch (e) {}
@@ -1350,6 +1569,60 @@ M30`;
       document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
     }
 
+    /* 공구비 계산기 */
+    function calcToolCost() {
+      const priceInput = document.getElementById('toolUnitPrice').value;
+      const lifeInput = document.getElementById('toolLifeQty').value;
+      const cornerInput = document.getElementById('toolCornerCount').value;
+      const monthInput = document.getElementById('toolMonthlyQty').value;
+
+      const perPieceEl = document.getElementById('toolCostPerPiece');
+      const monthEl = document.getElementById('toolMonthlyCost');
+      const reportEl = document.getElementById('toolCostReport');
+
+      const price = Number(priceInput);
+      const life = Number(lifeInput);
+      const corner = Number(cornerInput);
+      const monthly = Number(monthInput);
+
+      /* 개당 공구비 필수 조건: 단가, 수명, 코너 수 */
+      if (priceInput === '' || lifeInput === '' || cornerInput === '' ||
+          !Number.isFinite(price) || price < 0 ||
+          !Number.isFinite(life) || life <= 0 ||
+          !Number.isFinite(corner) || corner <= 0) {
+        perPieceEl.value = '';
+        monthEl.value = '';
+        reportEl.innerText = '공구 단가, 공구 수명, 인서트 코너 수를 입력하세요.';
+        return;
+      }
+
+      const totalLife = life * corner;
+      const costPerPiece = price / totalLife;
+      perPieceEl.value = costPerPiece.toFixed(2) + '원';
+
+      let text =
+        `=== 개당 공구비 계산 ===\n` +
+        `• 공구 단가       : ${Math.round(price).toLocaleString('ko-KR')}원\n` +
+        `• 공구 수명       : ${life.toLocaleString('ko-KR')}ea/코너\n` +
+        `• 인서트 코너 수  : ${corner}코너\n` +
+        `• 총 가공 가능 수 : ${totalLife.toLocaleString('ko-KR')}ea\n` +
+        `------------------------------------\n` +
+        `▶ 개당 공구비     : ${costPerPiece.toFixed(2)}원`;
+
+      if (monthInput !== '' && Number.isFinite(monthly) && monthly >= 0) {
+        const monthlyCost = costPerPiece * monthly;
+        monthEl.value = Math.round(monthlyCost).toLocaleString('ko-KR') + '원';
+        text +=
+          `\n\n[월 기준]\n` +
+          `• 월 생산량       : ${monthly.toLocaleString('ko-KR')}ea\n` +
+          `• 월 공구비       : ${Math.round(monthlyCost).toLocaleString('ko-KR')}원`;
+      } else {
+        monthEl.value = '';
+      }
+
+      reportEl.innerText = text;
+    }
+
     function goHome() {
       document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
       document.getElementById('view-main').style.display = 'block';
@@ -1374,7 +1647,11 @@ M30`;
         'gcode-calc': '표준 G / M 코드 일람',
         'mat-calc': '재질별 추천 절삭조건',
         'discount-calc': '할인율 계산기',
-        'cbn-guide': 'Duracarb CBN'
+        'tool-cost': '공구비 계산기',
+        'dura-turnmill-link': 'Duracarb 터닝 · 밀링',
+        'cbn-guide': 'Duracarb CBN',
+        'screw-calc': '나사·탭·R 계산기',
+        'dura-link': 'Duracarb 홈 가공 · 드릴링'
       };
       document.getElementById('headerTitle').innerText = titles[name] || 'CNC / MCT 도우미';
       document.getElementById('view-' + name).style.display = 'flex';
@@ -1499,6 +1776,21 @@ M30`;
       reflowDuraKind();
     }
 
+    /* 재종표 배율 조절 */
+    function setDuraZoom(scale, btn) {
+      document.querySelectorAll('.dura-zoom-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('duraTable').style.zoom = scale;
+    }
+    function fitDuraTable(btn) {
+      const wrap = document.querySelector('.dura-2026-wrap');
+      if (!wrap) return;
+      const scale = wrap.clientWidth / 1168;
+      document.querySelectorAll('.dura-zoom-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('duraTable').style.zoom = scale;
+    }
+
     /* 이동 시간 계산 (가속도 반영) */
     function calcMoveTimeSec(distMm, feedMmMin, isRapid) {
       if (distMm <= 0) return 0;
@@ -1527,9 +1819,8 @@ M30`;
       lCanvas.height = box.clientHeight;
       drawLatheScreen();
     }
-      function resetLatheView() {
+    function resetLatheView() {
       if (latheSegments.length === 0) return;
-      // 급속(G00) 이동은 화면 맞춤에서 제외 → 절삭 구간만 확대해서 보여줌
       const cutSegs = latheSegments.filter(s => s.type !== 'G00');
       const useSegs = cutSegs.length ? cutSegs : latheSegments;
       let minZ = Infinity, maxZ = -Infinity, minR = Infinity, maxR = -Infinity;
@@ -2453,6 +2744,18 @@ M30`;
     }
     filterMaterials();
 
+    function getLeadAngleKr() {
+      const customInput = document.getElementById('m_leadAngleCustom');
+      const select = document.getElementById('m_leadAngle');
+      const custom = parseFloat(customInput.value);
+      const useCustom = !isNaN(custom) && custom > 0 && custom <= 90;
+      /* 직접 입력 중이면 드롭다운 흐리게 */
+      select.style.opacity = useCustom ? '0.35' : '1';
+      select.style.pointerEvents = useCustom ? 'none' : 'auto';
+      if (useCustom) return custom;
+      return parseFloat(select.value) || 90;
+    }
+
     function updateMctChipRate() {
       const d = parseFloat(document.getElementById('m_dia').value) || 0;
       const z = parseFloat(document.getElementById('m_teeth').value) || 0;
@@ -2466,13 +2769,238 @@ M30`;
       const fz = parseFloat(fzIn) || 0;
       const vc = vcIn ? parseFloat(vcIn) : (d > 0 && rpm > 0 ? ((Math.PI * d * rpm) / 1000).toFixed(1) : '-');
       const qVal = ((ae * ap * f) / 1000).toFixed(2);
+
+      /* 칩 두께 계산 */
+      const krDeg = getLeadAngleKr();
+      const kr = krDeg * Math.PI / 180;
+      const ratio = (ae > 0 && d > 0) ? Math.sqrt(ae / d) : 0;
+      const hm = fz * Math.sin(kr) * ratio;
+      const hex = fz * Math.sin(kr);
+
+      let chipLine = '';
+      if (fz > 0 && ae > 0 && d > 0) {
+        let status = '';
+        if (hm < 0.02) status = '⚠ 너무 얇음 → 마모 촉진 (이송 Fz ↑ 권장)';
+        else if (hm > 0.15) status = '⚠ 너무 두꺼움 → 치핑 위험 (이송 Fz ↓ 권장)';
+        else status = '✅ 적정 범위';
+
+        chipLine =
+          `\n\n[칩 두께 계산 · 리드각 ${krDeg}°]\n` +
+          `• 평균 칩 두께 (hm)  = ${hm.toFixed(4)} mm\n` +
+          `• 최대 칩 두께 (hex) = ${hex.toFixed(4)} mm\n` +
+          `• 판정: ${status}`;
+      } else {
+        chipLine = `\n\n[칩 두께 계산 · 리드각 ${krDeg}°]\n• fz, ae, 직경을 모두 입력하면 산출됩니다.`;
+      }
+
       document.getElementById('mctCalcReport').innerText =
         `=== 밀링 절삭조건 산출 ===\n` +
         `• 주축 회전수 (N) : ${rpm ? rpm + ' RPM' : '-'} | Vc: ${vc} m/min\n` +
         `• 날당 이송 (Fz) : ${fz ? fz + ' mm/tooth' : '-'} | 회전당: ${(fz * z).toFixed(3)} mm/rev\n` +
         `• 테이블 이송 (F) : ${f ? f + ' mm/min' : '-'}\n` +
         `------------------------------------\n` +
-        `[공출량 (칩 배출량 Q)]\n• Q = ${qVal} cm³/min (cc/min)\n  (조건: ae ${ae}mm × ap ${ap}mm × F ${f}mm/min)`;
+        `[공출량 (칩 배출량 Q)]\n• Q = ${qVal} cm³/min (cc/min)\n  (조건: ae ${ae}mm × ap ${ap}mm × F ${f}mm/min)` +
+        chipLine;
+    }
+
+    /* ============================================================ */
+    /* 나사·탭·R 계산기                                              */
+    /* ============================================================ */
+
+    /* 탭 드릴 데이터 (관용 표준값, 참고용) */
+    const TAP_DRILL_DATA = {
+      M: [
+        { size: 'M1.6', pitch: 0.35, drill: 1.25 },
+        { size: 'M2',   pitch: 0.40, drill: 1.60 },
+        { size: 'M2.5', pitch: 0.45, drill: 2.05 },
+        { size: 'M3',   pitch: 0.50, drill: 2.50 },
+        { size: 'M3.5', pitch: 0.60, drill: 2.90 },
+        { size: 'M4',   pitch: 0.70, drill: 3.30 },
+        { size: 'M5',   pitch: 0.80, drill: 4.20 },
+        { size: 'M6',   pitch: 1.00, drill: 5.00 },
+        { size: 'M8',   pitch: 1.25, drill: 6.80 },
+        { size: 'M10',  pitch: 1.50, drill: 8.50 },
+        { size: 'M12',  pitch: 1.75, drill: 10.20 },
+        { size: 'M14',  pitch: 2.00, drill: 12.00 },
+        { size: 'M16',  pitch: 2.00, drill: 14.00 },
+        { size: 'M18',  pitch: 2.50, drill: 15.50 },
+        { size: 'M20',  pitch: 2.50, drill: 17.50 },
+        { size: 'M22',  pitch: 2.50, drill: 19.50 },
+        { size: 'M24',  pitch: 3.00, drill: 21.00 },
+        { size: 'M27',  pitch: 3.00, drill: 24.00 },
+        { size: 'M30',  pitch: 3.50, drill: 26.50 }
+      ],
+      UNC: [
+        { size: '1/4-20',  pitch: 1.27, drill: 5.10 },
+        { size: '5/16-18', pitch: 1.41, drill: 6.60 },
+        { size: '3/8-16',  pitch: 1.59, drill: 8.00 },
+        { size: '7/16-14', pitch: 1.81, drill: 9.40 },
+        { size: '1/2-13',  pitch: 1.95, drill: 10.80 },
+        { size: '9/16-12', pitch: 2.12, drill: 12.20 },
+        { size: '5/8-11',  pitch: 2.31, drill: 13.50 },
+        { size: '3/4-10',  pitch: 2.54, drill: 16.50 },
+        { size: '7/8-9',   pitch: 2.82, drill: 19.50 },
+        { size: '1"-8',    pitch: 3.18, drill: 22.20 }
+      ],
+      UNF: [
+        { size: '1/4-28',  pitch: 0.91, drill: 5.40 },
+        { size: '5/16-24', pitch: 1.06, drill: 6.90 },
+        { size: '3/8-24',  pitch: 1.06, drill: 8.50 },
+        { size: '7/16-20', pitch: 1.27, drill: 9.90 },
+        { size: '1/2-20',  pitch: 1.27, drill: 11.50 },
+        { size: '9/16-18', pitch: 1.41, drill: 12.90 },
+        { size: '5/8-18',  pitch: 1.41, drill: 14.50 },
+        { size: '3/4-16',  pitch: 1.59, drill: 17.50 },
+        { size: '7/8-14',  pitch: 1.81, drill: 20.40 },
+        { size: '1"-12',   pitch: 2.12, drill: 23.20 }
+      ],
+      PT: [
+        { size: 'PT1/8', pitch: 0.907, drill: 8.40 },
+        { size: 'PT1/4', pitch: 1.337, drill: 11.10 },
+        { size: 'PT3/8', pitch: 1.337, drill: 14.50 },
+        { size: 'PT1/2', pitch: 1.814, drill: 18.60 },
+        { size: 'PT3/4', pitch: 1.814, drill: 24.20 },
+        { size: 'PT1',   pitch: 2.309, drill: 30.50 }
+      ],
+      NPT: [
+        { size: 'NPT1/8', pitch: 0.941, drill: 8.30 },
+        { size: 'NPT1/4', pitch: 1.411, drill: 11.10 },
+        { size: 'NPT3/8', pitch: 1.411, drill: 14.30 },
+        { size: 'NPT1/2', pitch: 1.814, drill: 17.90 },
+        { size: 'NPT3/4', pitch: 1.814, drill: 22.20 },
+        { size: 'NPT1',   pitch: 2.309, drill: 28.60 }
+      ]
+    };
+
+    function setScrewTab(tab, btn) {
+      document.querySelectorAll('#screwTabs .dura-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#view-screw-calc .screw-panel').forEach(p => p.style.display = 'none');
+      document.getElementById('screw-panel-' + tab).style.display = 'block';
+    }
+
+    function updateTapDrillSizes() {
+      const type = document.getElementById('tapDrillType').value;
+      const sel = document.getElementById('tapDrillSize');
+      if (!sel) return;
+      sel.innerHTML = '';
+      TAP_DRILL_DATA[type].forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.size;
+        opt.textContent = item.size;
+        sel.appendChild(opt);
+      });
+      updateTapDrillResult();
+    }
+
+    function updateTapDrillResult() {
+      const type = document.getElementById('tapDrillType').value;
+      const size = document.getElementById('tapDrillSize').value;
+      const item = TAP_DRILL_DATA[type].find(x => x.size === size);
+      const valueEl = document.getElementById('tapDrillValue');
+      const subEl = document.getElementById('tapDrillSub');
+      const reportEl = document.getElementById('tapDrillReport');
+      if (!item) {
+        valueEl.textContent = '-';
+        subEl.textContent = '규격과 호칭을 선택하세요';
+        reportEl.innerText = '규격과 호칭을 선택하면 드릴 직경이 표시됩니다.';
+        return;
+      }
+      valueEl.textContent = 'Ø' + item.drill.toFixed(2);
+      subEl.textContent = `${size}  ·  피치 ${item.pitch.toFixed(3)} mm`;
+      reportEl.innerText =
+        `[탭 드릴 직경]\n` +
+        `• 규격       : ${size}\n` +
+        `• 피치       : ${item.pitch.toFixed(3)} mm\n` +
+        `• 표준 드릴  : Ø${item.drill.toFixed(2)} mm\n` +
+        `------------------------------------\n` +
+        `▶ 권장 드릴  : Ø${item.drill.toFixed(2)} mm\n` +
+        `   (근사: 호칭 - 피치)`;
+    }
+
+    let pitchFilter = 'all';
+    function setPitchFilter(type, btn) {
+      document.querySelectorAll('#pitchFilter .dura-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      pitchFilter = type;
+      renderPitchTable();
+    }
+
+    function renderPitchTable() {
+      const tbody = document.getElementById('pitchRows');
+      if (!tbody) return;
+      const order = ['M', 'UNC', 'UNF', 'PT', 'NPT'];
+      let html = '';
+      for (const type of order) {
+        if (pitchFilter !== 'all' && pitchFilter !== type) continue;
+        for (const item of TAP_DRILL_DATA[type]) {
+          let h;
+          if (type === 'PT') h = item.pitch * 0.6403;   /* 55° 관용 */
+          else h = item.pitch * 0.6495;                  /* 60° 일반 */
+          const firstQ = item.pitch * 0.30;
+          const pVal = Math.round(h * 1000);
+          const qVal = Math.round(firstQ * 1000);
+          html +=
+            '<tr>' +
+            '<td><strong>' + item.size + '</strong></td>' +
+            '<td>' + item.pitch.toFixed(3) + '</td>' +
+            '<td>' + h.toFixed(3) + '</td>' +
+            '<td>' + firstQ.toFixed(2) + '</td>' +
+            '<td style="font-family:monospace;font-size:10px;">P' + pVal + ' Q' + qVal + '</td>' +
+            '</tr>';
+        }
+      }
+      tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">데이터 없음</td></tr>';
+    }
+
+    let arcrType = 'outer';
+    function setArcRType(type) {
+      arcrType = type;
+      document.getElementById('arcrOuterBtn').classList.toggle('active', type === 'outer');
+      document.getElementById('arcrInnerBtn').classList.toggle('active', type === 'inner');
+      calcArcR();
+    }
+    function onArcRNoseChange() {
+      document.getElementById('arcrNoseRCustom').value = '';
+      calcArcR();
+    }
+    function calcArcR() {
+      let noseR = parseFloat(document.getElementById('arcrNoseR').value);
+      const custom = parseFloat(document.getElementById('arcrNoseRCustom').value);
+      if (!isNaN(custom) && custom > 0) noseR = custom;
+      const drawingR = parseFloat(document.getElementById('arcrDrawingR').value);
+      const valueEl = document.getElementById('arcrValue');
+      const subEl = document.getElementById('arcrSub');
+      const reportEl = document.getElementById('arcrReport');
+      if (isNaN(noseR) || isNaN(drawingR)) {
+        valueEl.textContent = '-';
+        subEl.textContent = '값을 입력하세요';
+        reportEl.innerText = '노즈R과 도면 R을 입력하세요.';
+        return;
+      }
+      let progR, op;
+      if (arcrType === 'outer') {
+        progR = drawingR + noseR;
+        op = '도면 R + 노즈 R';
+      } else {
+        progR = drawingR - noseR;
+        op = '도면 R - 노즈 R';
+      }
+      let warn = '';
+      if (progR <= 0) {
+        warn = '\n\n⚠ 프로그램 R이 0 이하입니다.\n   노즈R이 도면 R보다 큽니다. G41/G42 보정 사용을 권장합니다.';
+      }
+      valueEl.textContent = 'R' + progR.toFixed(3);
+      subEl.textContent = `${arcrType === 'outer' ? '외경' : '내경'}  ·  ${op}`;
+      reportEl.innerText =
+        `[원호 R 계산]\n` +
+        `• 코너 종류  : ${arcrType === 'outer' ? '외경 코너' : '내경 코너'}\n` +
+        `• 노즈 R     : ${noseR.toFixed(2)} mm\n` +
+        `• 도면 R     : ${drawingR.toFixed(2)} mm\n` +
+        `• 계산식     : ${op}\n` +
+        `------------------------------------\n` +
+        `▶ 프로그램 R : R${progR.toFixed(3)}\n` +
+        `   지령 예) G02/G03 ... R${progR.toFixed(3)}${warn}`;
     }
 </script>
 </body>
