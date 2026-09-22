@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
@@ -9,8 +9,7 @@
 <meta content="yes" name="apple-mobile-web-app-capable"/>
 <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
 <meta content="yes" name="mobile-web-app-capable"/>
-<meta content="#0f172a" name="theme-color"/>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+<meta content="#ffffff" name="theme-color"/>
 <style>
     /* 숫자 입력창 화살표(스피너) 제거 */
     input[type="number"]::-webkit-outer-spin-button,
@@ -81,6 +80,35 @@
       --cut-line: #0f172a;
       --rapid-line: #dc2626;
     }
+    [data-theme="sepia"] {
+      --bg: #f0e6d2;
+      --card-bg: #faf3e3;
+      --border: #d9c9a8;
+      --primary: #a05a2c;
+      --primary-hover: #8b4a1f;
+      --accent: #a05a2c;
+      --yellow: #b8860b;
+      --text: #3d3428;
+      --text-muted: #7a6a56;
+      --surface: #ede0c8;
+      --header-bg: #faf3e3;
+      --input-bg: #fdfaf2;
+      --btn-sub-bg: #e8dcc0;
+      --btn-sub-text: #3d3428;
+      --report-bg: #fdfaf2;
+      --report-text: #6b4423;
+      --thead-bg: #ede0c8;
+      --thead-text: #6b4423;
+      --menu-btn-from: #faf3e3;
+      --menu-btn-to: #f5ecd9;
+      --footer-note-bg: rgba(250, 243, 227, 0.7);
+      --row-even: rgba(139, 90, 43, 0.05);
+      --canvas-top: #f5e6c8;
+      --canvas-bottom: #e8d4a8;
+      --axis-line: rgba(61, 52, 40, 0.35);
+      --cut-line: #3d3428;
+      --rapid-line: #b8860b;
+    }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
@@ -139,8 +167,18 @@
       border-radius: 8px; margin-top: auto; margin-bottom: 6px;
     }
     .home-footer-note strong { color: var(--accent); font-weight: 600; }
+    .home-footer-note p { margin: 6px 0; }
 
-    .sub-view { display: none; flex-direction: column; gap: 8px; height: 100%; }
+    /* 서브뷰 진입 페이드인 */
+    .sub-view {
+      display: none; flex-direction: column; gap: 8px; height: 100%;
+      animation: fadeIn 0.18s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     .card { background: var(--card-bg); border-radius: 10px; padding: 10px; border: 1px solid var(--border); }
     .card-head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 4px; }
     label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 3px; display: inline-block; }
@@ -150,14 +188,20 @@
       background: var(--surface); border: 1px solid var(--border); color: var(--accent);
       padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;
       display: inline-flex; align-items: center; gap: 3px;
+      transition: background 0.15s, transform 0.1s;
     }
     .btn-file-load:active { background: var(--btn-sub-bg); }
 
     input, textarea, select {
       width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px;
       color: var(--text); padding: 8px; font-size: 13px; margin-bottom: 5px; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+    /* 입력창 포커스 시 은은한 글로우 */
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
     textarea { height: 90px; font-family: monospace; font-size: 11px; resize: none; white-space: pre; transition: border-color 0.2s; }
     textarea.dragover { border-color: var(--accent); background: var(--surface); }
 
@@ -167,14 +211,28 @@
     .btn-run {
       flex: 1; background: var(--primary); color: #fff; border: none; border-radius: 6px;
       padding: 9px; font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
     }
     .btn-sub {
       background: var(--btn-sub-bg); color: var(--btn-sub-text); border: none; border-radius: 6px;
       padding: 9px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
     }
     .btn-run:active { background: var(--primary-hover); }
     .btn-clear { background: #7f1d1d; color: #fff; }
     .btn-clear:active { background: #991b1b; }
+
+    /* 주요 버튼 눌림 피드백 통일 */
+    .btn-run:active,
+    .btn-sub:active,
+    .btn-file-load:active,
+    .btn-player:active,
+    .btn-copy:active,
+    .tab-btn:active,
+    .dura-filter-btn:active,
+    .dura-zoom-btn:active {
+      transform: scale(0.97);
+    }
 
     .viewport {
       width: 100%; height: min(280px, 42vh);
@@ -200,6 +258,7 @@
     .btn-player {
       background: var(--surface); border: 1px solid var(--border); color: var(--text);
       padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
     }
     .btn-player.active { background: var(--primary); border-color: var(--accent); color: #fff; }
     .speed-select {
@@ -223,15 +282,24 @@
     .btn-copy {
       background: var(--surface); border: 1px solid var(--border); color: var(--accent);
       padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
     }
     .btn-copy:active { background: var(--btn-sub-bg); }
     .btn-copy.copied { color: #22c55e; border-color: #22c55e; }
 
+    /* 결과창 왼쪽 accent 라인으로 시각적 강조 */
     .info-box {
-      background: var(--report-bg); border: 1px solid var(--border); border-radius: 8px;
-      padding: 8px; font-family: monospace; font-size: 11px; color: var(--report-text);
+      background: var(--report-bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: monospace; font-size: 11px; color: var(--report-text);
       white-space: pre-wrap; line-height: 1.45;
     }
+
+    .info-box, .data-table td { font-variant-numeric: tabular-nums; }
+
     .legend { display: flex; gap: 8px; font-size: 10px; color: var(--text-muted); justify-content: flex-end; flex-wrap: wrap; }
     .legend span { display: flex; align-items: center; gap: 3px; }
     .dot { width: 7px; height: 7px; border-radius: 50%; }
@@ -272,7 +340,6 @@
       padding:7px; border-bottom:1px solid var(--border); border-right:1px solid var(--border);
       vertical-align:middle; box-sizing:border-box; margin:0;
     }
-    .dura-2026-table th:last-child, .dura-2026-table td:last-child { border-right:1px solid var(--border); }
     .dura-2026-table th { background:var(--thead-bg); color:var(--thead-text); white-space:nowrap; font-weight:800; text-align:center; }
     .dura-2026-table tr:last-child td { border-bottom:none; }
     .dura-2026-table .dura-kind { font-weight:800; color:var(--text); background:var(--row-even); white-space:nowrap; text-align:center; }
@@ -302,20 +369,27 @@
       border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted);
       cursor:pointer; transition:all 0.15s;
     }
-   .dura-filter-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
+    .dura-filter-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
 
-.dura-zoom-bar { display:flex; gap:5px; align-items:center; margin:8px 0 4px; flex-wrap:wrap; }
-.dura-zoom-btn {
-  padding:4px 10px; font-size:11px; font-weight:700; border-radius:14px;
-  border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted);
-  cursor:pointer; transition:all 0.15s;
-}
-.dura-zoom-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
+    .dura-zoom-bar { display:flex; gap:5px; align-items:center; margin:8px 0 4px; flex-wrap:wrap; }
+    .dura-zoom-btn {
+      padding:4px 10px; font-size:11px; font-weight:700; border-radius:14px;
+      border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted);
+      cursor:pointer; transition:all 0.15s;
+    }
+    .dura-zoom-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
 
-.data-table-wrap { overflow-x: auto; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); }
+    .data-table-wrap { overflow-x: auto; margin-top: 6px; border-radius: 8px; border: 1px solid var(--border); }
     .data-table { width: 100%; border-collapse: collapse; font-size: 11.5px; text-align: left; }
     .data-table th, .data-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
     .data-table th { background: var(--thead-bg); color: var(--thead-text); font-weight: 700; white-space: nowrap; }
+    /* 표 스크롤 시 헤더 상단 고정 */
+    .data-table thead th,
+    .dura-2026-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:nth-child(even) { background: var(--row-even); }
 
@@ -463,16 +537,13 @@
 <div class="menu-btn" onclick="openView('dura-turnmill-link')">Duracarb 터닝/밀링<span>Turning &amp; Milling</span></div>
 <div class="menu-btn" onclick="openView('dura-link')">Duracarb 홈/드릴<span>Grooving &amp; Drilling</span></div>
 <div class="menu-btn" onclick="openView('gcode-calc')">G / M 코드 일람<span>선반 &amp; MCT 분류</span></div>
-<div class="menu-btn" onclick="toggleTheme()">모드 변경<span>Dark Mode &amp; Light Mode</span></div>
+<div class="menu-btn" onclick="toggleTheme()">모드 변경<span>Dark · Light · Sepia</span></div>
 </div>
 <div class="home-footer-note">
-<strong>사진인식 안됩니다.</strong><br/>
-        따로 카메라로 사진 찍으시고 AI로 텍스트 추출 후<br/>
-        복사 붙여놓기로 경로 보는 것을 추천합니다.<br/>
-<br/>
-<strong>혹시 모르니 공유하시면 안됩니다.</strong><br/>
-        쓰다 문제 생길 시 책임 안집니다ㅎㅎㅎ <br/>
-      </div>
+  <p><strong>https://uunu88.github.io/cnc-calc/</strong></p>
+  <p>크롬에서 접속 → 주소창 우측 점3개 → 설치 및 바로가기 만들기</p>
+  <p>어플로 설치 후 편하게 이용하실 수 있습니다.</p>
+</div>
 </div>
 
 <!-- CNC 선반 화면 -->
@@ -951,24 +1022,27 @@
 <!-- 재질별 추천 가공조건 -->
 <div class="sub-view" id="view-mat-calc">
 <div class="card">
-<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">* 초경 인서트 기준 일반적인 중간 조건 가이드입니다. 툴 형상 및 장비 강성에 따라 조정하십시오.</div>
+<div style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">* 초경 인서트 기준 일반적인 중간 조건 가이드입니다. 툴 형상 및 장비 강성에 따라 조정하십시오. (H 고경도강은 CBN 사용조건)</div>
 <div class="data-table-wrap">
 <table class="data-table">
 <thead>
 <tr><th>피삭재 그룹</th><th>대표 강종</th><th>Vc (m/min)</th><th>선반 f (mm/rev)</th><th>밀링 Fz (mm/t)</th></tr>
 </thead>
 <tbody>
-<tr><td class="iso-cell iso-p"><strong>P 탄소강/합금강</strong></td><td class="iso-cell iso-p"><strong>SM45C, SCM440</strong></td><td>160 ~ 280</td><td>0.15 ~ 0.40</td><td>0.08 ~ 0.20</td></tr>
-<tr><td class="iso-cell iso-m"><strong>M 스테인리스강</strong></td><td class="iso-cell iso-m"><strong>SUS304, SUS316</strong></td><td>100 ~ 200</td><td>0.10 ~ 0.25</td><td>0.05 ~ 0.12</td></tr>
-<tr><td class="iso-cell iso-k"><strong>K 주철</strong></td><td class="iso-cell iso-k"><strong>GC250, GCD450</strong></td><td>150 ~ 300</td><td>0.20 ~ 0.45</td><td>0.10 ~ 0.25</td></tr>
-<tr><td class="iso-cell iso-n"><strong>N 알루미늄/비철</strong></td><td class="iso-cell iso-n"><strong>AL6061, AL7075</strong></td><td>300 ~ 800+</td><td>0.15 ~ 0.50</td><td>0.10 ~ 0.30</td></tr>
-<tr><td class="iso-cell iso-s"><strong>S 내열합금/티타늄</strong></td><td class="iso-cell iso-s"><strong>Inconel, Ti-6Al-4V</strong></td><td>30 ~ 70</td><td>0.08 ~ 0.18</td><td>0.04 ~ 0.08</td></tr>
-<tr><td class="iso-cell iso-h"><strong>H 고경도강</strong></td><td class="iso-cell iso-h"><strong>SKD11, 열처리강(50HRC+)</strong></td><td>50 ~ 120</td><td>0.05 ~ 0.15</td><td>0.03 ~ 0.08</td></tr>
-</tbody>
+<tr><td class="iso-cell iso-p"><strong>P 탄소강/합금강</strong></td><td class="iso-cell iso-p"><strong>S45C, SCM440</strong></td><td>160 ~ 280</td><td>0.15 ~ 0.40</td><td>0.08 ~ 0.20</td></tr>
+<tr><td class="iso-cell iso-m"><strong>M 스테인리스 (304계)</strong></td><td class="iso-cell iso-m"><strong>SUS304, SUS303</strong></td><td>120 ~ 180</td><td>0.10 ~ 0.25</td><td>0.05 ~ 0.12</td></tr>
+<tr><td class="iso-cell iso-m"><strong>M 스테인리스 (316/고합금)</strong></td><td class="iso-cell iso-m"><strong>SUS316, SUS316L</strong></td><td>100 ~ 160</td><td>0.10 ~ 0.22</td><td>0.05 ~ 0.10</td></tr>
+<tr><td class="iso-cell iso-k"><strong>K 주철 (회주철)</strong></td><td class="iso-cell iso-k"><strong>FC250, FC300</strong></td><td>200 ~ 350</td><td>0.20 ~ 0.45</td><td>0.10 ~ 0.25</td></tr>
+<tr><td class="iso-cell iso-k"><strong>K 주철 (구상흑연)</strong></td><td class="iso-cell iso-k"><strong>FCD450, FCD600</strong></td><td>150 ~ 250</td><td>0.18 ~ 0.35</td><td>0.08 ~ 0.20</td></tr>
+<tr><td class="iso-cell iso-n"><strong>N 알루미늄 (초경)</strong></td><td class="iso-cell iso-n"><strong>AL6061, AL7075</strong></td><td>200 ~ 500</td><td>0.15 ~ 0.50</td><td>0.10 ~ 0.30</td></tr>
+<tr><td class="iso-cell iso-n"><strong>N 알루미늄 (PCD)</strong></td><td class="iso-cell iso-n"><strong>AL6061, AL7075</strong></td><td>500 ~ 1500</td><td>0.15 ~ 0.50</td><td>0.10 ~ 0.25</td></tr>
+<tr><td class="iso-cell iso-s"><strong>S 티타늄 합금</strong></td><td class="iso-cell iso-s"><strong>Ti-6Al-4V</strong></td><td>40 ~ 70</td><td>0.08 ~ 0.15</td><td>0.04 ~ 0.08</td></tr>
+<tr><td class="iso-cell iso-s"><strong>S 내열합금 (Ni기)</strong></td><td class="iso-cell iso-s"><strong>Inconel 718</strong></td><td>25 ~ 45</td><td>0.08 ~ 0.15</td><td>0.03 ~ 0.06</td></tr>
+<tr><td class="iso-cell iso-h"><strong>H 고경도강 (45~55 HRC)</strong></td><td class="iso-cell iso-h"><strong>SCM440(QT), SKD61(QT)</strong></td><td>120 ~ 250</td><td>0.08 ~ 0.20</td><td>0.05 ~ 0.10</td></tr>
+<tr><td class="iso-cell iso-h"><strong>H 고경도강 (55 HRC↑)</strong></td><td class="iso-cell iso-h"><strong>SKD11(QT)</strong></td><td>120 ~ 250</td><td>0.05 ~ 0.15</td><td>0.03 ~ 0.08</td></tr></tbody>
 </table>
 </div>
-<div style="margin-top:18px; font-size:14px; font-weight:800;">재질 규격 대응표</div>
-<div class="material-meta">※ 규격 간 유사 등급을 찾기 위한 참고표입니다. 실제 대체 가능 여부는 화학성분, 열처리, 경도 및 제조사 성적서를 확인하세요.</div>
+<div style="margin-top:18px; font-size:14px; font-weight:800;">재질 규격 대응표</div><div class="material-meta">※ 규격 간 유사 등급을 찾기 위한 참고표입니다. 실제 대체 가능 여부는 화학성분, 열처리, 경도 및 제조사 성적서를 확인하세요.</div>
 <div class="material-tools">
 <input id="materialSearch" oninput="filterMaterials()" placeholder="재질명 검색 (예: S45C, 4140, SUS304)" type="search"/>
 <select id="materialGroup" onchange="filterMaterials()">
@@ -1096,11 +1170,31 @@
 <script>
     let currentCategory = 'all';
 
+    /* 뷰 타이틀 매핑 */
+    const VIEW_TITLES = {
+      'lathe-path': 'CNC 선반 2축 시뮬레이터',
+      'mct-path': 'MCT 밀링 3축 시뮬레이터',
+      'lathe-calc': '선반 절삭조건 계산',
+      'mct-calc': '밀링 절삭조건 계산',
+      'duracarb-2026': 'Duracarb 재종표',
+      'gcode-calc': '표준 G / M 코드 일람',
+      'mat-calc': '재질별 추천 절삭조건',
+      'discount-calc': '할인율 계산기',
+      'tool-cost': '공구비 계산기',
+      'dura-turnmill-link': 'Duracarb 터닝 · 밀링',
+      'cbn-guide': 'Duracarb CBN',
+      'screw-calc': '나사·탭·R 계산기',
+      'dura-link': 'Duracarb 홈 가공 · 드릴링'
+    };
+
     /* 테마 토글 */
     function applyTheme(theme) {
       if (theme === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
         document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff');
+      } else if (theme === 'sepia') {
+        document.documentElement.setAttribute('data-theme', 'sepia');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#f0e6d2');
       } else {
         document.documentElement.removeAttribute('data-theme');
         document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0f172a');
@@ -1109,8 +1203,12 @@
       if (typeof mctMoves !== 'undefined' && mctMoves.length) drawMctScreen();
     }
     function toggleTheme() {
-      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-      const next = isLight ? 'dark' : 'light';
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      /* 순환: dark → light → sepia → dark */
+      let next;
+      if (cur === 'light') next = 'sepia';
+      else if (cur === 'sepia') next = 'dark';
+      else next = 'light';
       try { localStorage.setItem('cnc_theme', next); } catch (e) {}
       applyTheme(next);
     }
@@ -1420,8 +1518,30 @@ M30`;
     async function handleImageOCR(event, targetTextareaId) {
       const file = event.target.files[0];
       if (!file) return;
+
       const overlay = document.getElementById('ocrOverlay');
       const statusText = document.getElementById('ocrStatus');
+
+      /* Tesseract 없으면 그때 로드 (최초 1회) */
+      if (typeof Tesseract === 'undefined') {
+        overlay.style.display = 'flex';
+        statusText.innerText = '인식 엔진을 불러오는 중...';
+        try {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js';
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        } catch (e) {
+          overlay.style.display = 'none';
+          alert('인식 엔진 로드 실패. 인터넷 연결을 확인하세요.');
+          event.target.value = '';
+          return;
+        }
+      }
+
       overlay.style.display = 'flex';
       statusText.innerText = '모니터 사진을 분석하는 중... (0%)';
       try {
@@ -1486,8 +1606,8 @@ M30`;
       updateTapDrillSizes();
       renderPitchTable();
 
-      let savedTheme = 'dark';
-      try { savedTheme = localStorage.getItem('cnc_theme') || 'dark'; } catch (e) {}
+      let savedTheme = 'light';
+      try { savedTheme = localStorage.getItem('cnc_theme') || 'light'; } catch (e) {}
       applyTheme(savedTheme);
     });
 
@@ -1638,22 +1758,7 @@ M30`;
       document.getElementById('view-main').style.display = 'none';
       document.getElementById('headerBizCard').style.display = 'none';
       document.getElementById('btnHome').style.display = 'block';
-      const titles = {
-        'lathe-path': 'CNC 선반 2축 시뮬레이터',
-        'mct-path': 'MCT 밀링 3축 시뮬레이터',
-        'lathe-calc': '선반 절삭조건 계산',
-        'mct-calc': '밀링 절삭조건 계산',
-        'duracarb-2026': 'Duracarb 재종표',
-        'gcode-calc': '표준 G / M 코드 일람',
-        'mat-calc': '재질별 추천 절삭조건',
-        'discount-calc': '할인율 계산기',
-        'tool-cost': '공구비 계산기',
-        'dura-turnmill-link': 'Duracarb 터닝 · 밀링',
-        'cbn-guide': 'Duracarb CBN',
-        'screw-calc': '나사·탭·R 계산기',
-        'dura-link': 'Duracarb 홈 가공 · 드릴링'
-      };
-      document.getElementById('headerTitle').innerText = titles[name] || 'CNC / MCT 도우미';
+      document.getElementById('headerTitle').innerText = VIEW_TITLES[name] || 'CNC / MCT 도우미';
       document.getElementById('view-' + name).style.display = 'flex';
       try { history.pushState({ view: name }, ''); } catch (e) {}
       if (name === 'lathe-path') setTimeout(() => { resizeLathe(); resetLatheView(); }, 60);
@@ -2727,7 +2832,7 @@ M30`;
       ['K 주철','FC200','-','EN-GJL-200','A48','회주철'],['K 주철','FC250','-','EN-GJL-250','A48','회주철'],['K 주철','FC300','-','EN-GJL-300','A48','회주철'],['K 주철','FCD400','60-40-18','EN-GJS-400-18','A536','구상흑연주철'],['K 주철','FCD450','65-45-12','EN-GJS-450-10','A536','구상흑연주철'],['K 주철','FCD600','80-55-06','EN-GJS-600-3','A536','고강도 구상흑연주철'],
       ['N 알루미늄/비철','A1050','1050','EN AW-1050A','B209','순알루미늄계'],['N 알루미늄/비철','A2017','2017','EN AW-2017A','B209','Al-Cu계'],['N 알루미늄/비철','A2024','2024','EN AW-2024','B209','고강도 Al-Cu-Mg'],['N 알루미늄/비철','A5052','5052','EN AW-5052','B209','Al-Mg계'],['N 알루미늄/비철','A5083','5083','EN AW-5083','B209','용접 구조용'],['N 알루미늄/비철','A6061','6061','EN AW-6061','B209','T6 등 상태 확인'],['N 알루미늄/비철','A6063','6063','EN AW-6063','B209','압출용'],['N 알루미늄/비철','A7075','7075','EN AW-7075','B209','T6/T651 등 상태 확인'],['N 알루미늄/비철','C1100','C11000','CW004A','B152','무산소·터프피치 구리'],
       ['S 내열합금/티타늄','Ti-6Al-4V','Grade 5','3.7165','B265','티타늄 합금'],['S 내열합금/티타늄','Ti-6Al-4V ELI','Grade 23','3.7165','B265','저간극 원소·의료용'],['S 내열합금/티타늄','-','Inconel 600','2.4816','B168','니켈계 내열합금'],['S 내열합금/티타늄','-','Inconel 625','2.4856','B443','니켈계 내열합금'],['S 내열합금/티타늄','-','Inconel 718','2.4668','B637','석출경화형'],['S 내열합금/티타늄','-','Hastelloy C-276','2.4819','B574','Ni-Mo-Cr계'],
-      ['H 공구강/고경도강','SKD11','D2','1.2379','A681','열처리 후 고경도'],['H 공구강/고경도강','SKD61','H13','1.2344','A681','열간 금형강'],['H 공구강/고경도강','SKH51','M2','1.3343','A600','고속도강'],['H 공구강/고경도강','SKS3','O1','1.2510','A681','유냉·저합금 공구강'],['H 공구강/고경도강','SUJ2','52100','100Cr6','A295','베어링강'],['H 공구강/고경도강','SCM440(조질)','4140 Q&T','42CrMo4+QT','A29','경도에 따라 조건 조정'],['H 공구강/고경도강','SKD11(고경도)','D2 58~62HRC','1.2379 QT','A681','고경도 밀링 참고']
+      ['H 공구강/고경도강','SKD11','D2','1.2379','A681','열처리 후 고경도'],['H 공구강/고경도강','SKD61','H13','1.2344','A681','열간 금형강'],['H 공구강/고경도강','SKS3','O1','1.2510','A681','유냉·저합금 공구강'],['H 공구강/고경도강','SUJ2','52100','100Cr6','A295','베어링강'],['H 공구강/고경도강','SCM440(QT)','4140 Q&T','42CrMo4+QT','A29','경도에 따라 조건 조정'],['H 공구강/고경도강','SKD11(QT)','D2 58~62HRC','1.2379 QT','A681','고경도 밀링 참고']
     ];
     function filterMaterials() {
       const q=(document.getElementById('materialSearch').value||'').toLowerCase();
@@ -3021,9 +3126,7 @@ M30`;
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('SW 등록됨:', reg.scope))
-        .catch(err => console.log('SW 등록 실패:', err));
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
     });
   }
 </script>
