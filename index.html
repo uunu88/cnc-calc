@@ -500,6 +500,95 @@
     .screw-result-label { font-size: 10px; letter-spacing: .12em; color: var(--text-muted); font-weight: 800; margin-bottom: 4px; }
     .screw-result-value { font-size: clamp(26px, 8vw, 42px); font-weight: 900; color: var(--accent); letter-spacing: -1px; line-height: 1.1; }
     .screw-result-sub { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+    /* ===== 공구비 계산기 (개편 v4) ===== */
+    .tool-reverse-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px;
+      transition: opacity 0.2s, filter 0.2s;
+    }
+    .tool-reverse-grid.locked {
+      opacity: 0.35;
+      pointer-events: none;
+      filter: grayscale(0.7);
+    }
+    .tool-reverse-note {
+      font-size: 10px; color: var(--text-muted); line-height: 1.4;
+      padding: 6px 4px 0; font-style: italic;
+    }
+    .tool-monthly-hint {
+      font-size: 10px; color: var(--text-muted); margin-top: 4px; line-height: 1.45;
+      padding: 4px 6px; border-radius: 4px;
+    }
+    .tool-monthly-hint.manual { color: var(--accent); }
+    .tool-section-title {
+      font-size: 11px; font-weight: 800; color: var(--text-muted);
+      margin: 14px 0 4px; display: flex; align-items: center; gap: 6px;
+    }
+    .tool-section-title::before {
+      content: ""; width: 3px; height: 12px; background: var(--accent); border-radius: 2px;
+    }
+       /* 테이블 컬럼 정렬 고정 */
+    .tool-cost-table {
+      min-width: 542px;
+      table-layout: fixed;
+    }
+    .tool-cost-table th,
+    .tool-cost-table td {
+      padding: 6px 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tool-cost-table th:first-child,
+    .tool-cost-table td:first-child { text-align: center; }
+    .tool-cost-table th:nth-child(2),
+    .tool-cost-table td:nth-child(2),
+    .tool-cost-table th:nth-child(4),
+    .tool-cost-table td:nth-child(4),
+    .tool-cost-table th:nth-child(5),
+    .tool-cost-table td:nth-child(5),
+    .tool-cost-table th:nth-child(6),
+    .tool-cost-table td:nth-child(6),
+    .tool-cost-table th:nth-child(7),
+    .tool-cost-table td:nth-child(7) { text-align: right; }
+    .tool-cost-table th:nth-child(3),
+    .tool-cost-table td:nth-child(3) { text-align: center; }
+    .tool-cost-table th:last-child,
+    .tool-cost-table td:last-child { text-align: center; padding: 4px 2px; }
+    .tool-cost-table .tool-row-cost,
+    .tool-cost-table .tool-row-monthcost {
+      font-family: monospace; font-weight: 700; color: var(--accent);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+    }
+    .tool-cost-table .tool-row-monthqty {
+      font-family: monospace; font-size: 11px; color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+    .tool-row-name {
+      text-align: center; font-weight: 800; color: var(--accent);
+      font-family: monospace; font-size: 12px;
+    }
+    .tool-del-btn {
+      background: transparent; border: 1px solid var(--border); color: #ef4444;
+      width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+      font-weight: 900; font-size: 12px; padding: 0; line-height: 1;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .tool-del-btn:active { background: rgba(239,68,68,0.2); transform: scale(0.95); }
+    .tool-reset-btn {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+      padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
+    .tool-reset-btn:active { background: var(--btn-sub-bg); transform: scale(0.97); }
+    .tool-total-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 4px 2px; margin-top: 6px;
+      border-top: 1px dashed var(--border);
+      font-size: 12px; font-weight: 700; color: var(--text);
+    }
 </style>
 </head>
 <body>
@@ -876,25 +965,122 @@
 </div>
 </div>
 
-<!-- 공구비 계산기 -->
+<!-- ===== 공구비 계산기 (개편 v4) ===== -->
 <div class="sub-view" id="view-tool-cost">
-<div class="card">
-<div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">개당 공구비 &amp; 월 공구비 계산</div>
-<div class="input-grid-2">
-<div><label>공구 단가 (원)</label><input id="toolUnitPrice" min="0" oninput="calcToolCost()" placeholder="예: 8000" step="1" type="number"/></div>
-<div><label>인서트 코너 수</label><input id="toolCornerCount" min="1" max="16" oninput="calcToolCost()" placeholder="예: 4" step="1" type="number"/></div>
-</div>
-<div class="input-grid-2">
-<div><label>공구 수명 (ea)</label><input id="toolLifeQty" min="0" oninput="calcToolCost()" placeholder="예: 200" step="1" type="number"/></div>
-<div><label>개당 공구비</label><input id="toolCostPerPiece" placeholder="-" readonly type="text"/></div>
-</div>
-<div class="input-grid-2">
-<div><label>월 생산량 (ea)</label><input id="toolMonthlyQty" min="0" oninput="calcToolCost()" placeholder="선택 입력" step="1" type="number"/></div>
-<div><label>월 공구비</label><input id="toolMonthlyCost" placeholder="월 생산량 입력 시" readonly type="text"/></div>
-</div>
-<div class="info-box-head"><span>계산 상세</span><button class="btn-copy" id="copyToolCost" onclick="copyReport('toolCostReport','copyToolCost')">📋 복사</button></div>
-<div class="info-box" id="toolCostReport">공구 단가, 수명, 코너 수를 입력하세요.</div>
-</div>
+  <!-- 1. 공구 입력 (개별 추가) -->
+  <div class="card">
+    <div class="card-head-row">
+      <label>공구 입력 (개별 추가)</label>
+      <button class="tool-reset-btn" onclick="resetToolList()" type="button">🔄 전체 초기화</button>
+    </div>
+    <div class="input-grid-2">
+      <div>
+        <label>공구 단가 (원)</label>
+        <input id="toolUnitPrice" min="0" oninput="updateToolInputPreview()" placeholder="예: 8000" step="1" type="number"/>
+      </div>
+      <div>
+        <label>인서트 코너 수</label>
+        <input id="toolCornerCount" min="1" max="16" oninput="updateToolInputPreview()" placeholder="예: 4" step="1" type="number" value="4"/>
+      </div>
+    </div>
+    <div class="input-grid-2">
+      <div>
+        <label>공구 수명 (ea/코너)</label>
+        <input id="toolLifeQty" min="0" oninput="updateToolInputPreview()" placeholder="예: 200" step="1" type="number"/>
+      </div>
+      <div>
+        <label>개당 공구비 (미리보기)</label>
+        <input id="toolInputPreview" placeholder="-" readonly type="text"/>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="btn-run" onclick="addToolFromInputs()" type="button" style="flex:1;">+ 공구를 리스트에 추가</button>
+    </div>
+  </div>
+
+  <!-- 2. 월 생산량 + 역산 조건 -->
+  <div class="card">
+    <label>월 생산량 (ea)</label>
+    <input id="toolMonthlyQty" min="0" oninput="onToolMonthlyQtyInput()" placeholder="C/T 입력 시 자동 산출" step="1" type="number"/>
+    <div class="tool-monthly-hint" id="toolMonthlyHint">C/T를 입력하면 월 생산량이 자동 산출됩니다.</div>
+
+    <div class="tool-section-title">월 생산량 역산 조건 (C/T 기반)</div>
+    <div class="tool-reverse-grid" id="toolReverseWrap">
+      <div>
+        <label>C/T (초/개)</label>
+        <input id="toolCT" oninput="onToolReverseInput()" placeholder="예: 60" step="0.1" type="number"/>
+      </div>
+      <div>
+        <label>라인수 (대)</label>
+        <input id="toolLines" min="1" oninput="onToolReverseInput()" step="1" type="number" value="1"/>
+      </div>
+      <div>
+        <label>1일 가동시간 (h)</label>
+        <input id="toolDailyHours" oninput="onToolReverseInput()" step="0.5" type="number" value="22"/>
+      </div>
+      <div>
+        <label>가동일 (일/월)</label>
+        <input id="toolWorkDays" oninput="onToolReverseInput()" step="1" type="number" value="22"/>
+      </div>
+      <div>
+        <label>가동률 (%)</label>
+        <input id="toolWorkRate" oninput="onToolReverseInput()" step="1" type="number" value="90"/>
+      </div>
+      <div>
+    </div>
+  </div>
+
+  <!-- 3. 공구 리스트 (자동 번호 T01, T02, ...) -->
+  <div class="card">
+    <div class="card-head-row">
+      <label>공구 리스트 (부품 1개당 공구비 누적)</label>
+      <span style="font-size:10px;color:var(--text-muted);">자동 번호 T01, T02, ...</span>
+    </div>
+        <div class="data-table-wrap">
+      <table class="data-table tool-cost-table">
+          <colgroup>
+          <col style="width:50px;"/>
+          <col style="width:76px;"/>
+          <col style="width:64px;"/>
+          <col style="width:64px;"/>
+          <col style="width:76px;"/>
+          <col style="width:88px;"/>
+          <col style="width:90px;"/>
+          <col style="width:34px;"/>
+        </colgroup>
+        <thead>
+          <tr>
+            <th>공구</th>
+            <th>단가(원)</th>
+            <th>코너(ea)</th>
+            <th>수명(ea)</th>
+            <th>개당 비용</th>
+            <th>월 사용량(ea)</th>
+            <th>월 공구비(원)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="toolCostRows"></tbody>
+      </table>
+    </div>
+       <div class="tool-total-row">
+      <span>합계 개당 공구비</span>
+      <span id="toolTotalPerPiece" style="font-weight:900; color:var(--accent); font-family:monospace; font-variant-numeric:tabular-nums;">0.00원</span>
+    </div>
+    <div class="tool-total-row" style="border-top:none; margin-top:0; padding-top:2px;">
+      <span>합계 월 공구비</span>
+      <span id="toolTotalMonthlyCost" style="font-weight:900; color:var(--accent); font-family:monospace; font-variant-numeric:tabular-nums;">-</span>
+    </div>
+  </div>
+
+  <!-- 4. 계산 상세 -->
+  <div class="card">
+    <div class="info-box-head">
+      <span>계산 상세</span>
+      <button class="btn-copy" id="copyToolCost" onclick="copyReport('toolCostReport','copyToolCost')">📋 복사</button>
+    </div>
+    <div class="info-box" id="toolCostReport">공구 정보를 입력하세요.</div>
+  </div>
 </div>
 
 <!-- Duracarb CBN -->
@@ -1605,6 +1791,7 @@ M30`;
       setupBackGesture();
       updateTapDrillSizes();
       renderPitchTable();
+      initToolCostUI();
 
       let savedTheme = 'light';
       try { savedTheme = localStorage.getItem('cnc_theme') || 'light'; } catch (e) {}
@@ -1689,58 +1876,262 @@ M30`;
       document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
     }
 
-    /* 공구비 계산기 */
-    function calcToolCost() {
-      const priceInput = document.getElementById('toolUnitPrice').value;
-      const lifeInput = document.getElementById('toolLifeQty').value;
-      const cornerInput = document.getElementById('toolCornerCount').value;
-      const monthInput = document.getElementById('toolMonthlyQty').value;
+    /* ============================================================ */
+    /* 공구비 계산기 (개편 v4)                                       */
+    /* ============================================================ */
+    let toolMonthlyManual = false;
 
-      const perPieceEl = document.getElementById('toolCostPerPiece');
-      const monthEl = document.getElementById('toolMonthlyCost');
-      const reportEl = document.getElementById('toolCostReport');
+    function initToolCostUI() {
+      updateToolInputPreview();
+      recalcMonthlyFromCT();
+      calcToolCost();
+    }
 
-      const price = Number(priceInput);
-      const life = Number(lifeInput);
-      const corner = Number(cornerInput);
-      const monthly = Number(monthInput);
+    /* 입력 미리보기 (개당 공구비) */
+        function updateToolInputPreview() {
+      const priceEl = document.getElementById('toolUnitPrice');
+      const cornersEl = document.getElementById('toolCornerCount');
+      const lifeEl = document.getElementById('toolLifeQty');
+      const preview = document.getElementById('toolInputPreview');
+      if (!priceEl || !cornersEl || !lifeEl || !preview) return;
+      const price = parseFloat(priceEl.value);
+      const corners = parseFloat(cornersEl.value);
+      const life = parseFloat(lifeEl.value);
+      if (isFinite(price) && price >= 0 &&
+          isFinite(corners) && corners > 0 &&
+          isFinite(life) && life > 0) {
+        const perPiece = price / (life * corners);
+        preview.value = perPiece.toFixed(2) + '원';
+      } else {
+        preview.value = '';
+      }
+    }
 
-      /* 개당 공구비 필수 조건: 단가, 수명, 코너 수 */
-      if (priceInput === '' || lifeInput === '' || cornerInput === '' ||
-          !Number.isFinite(price) || price < 0 ||
-          !Number.isFinite(life) || life <= 0 ||
-          !Number.isFinite(corner) || corner <= 0) {
-        perPieceEl.value = '';
-        monthEl.value = '';
-        reportEl.innerText = '공구 단가, 공구 수명, 인서트 코너 수를 입력하세요.';
+    /* 입력값을 리스트에 추가 (자동 번호) */
+    function addToolFromInputs() {
+      const priceEl = document.getElementById('toolUnitPrice');
+      const cornersEl = document.getElementById('toolCornerCount');
+      const lifeEl = document.getElementById('toolLifeQty');
+
+      const price = parseFloat(priceEl.value);
+      const corners = parseFloat(cornersEl.value);
+      const life = parseFloat(lifeEl.value);
+
+      if (!isFinite(price) || price < 0) { alert('공구 단가를 입력하세요.'); priceEl.focus(); return; }
+      if (!isFinite(corners) || corners <= 0) { alert('코너 수를 입력하세요.'); cornersEl.focus(); return; }
+      if (!isFinite(life) || life <= 0) { alert('공구 수명(ea/코너)을 입력하세요.'); lifeEl.focus(); return; }
+
+      const tbody = document.getElementById('toolCostRows');
+      const tr = document.createElement('tr');
+      tr.dataset.price = price;
+      tr.dataset.corners = corners;
+      tr.dataset.life = life;
+
+    tr.innerHTML =
+        '<td class="tool-row-name"></td>' +
+        '<td>' + Math.round(price).toLocaleString('ko-KR') + '</td>' +
+        '<td>' + corners + '</td>' +
+        '<td>' + Math.round(life).toLocaleString('ko-KR') + '</td>' +
+        '<td class="tool-row-cost">-</td>' +
+        '<td class="tool-row-monthqty">-</td>' +
+        '<td class="tool-row-monthcost">-</td>' +
+        '<td><button class="tool-del-btn" type="button">✕</button></td>';
+
+      tr.querySelector('.tool-del-btn').onclick = () => {
+        tr.remove();
+        renumberToolRows();
+        calcToolCost();
+      };
+      tbody.appendChild(tr);
+
+      /* 입력값 초기화 (코너 수는 관례상 유지) */
+      priceEl.value = '';
+      lifeEl.value = '';
+      updateToolInputPreview();
+      priceEl.focus();
+
+      renumberToolRows();
+      calcToolCost();
+    }
+
+    /* 공구 번호 재정렬: T01, T02, ... */
+    function renumberToolRows() {
+      const tbody = document.getElementById('toolCostRows');
+      if (!tbody) return;
+      [...tbody.children].forEach((tr, i) => {
+        const nameCell = tr.querySelector('.tool-row-name');
+        if (nameCell) nameCell.textContent = 'T' + String(i + 1).padStart(2, '0');
+      });
+    }
+
+    function resetToolList() {
+      if (!confirm('공구 리스트를 모두 지우고 초기화하시겠습니까?')) return;
+      const tbody = document.getElementById('toolCostRows');
+      if (tbody) tbody.innerHTML = '';
+      document.getElementById('toolUnitPrice').value = '';
+      document.getElementById('toolCornerCount').value = '4';
+      document.getElementById('toolLifeQty').value = '';
+      updateToolInputPreview();
+      calcToolCost();
+    }
+
+    /* 월 생산량 역산 (라인수 반영) */
+    function recalcMonthlyFromCT() {
+      if (toolMonthlyManual) return;
+      const ctEl = document.getElementById('toolCT');
+      if (!ctEl) return;
+      const ct = parseFloat(ctEl.value);
+      const hours = parseFloat(document.getElementById('toolDailyHours').value) || 22;
+      const days = parseFloat(document.getElementById('toolWorkDays').value) || 22;
+      const rate = parseFloat(document.getElementById('toolWorkRate').value) || 90;
+      const lines = Math.max(1, parseFloat(document.getElementById('toolLines').value) || 1);
+
+      const qtyInput = document.getElementById('toolMonthlyQty');
+      const hint = document.getElementById('toolMonthlyHint');
+      hint.classList.remove('manual');
+
+      if (!isFinite(ct) || ct <= 0) {
+        qtyInput.value = '';
+        hint.textContent = 'C/T를 입력하면 월 생산량이 자동 산출됩니다.';
+        calcToolCost();
         return;
       }
 
-      const totalLife = life * corner;
-      const costPerPiece = price / totalLife;
-      perPieceEl.value = costPerPiece.toFixed(2) + '원';
+      const totalSec = days * hours * 3600 * (rate / 100) * lines;
+      const monthlyQty = Math.floor(totalSec / ct);
+      qtyInput.value = monthlyQty;
+      hint.textContent = '자동 산출: ' + days + '일 × ' + hours + 'h × ' + rate + '% × ' + lines + '라인 ÷ C/T ' + ct + '초 = ' + monthlyQty.toLocaleString('ko-KR') + 'ea';
+      calcToolCost();
+    }
 
-      let text =
-        `=== 개당 공구비 계산 ===\n` +
-        `• 공구 단가       : ${Math.round(price).toLocaleString('ko-KR')}원\n` +
-        `• 공구 수명       : ${life.toLocaleString('ko-KR')}ea/코너\n` +
-        `• 인서트 코너 수  : ${corner}코너\n` +
-        `• 총 가공 가능 수 : ${totalLife.toLocaleString('ko-KR')}ea\n` +
-        `------------------------------------\n` +
-        `▶ 개당 공구비     : ${costPerPiece.toFixed(2)}원`;
+    function onToolReverseInput() {
+      recalcMonthlyFromCT();
+    }
 
-      if (monthInput !== '' && Number.isFinite(monthly) && monthly >= 0) {
-        const monthlyCost = costPerPiece * monthly;
-        monthEl.value = Math.round(monthlyCost).toLocaleString('ko-KR') + '원';
-        text +=
-          `\n\n[월 기준]\n` +
-          `• 월 생산량       : ${monthly.toLocaleString('ko-KR')}ea\n` +
-          `• 월 공구비       : ${Math.round(monthlyCost).toLocaleString('ko-KR')}원`;
-      } else {
-        monthEl.value = '';
+    function onToolMonthlyQtyInput() {
+      const qtyInput = document.getElementById('toolMonthlyQty');
+      const wrap = document.getElementById('toolReverseWrap');
+      const hint = document.getElementById('toolMonthlyHint');
+      const val = qtyInput.value;
+
+      if (val === '') {
+        toolMonthlyManual = false;
+        wrap.classList.remove('locked');
+        hint.classList.remove('manual');
+        recalcMonthlyFromCT();
+        return;
       }
 
-      reportEl.innerText = text;
+      toolMonthlyManual = true;
+      wrap.classList.add('locked');
+      hint.classList.add('manual');
+
+      const qty = parseFloat(val);
+      const hours = parseFloat(document.getElementById('toolDailyHours').value) || 22;
+      const days = parseFloat(document.getElementById('toolWorkDays').value) || 22;
+      const rate = parseFloat(document.getElementById('toolWorkRate').value) || 90;
+      const lines = Math.max(1, parseFloat(document.getElementById('toolLines').value) || 1);
+
+      if (isFinite(qty) && qty > 0) {
+        const totalSec = days * hours * 3600 * (rate / 100) * lines;
+        const requiredCT = totalSec / qty;
+        hint.textContent = '수동 입력 · 목표 ' + Math.round(qty).toLocaleString('ko-KR') + 'ea 달성에 필요한 C/T ≈ ' + requiredCT.toFixed(2) + '초 (' + days + '일 × ' + hours + 'h × ' + rate + '% × ' + lines + '라인 기준)';
+      } else {
+        hint.textContent = '월 생산량을 지우면 C/T 기반 자동 산출로 돌아갑니다.';
+      }
+      calcToolCost();
+    }
+
+    /* 전체 계산 */
+    function calcToolCost() {
+      const tbody = document.getElementById('toolCostRows');
+      if (!tbody) return;
+      const rows = [...tbody.children];
+      let totalPerPiece = 0;
+      let totalMonthlyCost = 0;
+      const details = [];
+      let validCount = 0;
+
+      rows.forEach((tr, i) => {
+        const nameCell = tr.querySelector('.tool-row-name');
+        const costCell = tr.querySelector('.tool-row-cost');
+        const name = nameCell && nameCell.textContent ? nameCell.textContent : ('T' + String(i + 1).padStart(2, '0'));
+        const price = parseFloat(tr.dataset.price);
+        const corners = parseFloat(tr.dataset.corners);
+        const life = parseFloat(tr.dataset.life);
+
+               if (isFinite(price) && price >= 0 &&
+            isFinite(corners) && corners > 0 &&
+            isFinite(life) && life > 0) {
+          const totalLife = life * corners;
+          const perPiece = price / totalLife;
+          if (costCell) costCell.textContent = perPiece.toFixed(2) + '원';
+
+                   /* 월 사용 갯수 / 월 공구비 (올림 발주 기준) */
+          const monthQtyCell = tr.querySelector('.tool-row-monthqty');
+          const monthCostCell = tr.querySelector('.tool-row-monthcost');
+          const monthlyQtyVal = parseFloat(document.getElementById('toolMonthlyQty').value);
+          const hasMonthlyVal = isFinite(monthlyQtyVal) && monthlyQtyVal > 0;
+                   if (hasMonthlyVal) {
+            const monthUsedRaw = monthlyQtyVal / totalLife;
+            const monthUsedCeil = Math.ceil(monthUsedRaw);
+            const monthCost = monthUsedCeil * price;
+            if (monthQtyCell) {
+              /* 정수면 그냥, 소수면 "올림값(원래값)" 으로 표시 */
+              monthQtyCell.textContent = Number.isInteger(monthUsedRaw)
+                ? monthUsedCeil.toLocaleString('ko-KR')
+                : monthUsedCeil.toLocaleString('ko-KR') + '(' + monthUsedRaw.toFixed(1) + ')';
+            }
+            if (monthCostCell) monthCostCell.textContent = Math.round(monthCost).toLocaleString('ko-KR');
+            totalMonthlyCost += monthCost;
+          } else {
+            if (monthQtyCell) monthQtyCell.textContent = '-';
+            if (monthCostCell) monthCostCell.textContent = '-';
+          }
+
+          totalPerPiece += perPiece;
+          validCount++;
+          details.push('  • ' + name.padEnd(5, ' ') + ' : ' + perPiece.toFixed(2) + '원  (' + Math.round(price).toLocaleString('ko-KR') + '원 ÷ ' + totalLife.toLocaleString('ko-KR') + 'ea)');
+        }
+      });
+
+       const totalEl = document.getElementById('toolTotalPerPiece');
+      if (totalEl) totalEl.textContent = totalPerPiece.toFixed(2) + '원';
+
+      const monthlyQty = parseFloat(document.getElementById('toolMonthlyQty').value);
+      const hasMonthly = isFinite(monthlyQty) && monthlyQty > 0;
+      const monthlyCost = hasMonthly ? totalMonthlyCost : 0;
+
+      /* 합계 월 공구비 표시 */
+      const monthTotalEl = document.getElementById('toolTotalMonthlyCost');
+      if (monthTotalEl) {
+        monthTotalEl.textContent = (hasMonthly && validCount > 0)
+          ? Math.round(totalMonthlyCost).toLocaleString('ko-KR') + '원'
+          : '-';
+      }
+
+      const reportEl = document.getElementById('toolCostReport');
+      if (!reportEl) return;
+
+      if (validCount === 0) {
+        reportEl.innerText = '공구 정보를 입력하세요.\n공구 단가, 코너 수, 수명을 입력한 뒤 [+ 공구를 리스트에 추가]를 누르면 부품 1개당 공구비가 누적됩니다.';
+        return;
+      }
+
+      let report = '=== 부품 1개당 공구비 (' + validCount + '종 누적) ===\n';
+      report += details.join('\n');
+      report += '\n------------------------------------\n';
+      report += '▶ 합계 개당 공구비 : ' + totalPerPiece.toFixed(2) + '원';
+
+      if (hasMonthly) {
+        report += '\n\n[월 기준]\n';
+        report += '• 월 생산량  : ' + Math.round(monthlyQty).toLocaleString('ko-KR') + 'ea\n';
+        report += '• 월 공구비  : ' + Math.round(monthlyCost).toLocaleString('ko-KR') + '원';
+      } else {
+        report += '\n\n(월 생산량을 입력하면 월 공구비도 계산됩니다)';
+      }
+
+      reportEl.innerText = report;
     }
 
     function goHome() {
@@ -1763,6 +2154,10 @@ M30`;
       try { history.pushState({ view: name }, ''); } catch (e) {}
       if (name === 'lathe-path') setTimeout(() => { resizeLathe(); resetLatheView(); }, 60);
       if (name === 'mct-path') setTimeout(() => { resizeMCT(); resetMctView(); }, 60);
+      if (name === 'tool-cost') setTimeout(() => {
+        recalcMonthlyFromCT();
+        calcToolCost();
+      }, 60);
     }
 
     function debounce(func, wait) {
