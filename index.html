@@ -527,18 +527,35 @@
     .tool-section-title::before {
       content: ""; width: 3px; height: 12px; background: var(--accent); border-radius: 2px;
     }
-       /* 테이블 컬럼 정렬 고정 */
+
+    /* 자동 산출(읽기전용) 필드 시각 구분 */
+    .tool-reverse-grid input[readonly] {
+      background: rgba(56, 189, 248, 0.08);
+      color: var(--accent);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      cursor: default;
+    }
+    .tool-reverse-grid input[readonly]:focus {
+      box-shadow: none;
+      border-color: var(--border);
+    }
+
+    /* 테이블 컬럼 정렬 고정 - 스마트폰 한 화면에 최대한 담기도록 컴팩트화 */
     .tool-cost-table {
-      min-width: 542px;
+      min-width: 368px;
       table-layout: fixed;
+      font-size: 10px;
     }
     .tool-cost-table th,
     .tool-cost-table td {
-      padding: 6px 4px;
+      padding: 5px 2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .tool-cost-table th { font-size: 9.5px; letter-spacing: -0.2px; }
     .tool-cost-table th:first-child,
     .tool-cost-table td:first-child { text-align: center; }
     .tool-cost-table th:nth-child(2),
@@ -554,25 +571,25 @@
     .tool-cost-table th:nth-child(3),
     .tool-cost-table td:nth-child(3) { text-align: center; }
     .tool-cost-table th:last-child,
-    .tool-cost-table td:last-child { text-align: center; padding: 4px 2px; }
+    .tool-cost-table td:last-child { text-align: center; padding: 4px 1px; }
     .tool-cost-table .tool-row-cost,
     .tool-cost-table .tool-row-monthcost {
       font-family: monospace; font-weight: 700; color: var(--accent);
-      font-size: 11px;
+      font-size: 10px;
       font-variant-numeric: tabular-nums;
     }
     .tool-cost-table .tool-row-monthqty {
-      font-family: monospace; font-size: 11px; color: var(--text);
+      font-family: monospace; font-size: 10px; color: var(--text);
       font-variant-numeric: tabular-nums;
     }
     .tool-row-name {
       text-align: center; font-weight: 800; color: var(--accent);
-      font-family: monospace; font-size: 12px;
+      font-family: monospace; font-size: 10.5px;
     }
     .tool-del-btn {
       background: transparent; border: 1px solid var(--border); color: #ef4444;
-      width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
-      font-weight: 900; font-size: 12px; padding: 0; line-height: 1;
+      width: 20px; height: 20px; border-radius: 4px; cursor: pointer;
+      font-weight: 900; font-size: 11px; padding: 0; line-height: 1;
       display: inline-flex; align-items: center; justify-content: center;
       transition: background 0.15s, transform 0.1s;
     }
@@ -1026,37 +1043,40 @@
         <label>가동률 (%)</label>
         <input id="toolWorkRate" oninput="onToolReverseInput()" step="1" type="number" value="90"/>
       </div>
-      <div>
+       <div>
+        <label>연간 생산량 (ea)</label>
+        <input id="toolReverseMonthlyQty" placeholder="자동 산출" readonly type="text"/>
+      </div>
     </div>
   </div>
 
   <!-- 3. 공구 리스트 (자동 번호 T01, T02, ...) -->
   <div class="card">
     <div class="card-head-row">
-      <label>공구 리스트 (부품 1개당 공구비 누적)</label>
+      <label>공구 리스트</label>
       <span style="font-size:10px;color:var(--text-muted);">자동 번호 T01, T02, ...</span>
     </div>
         <div class="data-table-wrap">
       <table class="data-table tool-cost-table">
           <colgroup>
-          <col style="width:50px;"/>
-          <col style="width:76px;"/>
-          <col style="width:64px;"/>
-          <col style="width:64px;"/>
-          <col style="width:76px;"/>
-          <col style="width:88px;"/>
-          <col style="width:90px;"/>
+          <col style="width:36px;"/>
+          <col style="width:56px;"/>
           <col style="width:34px;"/>
+          <col style="width:46px;"/>
+          <col style="width:56px;"/>
+          <col style="width:56px;"/>
+          <col style="width:60px;"/>
+          <col style="width:24px;"/>
         </colgroup>
         <thead>
           <tr>
             <th>공구</th>
-            <th>단가(원)</th>
-            <th>코너(ea)</th>
-            <th>수명(ea)</th>
-            <th>개당 비용</th>
-            <th>월 사용량(ea)</th>
-            <th>월 공구비(원)</th>
+            <th>단가</th>
+            <th>코너</th>
+            <th>수명</th>
+            <th>개당</th>
+            <th>월사용</th>
+            <th>월공구비</th>
             <th></th>
           </tr>
         </thead>
@@ -1975,7 +1995,7 @@ M30`;
       calcToolCost();
     }
 
-    /* 월 생산량 역산 (라인수 반영) */
+        /* 월 생산량 역산 (라인수 반영) - 연간 생산량 자동 표시 */
     function recalcMonthlyFromCT() {
       if (toolMonthlyManual) return;
       const ctEl = document.getElementById('toolCT');
@@ -1988,10 +2008,12 @@ M30`;
 
       const qtyInput = document.getElementById('toolMonthlyQty');
       const hint = document.getElementById('toolMonthlyHint');
+      const yearMirror = document.getElementById('toolReverseMonthlyQty');
       hint.classList.remove('manual');
 
       if (!isFinite(ct) || ct <= 0) {
         qtyInput.value = '';
+        if (yearMirror) yearMirror.value = '';
         hint.textContent = 'C/T를 입력하면 월 생산량이 자동 산출됩니다.';
         calcToolCost();
         return;
@@ -2000,6 +2022,7 @@ M30`;
       const totalSec = days * hours * 3600 * (rate / 100) * lines;
       const monthlyQty = Math.floor(totalSec / ct);
       qtyInput.value = monthlyQty;
+      if (yearMirror) yearMirror.value = (monthlyQty * 12).toLocaleString('ko-KR') + ' ea';
       hint.textContent = '자동 산출: ' + days + '일 × ' + hours + 'h × ' + rate + '% × ' + lines + '라인 ÷ C/T ' + ct + '초 = ' + monthlyQty.toLocaleString('ko-KR') + 'ea';
       calcToolCost();
     }
@@ -2008,10 +2031,11 @@ M30`;
       recalcMonthlyFromCT();
     }
 
-    function onToolMonthlyQtyInput() {
+        function onToolMonthlyQtyInput() {
       const qtyInput = document.getElementById('toolMonthlyQty');
       const wrap = document.getElementById('toolReverseWrap');
       const hint = document.getElementById('toolMonthlyHint');
+      const yearMirror = document.getElementById('toolReverseMonthlyQty');
       const val = qtyInput.value;
 
       if (val === '') {
@@ -2033,10 +2057,12 @@ M30`;
       const lines = Math.max(1, parseFloat(document.getElementById('toolLines').value) || 1);
 
       if (isFinite(qty) && qty > 0) {
+        if (yearMirror) yearMirror.value = (Math.round(qty) * 12).toLocaleString('ko-KR') + ' ea';
         const totalSec = days * hours * 3600 * (rate / 100) * lines;
         const requiredCT = totalSec / qty;
         hint.textContent = '수동 입력 · 목표 ' + Math.round(qty).toLocaleString('ko-KR') + 'ea 달성에 필요한 C/T ≈ ' + requiredCT.toFixed(2) + '초 (' + days + '일 × ' + hours + 'h × ' + rate + '% × ' + lines + '라인 기준)';
       } else {
+        if (yearMirror) yearMirror.value = '';
         hint.textContent = '월 생산량을 지우면 C/T 기반 자동 산출로 돌아갑니다.';
       }
       calcToolCost();
@@ -2077,15 +2103,14 @@ M30`;
             const monthUsedCeil = Math.ceil(monthUsedRaw);
             const monthCost = monthUsedCeil * price;
             if (monthQtyCell) {
-              /* 정수면 그냥, 소수면 "올림값(원래값)" 으로 표시 */
-              monthQtyCell.textContent = Number.isInteger(monthUsedRaw)
-                ? monthUsedCeil.toLocaleString('ko-KR')
-                : monthUsedCeil.toLocaleString('ko-KR') + '(' + monthUsedRaw.toFixed(1) + ')';
+              /* 컴팩트 컬럼에 맞춰 정수만 표시, 원래 소수값은 툴팁으로 */
+              monthQtyCell.textContent = monthUsedCeil.toLocaleString('ko-KR');
+              monthQtyCell.title = '실사용(올림 전): ' + monthUsedRaw.toFixed(2);
             }
             if (monthCostCell) monthCostCell.textContent = Math.round(monthCost).toLocaleString('ko-KR');
             totalMonthlyCost += monthCost;
           } else {
-            if (monthQtyCell) monthQtyCell.textContent = '-';
+            if (monthQtyCell) { monthQtyCell.textContent = '-'; monthQtyCell.title = ''; }
             if (monthCostCell) monthCostCell.textContent = '-';
           }
 
