@@ -378,6 +378,68 @@
       border-radius: 6px 6px 0 0;
       border-bottom-color: transparent;
     }
+
+    /* ============ 트러블슈팅 진단 ============ */
+    .trouble-filter-tabs { display:flex; gap:5px; flex-wrap:wrap; margin:8px 0 4px; }
+    .trouble-filter-btn { padding:5px 10px; font-size:11px; font-weight:700; border-radius:14px; border:1px solid var(--border); background:var(--input-bg); color:var(--text-muted); cursor:pointer; transition:all 0.15s; }
+    .trouble-filter-btn.active { background:var(--primary); border-color:var(--accent); color:#fff; }
+    .trouble-grid { display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px; }
+    .trouble-card { background:var(--input-bg); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:10px; padding:11px 13px; cursor:pointer; transition:all 0.15s; }
+    .trouble-card:active { transform:scale(0.985); }
+    .trouble-card.open { border-color:var(--accent); background:linear-gradient(135deg, rgba(56,189,248,.08), var(--input-bg)); }
+    .trouble-card.cat-wear { border-left-color:#ca8a04; }
+    .trouble-card.cat-chip { border-left-color:#dc2626; }
+    .trouble-card.cat-surface { border-left-color:#0284c7; }
+    .trouble-card.cat-vib { border-left-color:#a78bfa; }
+    .trouble-card.cat-chipEvac { border-left-color:#22c55e; }
+    .trouble-card.cat-accuracy { border-left-color:#06b6d4; }
+    .trouble-card-head { display:flex; align-items:center; gap:8px; }
+    .trouble-name { font-size:13px; font-weight:800; color:var(--text); line-height:1.25; flex:1; }
+    .trouble-cat-tag { font-size:9px; font-weight:700; padding:2px 6px; border-radius:8px; background:var(--surface); color:var(--text-muted); border:1px solid var(--border); flex-shrink:0; }
+    .trouble-card.cat-wear .trouble-cat-tag { color:#ca8a04; border-color:#ca8a04; }
+    .trouble-card.cat-chip .trouble-cat-tag { color:#dc2626; border-color:#dc2626; }
+    .trouble-card.cat-surface .trouble-cat-tag { color:#0284c7; border-color:#0284c7; }
+    .trouble-card.cat-vib .trouble-cat-tag { color:#a78bfa; border-color:#a78bfa; }
+    .trouble-card.cat-chipEvac .trouble-cat-tag { color:#22c55e; border-color:#22c55e; }
+    .trouble-card.cat-accuracy .trouble-cat-tag { color:#06b6d4; border-color:#06b6d4; }
+    .trouble-desc { font-size:10.5px; color:var(--text-muted); margin-top:5px; line-height:1.45; }
+    .trouble-detail { display:none; margin-top:11px; padding-top:11px; border-top:1px dashed var(--border); animation:fadeIn 0.18s ease-out; }
+    .trouble-card.open .trouble-detail { display:block; }
+    .trouble-section-title { font-size:10px; font-weight:800; color:var(--accent); margin:10px 0 6px; letter-spacing:.05em; }
+    .trouble-section-title:first-child { margin-top:0; }
+    .trouble-cause-list, .trouble-fix-list { display:flex; flex-direction:column; gap:5px; }
+    .trouble-cause { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--text); line-height:1.35; }
+    .trouble-cause .star { color:var(--yellow); font-size:10px; letter-spacing:-1px; flex-shrink:0; font-family:monospace; }
+    .trouble-fix { font-size:11px; color:var(--text); line-height:1.45; padding-left:15px; position:relative; }
+    .trouble-fix::before { content:'→'; position:absolute; left:0; color:var(--accent); font-weight:800; }
+    .trouble-rec { font-size:10.5px; color:var(--accent); font-weight:700; background:rgba(56,189,248,.1); padding:7px 9px; border-radius:6px; border-left:3px solid var(--accent); margin-top:10px; font-family:monospace; line-height:1.4; }
+    .trouble-count { font-size:10px; color:var(--text-muted); margin:8px 0 0; text-align:right; }
+
+    /* ============ 절감액 계산기 (ROI) ============ */
+    .roi-compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .roi-col { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px; }
+    .roi-col-title { font-size:11px; font-weight:800; color:var(--text); margin-bottom:6px; display:flex; align-items:center; gap:5px; }
+    .roi-col-title .roi-dot { width:8px; height:8px; border-radius:50%; }
+    .roi-col-title .dot-a { background:#94a3b8; }
+    .roi-col-title .dot-b { background:var(--accent); }
+    .roi-col label { font-size:10px; }
+    .roi-col input { padding:6px; font-size:12px; margin-bottom:4px; }
+    .roi-result-box { background:linear-gradient(135deg, rgba(34,197,94,.12), rgba(56,189,248,.10), var(--card-bg)); border:1px solid var(--border); border-radius:12px; padding:16px; margin:8px 0; text-align:center; }
+    .roi-result-label { font-size:10px; letter-spacing:.12em; color:var(--text-muted); font-weight:800; margin-bottom:4px; }
+    .roi-result-value { font-size:clamp(24px, 7vw, 38px); font-weight:900; color:#22c55e; letter-spacing:-0.5px; line-height:1.1; }
+    .roi-result-value.neg { color:#ef4444; }
+    .roi-sub-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+    .roi-sub-item { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px; text-align:center; }
+    .roi-sub-label { font-size:9.5px; color:var(--text-muted); font-weight:700; margin-bottom:2px; }
+    .roi-sub-value { font-size:15px; font-weight:800; color:var(--text); font-variant-numeric:tabular-nums; }
+    .roi-bar-wrap { margin-top:12px; }
+    .roi-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:10px; }
+    .roi-bar-label { width:60px; font-weight:700; color:var(--text-muted); flex-shrink:0; }
+    .roi-bar-track { flex:1; height:18px; background:var(--input-bg); border-radius:9px; overflow:hidden; position:relative; }
+    .roi-bar-fill { height:100%; border-radius:9px; transition:width 0.35s ease-out; }
+    .roi-bar-fill.a { background:linear-gradient(90deg,#94a3b8,#64748b); }
+    .roi-bar-fill.b { background:linear-gradient(90deg,var(--accent),#0284c7); }
+    .roi-bar-value { width:70px; text-align:right; font-weight:800; font-variant-numeric:tabular-nums; font-size:11px; color:var(--text); flex-shrink:0; }
 </style>
 </head>
 <body>
@@ -393,8 +455,8 @@
 <div class="hbc-role">Support Tool</div>
 </div>
 <div class="hbc-bottom">
-<div class="hbc-row"><span>📱 <a href="tel:01065992582">---------------------------------</a></span></div>
-<div class="hbc-row"><span>✉ <a href="mailto:gurmmania@gmail.com"><strong>--------------------------------</strong></a></span></div>
+<div class="hbc-row"><span><a href="tel:01065992582">---------------------------------</a></span></div>
+<div class="hbc-row"><span><a href="mailto:gurmmania@gmail.com"><strong>--------------------------------</strong></a></span></div>
 </div>
 </div>
 <button class="btn-back" id="btnHome" onclick="goBack()" style="display: none;">‹ 홈으로</button>
@@ -406,11 +468,11 @@
 <div class="menu-btn" onclick="openView('mct-path')">MCT 밀링 경로<span>3축 가공 &amp; C/T 시뮬레이터</span></div>
 <div class="menu-btn" onclick="openView('lathe-calc')">선반 절삭조건 계산<span>Vc ↔ RPM &amp; 조도(Rz/Ra)</span></div>
 <div class="menu-btn" onclick="openView('mct-calc')">밀링 절삭조건 계산<span>Vc/Fz &amp; 공출(Q) &amp; 칩 두께(hm)</span></div>
-<div class="menu-btn" onclick="openView('discount-calc')">견적 · 공구비 계산<span>할인율 &amp; 개당/월 공구비</span></div>
+<div class="menu-btn" onclick="openView('discount-calc')">견적 · 공구비 계산<span>할인율 · 공구비 · 절감액</span></div>
 <div class="menu-btn" onclick="openView('cbn-guide')">Duracarb CBN<span>CBN User Guide</span></div>
 <div class="menu-btn" onclick="openView('duracarb-2026')">Duracarb 재종표<span>2026년 &amp; 타 메이커 대응</span></div>
 <div class="menu-btn" onclick="openView('dura-official')">Duracarb 공식 자료<span>터닝 · 밀링 · 홈 · 드릴</span></div>
-<div class="menu-btn" onclick="openView('ref-tools')">참고 자료<span>재질 · 코드 · 나사 · 탭 · 원호</span></div>
+<div class="menu-btn" onclick="openView('ref-tools')">참고 자료<span>재질 · 코드 · 나사 · 트러블</span></div>
 <div class="menu-btn" onclick="toggleTheme()">모드 변경<span>Dark · Light · Sepia</span></div>
 </div>
 <div class="home-footer-note">
@@ -426,13 +488,13 @@
 <div class="card-head-row">
 <label>선반 G코드 (사진 인식 / 파일 드롭)</label>
 <div class="head-actions">
-<button class="btn-file-load" onclick="document.getElementById('latheCameraInput').click()">📷 사진 인식</button>
+<button class="btn-file-load" onclick="document.getElementById('latheCameraInput').click()">사진 인식</button>
 <input accept="image/*" capture="environment" id="latheCameraInput" onchange="handleImageOCR(event, 'latheGcode')" style="display:none;" type="file"/>
-<button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">📁 NC 파일</button>
+<button class="btn-file-load" onclick="document.getElementById('latheFileInput').click()">NC 파일</button>
 <input accept=".nc,.txt,.tap,.gcode" id="latheFileInput" onchange="loadFileContent(event, 'latheGcode')" style="display:none;" type="file"/>
 </div>
 </div>
-<textarea id="latheGcode" onclick="debouncedSyncLathe(this)" onkeyup="debouncedSyncLathe(this)" placeholder="선반 G코드를 붙여넣거나 [📷 사진 인식]으로 CNC 화면을 촬영하세요..."></textarea>
+<textarea id="latheGcode" onclick="debouncedSyncLathe(this)" onkeyup="debouncedSyncLathe(this)" placeholder="선반 G코드를 붙여넣거나 [사진 인식]으로 CNC 화면을 촬영하세요..."></textarea>
 <div class="btn-row" style="margin-top: 4px;">
 <button class="btn-run" onclick="parseAndDrawLathe()">경로 생성</button>
 <button class="btn-sub" onclick="resetLatheView()">화면 맞춤</button>
@@ -448,14 +510,14 @@
 </div>
 <div class="viewport" id="latheBox">
 <canvas id="latheCanvas"></canvas>
-<button class="viewport-save-btn" onclick="saveCanvasAsImage('latheCanvas','선반')" onpointerdown="event.stopPropagation()">📷 저장</button>
+<button class="viewport-save-btn" onclick="saveCanvasAsImage('latheCanvas','선반')" onpointerdown="event.stopPropagation()">저장</button>
 </div>
 <div class="player-bar">
 <input class="seek-slider" id="latheSeek" max="100" min="0" oninput="onLatheSeek(this.value)" type="range" value="100"/>
 <div class="player-controls">
 <div style="display:flex; gap:5px;">
-<button class="btn-player" id="btnLathePlay" onclick="toggleLathePlay()">재생 ▶</button>
-<button class="btn-player" onclick="stopLathePlay()">정지 ■</button>
+<button class="btn-player" id="btnLathePlay" onclick="toggleLathePlay()">재생</button>
+<button class="btn-player" onclick="stopLathePlay()">정지</button>
 <button class="btn-player" onclick="loadLathePreset()">예제</button>
 </div>
 <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
@@ -469,7 +531,7 @@
 </div>
 </div>
 </div>
-<div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyLatheReport" onclick="copyReport('latheReport','copyLatheReport')">📋 복사</button></div>
+<div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyLatheReport" onclick="copyReport('latheReport','copyLatheReport')">복사</button></div>
 <div class="info-box" id="latheReport">G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.</div>
 </div>
 
@@ -479,13 +541,13 @@
 <div class="card-head-row">
 <label>MCT 3축 G코드 (사진 인식 &amp; C/T 연산)</label>
 <div class="head-actions">
-<button class="btn-file-load" onclick="document.getElementById('mctCameraInput').click()">📷 사진 인식</button>
+<button class="btn-file-load" onclick="document.getElementById('mctCameraInput').click()">사진 인식</button>
 <input accept="image/*" capture="environment" id="mctCameraInput" onchange="handleImageOCR(event, 'mctGcode')" style="display:none;" type="file"/>
-<button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">📁 NC 파일</button>
+<button class="btn-file-load" onclick="document.getElementById('mctFileInput').click()">NC 파일</button>
 <input accept=".nc,.txt,.tap,.gcode" id="mctFileInput" onchange="loadFileContent(event, 'mctGcode')" style="display:none;" type="file"/>
 </div>
 </div>
-<textarea id="mctGcode" onclick="debouncedSyncMct(this)" onkeyup="debouncedSyncMct(this)" placeholder="MCT 3축 G코드를 붙여넣거나 [📷 사진 인식]으로 화면을 촬영하세요..."></textarea>
+<textarea id="mctGcode" onclick="debouncedSyncMct(this)" onkeyup="debouncedSyncMct(this)" placeholder="MCT 3축 G코드를 붙여넣거나 [사진 인식]으로 화면을 촬영하세요..."></textarea>
 <div class="btn-row" style="margin-top: 4px;">
 <button class="btn-run" onclick="parseAndDrawMCT()">3D 경로 생성</button>
 <button class="btn-sub" onclick="resetMctView()">뷰 리셋</button>
@@ -500,14 +562,14 @@
 </div>
 <div class="viewport" id="mctBox">
 <canvas id="mctCanvas"></canvas>
-<button class="viewport-save-btn" onclick="saveCanvasAsImage('mctCanvas','MCT')" onpointerdown="event.stopPropagation()">📷 저장</button>
+<button class="viewport-save-btn" onclick="saveCanvasAsImage('mctCanvas','MCT')" onpointerdown="event.stopPropagation()">저장</button>
 </div>
 <div class="player-bar">
 <input class="seek-slider" id="mctSeek" max="100" min="0" oninput="onMctSeek(this.value)" type="range" value="100"/>
 <div class="player-controls">
 <div style="display:flex; gap:5px;">
-<button class="btn-player" id="btnMctPlay" onclick="toggleMctPlay()">재생 ▶</button>
-<button class="btn-player" onclick="stopMctPlay()">정지 ■</button>
+<button class="btn-player" id="btnMctPlay" onclick="toggleMctPlay()">재생</button>
+<button class="btn-player" onclick="stopMctPlay()">정지</button>
 <button class="btn-player" onclick="loadMctPreset()">예제</button>
 </div>
 <div style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);">
@@ -521,7 +583,7 @@
 </div>
 </div>
 </div>
-<div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyMctReport" onclick="copyReport('mctReport','copyMctReport')">📋 복사</button></div>
+<div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyMctReport" onclick="copyReport('mctReport','copyMctReport')">복사</button></div>
 <div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
 </div>
 
@@ -539,7 +601,7 @@
 <label>인서트 노즈 R (mm)</label>
 <input id="l_nr" oninput="calcLathe(1)" placeholder="예: 0.8" step="0.4" type="number"/>
 </div>
-<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyLatheCalc" onclick="copyReport('latheCalcReport','copyLatheCalc')">📋 복사</button></div>
+<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyLatheCalc" onclick="copyReport('latheCalcReport','copyLatheCalc')">복사</button></div>
 <div class="info-box" id="latheCalcReport">입력하면 실시간 상호 산출됩니다.</div>
 </div>
 
@@ -582,7 +644,7 @@
 <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">* 직접 입력 시 드롭다운보다 우선 적용됩니다.</div>
 </div>
 </div>
-<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">📋 복사</button></div>
+<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">복사</button></div>
 <div class="info-box" id="mctCalcReport">입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
 </div>
 
@@ -647,9 +709,10 @@
 <div class="main-grid" style="padding-bottom:0;">
 <div class="menu-btn" onclick="openView('mat-calc')">재질별 절삭조건<span>ISO 그룹별 권장 조건</span></div>
 <div class="menu-btn" onclick="openView('gcode-calc')">G / M 코드 일람<span>선반 · MCT · M코드 검색</span></div>
-<div class="menu-btn" onclick="openView('tapdrill')">탭 드릴<span>규격별 드릴 직경 산출</span></div>
+<div class="menu-btn" onclick="openView('tapdrill')">드릴 · 탭 조건<span>탭드릴 · 드릴 · 탭 조건</span></div>
 <div class="menu-btn" onclick="openView('pitch')">나사 피치<span>G76 지령 참고</span></div>
 <div class="menu-btn" onclick="openView('arcr')">원호 R 계산<span>노즈R 보정 프로그램 R</span></div>
+<div class="menu-btn" onclick="openView('troubleshoot')">트러블슈팅 진단<span>증상별 원인 · 대책</span></div>
 </div>
 </div>
 </div>
@@ -768,9 +831,16 @@
 </div>
 </div>
 
-<!-- 탭 드릴 -->
+<!-- 드릴 · 탭 조건 (탭 전환: 탭드릴 / 드릴 조건 / 탭 조건) -->
 <div class="sub-view" id="view-tapdrill">
-<div class="card">
+<div class="dura-filter-tabs" id="tapSubTabs">
+<button class="dura-filter-btn active" data-tab="tapdrill" onclick="switchTapSubTab('tapdrill', this)">탭 드릴</button>
+<button class="dura-filter-btn" data-tab="drillCond" onclick="switchTapSubTab('drillCond', this)">드릴 조건</button>
+<button class="dura-filter-btn" data-tab="tapCond" onclick="switchTapSubTab('tapCond', this)">탭 조건</button>
+</div>
+
+<!-- 탭 드릴 패널 -->
+<div class="card" id="tapdrillPanel">
 <div class="input-grid-2">
 <div>
 <label>규격</label>
@@ -792,8 +862,125 @@
 <div class="screw-result-value" id="tapDrillValue">-</div>
 <div class="screw-result-sub" id="tapDrillSub">규격과 호칭을 선택하세요</div>
 </div>
-<div class="info-box-head"><span>상세 정보</span><button class="btn-copy" id="copyTapDrill" onclick="copyReport('tapDrillReport','copyTapDrill')">📋 복사</button></div>
+<div class="info-box-head"><span>상세 정보</span><button class="btn-copy" id="copyTapDrill" onclick="copyReport('tapDrillReport','copyTapDrill')">복사</button></div>
 <div class="info-box" id="tapDrillReport">규격과 호칭을 선택하면 드릴 직경이 표시됩니다.</div>
+</div>
+
+<!-- 드릴 조건 패널 -->
+<div class="card" id="drillCondPanel" style="display:none;">
+<div class="input-grid-2">
+<div><label>드릴 직경 Φ (mm)</label><input id="dr_dia" oninput="calcDrillCond()" placeholder="예: 8.5" step="0.1" type="number"/></div>
+<div>
+<label>드릴 종류</label>
+<select id="dr_type" onchange="calcDrillCond()">
+<option value="carbide" selected>카바이드 솔리드</option>
+<option value="hss">HSS (고속도강)</option>
+<option value="insert">인서트 드릴 (U드릴)</option>
+</select>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>피삭재 (ISO)</label>
+<select id="dr_mat" onchange="onDrillMatChange()">
+<option value="P">P 탄소강/합금강</option>
+<option value="M">M 스테인리스</option>
+<option value="K">K 주철</option>
+<option value="N">N 알루미늄</option>
+<option value="S">S 내열합금/티타늄</option>
+<option value="H">H 고경도강</option>
+</select>
+</div>
+<div>
+<label>세부분류</label>
+<select id="dr_submat" onchange="calcDrillCond()"></select>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>코팅</label>
+<select id="dr_coat" onchange="calcDrillCond()">
+<option value="1.00">무코팅</option>
+<option value="1.15">TiN</option>
+<option value="1.30">TiCN</option>
+<option value="1.50" selected>TiAlN / AlCrN</option>
+<option value="1.80">DLC / 다이아</option>
+</select>
+</div>
+<div>
+<label>홀 깊이 (mm)</label>
+<input id="dr_depth" oninput="calcDrillCond()" placeholder="예: 25" step="1" type="number"/>
+</div>
+</div>
+<div class="screw-result-box">
+<div class="screw-result-label">DRILL CONDITION</div>
+<div class="screw-result-value" id="drResult">-</div>
+<div class="screw-result-sub" id="drResultSub">직경과 재질을 선택하세요</div>
+</div>
+<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyDrillCond" onclick="copyReport('drillCondReport','copyDrillCond')">복사</button></div>
+<div class="info-box" id="drillCondReport">직경과 재질을 입력하면 Vc · N · f · F · 펙 깊이가 산출됩니다.</div>
+</div>
+
+<!-- 탭 조건 패널 -->
+<div class="card" id="tapCondPanel" style="display:none;">
+<div class="input-grid-2">
+<div>
+<label>규격</label>
+<select id="tc_type" onchange="updateTapCondSizes()">
+<option value="M">M (미터 나사)</option>
+<option value="UNC">UNC (통일 거친)</option>
+<option value="UNF">UNF (통일 가는)</option>
+<option value="PT">PT (관용 테이퍼)</option>
+<option value="NPT">NPT (미국 관용)</option>
+</select>
+</div>
+<div>
+<label>호칭</label>
+<select id="tc_size" onchange="calcTapCond()"></select>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>피삭재 (ISO)</label>
+<select id="tc_mat" onchange="onTapMatChange()">
+<option value="P">P 탄소강/합금강</option>
+<option value="M">M 스테인리스</option>
+<option value="K">K 주철</option>
+<option value="N">N 알루미늄</option>
+<option value="S">S 내열합금/티타늄</option>
+<option value="H">H 고경도강</option>
+</select>
+</div>
+<div>
+<label>세부분류</label>
+<select id="tc_submat" onchange="calcTapCond()"></select>
+</div>
+</div>
+<div class="input-grid-2">
+<div>
+<label>탭 방식</label>
+<select id="tc_mode" onchange="calcTapCond()">
+<option value="rigid">리지드 (싱크로)</option>
+<option value="tension">텐션 (플로팅)</option>
+</select>
+</div>
+<div>
+<label>탭 종류</label>
+<select id="tc_style" onchange="calcTapCond()">
+<option value="spiral" selected>스파이럴 (맹공)</option>
+<option value="point">포인트 (관통)</option>
+<option value="spiralFlute">스파이럴 플룻</option>
+<option value="straight">스트레이트</option>
+</select>
+</div>
+</div>
+<div class="screw-result-box">
+<div class="screw-result-label">TAP CONDITION</div>
+<div class="screw-result-value" id="tcResult">-</div>
+<div class="screw-result-sub" id="tcResultSub">규격과 재질을 선택하세요</div>
+</div>
+<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyTapCond" onclick="copyReport('tapCondReport','copyTapCond')">복사</button></div>
+<div class="info-box" id="tapCondReport">규격과 재질을 입력하면 Vc · N · F · G84 지령이 산출됩니다.</div>
 </div>
 </div>
 
@@ -810,7 +997,7 @@
 </div>
 <div style="font-size:10px; color:var(--text-muted); margin:4px 0 6px;">* G76 지령 참고값: P는 나사높이(마이크론), Q는 첫 절입량(마이크론). 제어기·조건에 따라 조정하세요.</div>
 <details class="g76-details">
-<summary>▶ G76 사이클 작성법 보기 (M10×1.5 예시)</summary>
+<summary>G76 사이클 작성법 보기 (M10×1.5 예시)</summary>
 <div class="info-box" style="margin-top:6px;">[ 예시 ] M10 × P1.5  ·  나사 길이 25mm
 
 ■ ① 피치표에서 뽑기
@@ -878,16 +1065,36 @@
 <div class="screw-result-value" id="arcrValue">-</div>
 <div class="screw-result-sub" id="arcrSub">값을 입력하세요</div>
 </div>
-<div class="info-box-head"><span>계산 상세</span><button class="btn-copy" id="copyArcR" onclick="copyReport('arcrReport','copyArcR')">📋 복사</button></div>
+<div class="info-box-head"><span>계산 상세</span><button class="btn-copy" id="copyArcR" onclick="copyReport('arcrReport','copyArcR')">복사</button></div>
 <div class="info-box" id="arcrReport">노즈R과 도면 R을 입력하세요.</div>
 </div>
 </div>
 
-<!-- 할인율 계산기 -->
+<!-- 트러블슈팅 진단 -->
+<div class="sub-view" id="view-troubleshoot">
+<div class="card">
+<div class="trouble-filter-tabs" id="troubleFilterTabs">
+<button class="trouble-filter-btn active" data-cat="all" onclick="setTroubleFilter('all', this)">전체</button>
+<button class="trouble-filter-btn" data-cat="wear" onclick="setTroubleFilter('wear', this)">마모</button>
+<button class="trouble-filter-btn" data-cat="chip" onclick="setTroubleFilter('chip', this)">치핑·파손</button>
+<button class="trouble-filter-btn" data-cat="surface" onclick="setTroubleFilter('surface', this)">표면조도</button>
+<button class="trouble-filter-btn" data-cat="vib" onclick="setTroubleFilter('vib', this)">진동·소음</button>
+<button class="trouble-filter-btn" data-cat="chipEvac" onclick="setTroubleFilter('chipEvac', this)">칩 배출</button>
+<button class="trouble-filter-btn" data-cat="accuracy" onclick="setTroubleFilter('accuracy', this)">치수·정밀도</button>
+</div>
+<label style="margin-top:8px;">증상 · 키워드 검색</label>
+<input id="troubleSearch" oninput="renderTroubleCards()" placeholder="예: 치핑, Ra, BUE, 채터, 칩 엉킴, 버, 파손..." type="search"/>
+<div class="trouble-grid" id="troubleGrid"></div>
+<div class="trouble-count" id="troubleCount"></div>
+</div>
+</div>
+
+<!-- 할인율 계산기 / 공구비 계산기 / 절감액 계산기 -->
 <div class="sub-view" id="view-discount-calc">
 <div class="dura-filter-tabs">
 <button class="dura-filter-btn active" onclick="switchCostTab('discount-calc', this)">할인율 계산기</button>
 <button class="dura-filter-btn" onclick="switchCostTab('tool-cost', this)">공구비 계산기</button>
+<button class="dura-filter-btn" onclick="switchCostTab('roi-calc', this)">절감액 계산기</button>
 </div>
 <div class="card">
 <label>정가 (원)</label>
@@ -927,14 +1134,14 @@
 <div class="dura-filter-tabs">
 <button class="dura-filter-btn" onclick="switchCostTab('discount-calc', this)">할인율 계산기</button>
 <button class="dura-filter-btn active" onclick="switchCostTab('tool-cost', this)">공구비 계산기</button>
+<button class="dura-filter-btn" onclick="switchCostTab('roi-calc', this)">절감액 계산기</button>
 </div>
   <div class="card">
     <div class="card-head-row">
       <label>공구 입력 (개별 추가)</label>
-      <button class="tool-reset-btn" onclick="resetToolList()" type="button">🔄 전체 초기화</button>
+      <button class="tool-reset-btn" onclick="resetToolList()" type="button">전체 초기화</button>
     </div>
 
-    <!-- 1행: 단가 / 코너수 -->
     <div class="input-grid-2">
       <div>
         <label>공구 단가 (원)</label>
@@ -946,7 +1153,6 @@
       </div>
     </div>
 
-    <!-- 2행: 수명 / 개당 공구비 -->
     <div class="input-grid-2">
       <div>
         <label>공구 수명 (ea/코너)</label>
@@ -958,7 +1164,6 @@
       </div>
     </div>
 
-    <!-- 3행: 선택사항 (형상 / 규격 / 브레이커·재종) -->
     <div style="margin-top:4px;">
       <label>선택사항 <span class="tool-optional-badge">OPTIONAL</span></label>
       <div class="input-grid-3">
@@ -1023,7 +1228,7 @@
       <label>공구 리스트</label>
       <div style="display:flex;gap:6px;align-items:center;">
         <span style="font-size:10px;color:var(--text-muted);">OP별 T01 자동 부여</span>
-        <button class="btn-file-load" type="button" onclick="saveToolCostAsImage()">📷 이미지 저장</button>
+        <button class="btn-file-load" type="button" onclick="saveToolCostAsImage()">이미지 저장</button>
       </div>
     </div>
     <div class="data-table-wrap">
@@ -1066,10 +1271,105 @@
   <div class="card">
     <div class="info-box-head">
       <span>계산 상세</span>
-      <button class="btn-copy" id="copyToolCost" onclick="copyReport('toolCostReport','copyToolCost')">📋 복사</button>
+      <button class="btn-copy" id="copyToolCost" onclick="copyReport('toolCostReport','copyToolCost')">복사</button>
     </div>
     <div class="info-box" id="toolCostReport">공구 정보를 입력하세요.</div>
   </div>
+</div>
+
+<!-- 절감액 계산기 (ROI) -->
+<div class="sub-view" id="view-roi-calc">
+<div class="dura-filter-tabs">
+<button class="dura-filter-btn" onclick="switchCostTab('discount-calc', this)">할인율 계산기</button>
+<button class="dura-filter-btn" onclick="switchCostTab('tool-cost', this)">공구비 계산기</button>
+<button class="dura-filter-btn active" onclick="switchCostTab('roi-calc', this)">절감액 계산기</button>
+</div>
+<div class="card">
+<div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">경쟁사 공구 → 듀라카브 전환 시 절감 효과를 비교합니다.</div>
+<div class="roi-compare-grid">
+<div class="roi-col">
+<div class="roi-col-title"><span class="roi-dot dot-a"></span>기존 (경쟁사)</div>
+<label>단가 (원)</label>
+<input id="roi_a_price" oninput="calcRoi()" placeholder="8000" step="1" type="number"/>
+<label>수명 (ea/코너)</label>
+<input id="roi_a_life" oninput="calcRoi()" placeholder="150" step="1" type="number"/>
+<label>코너 수</label>
+<input id="roi_a_corner" oninput="calcRoi()" placeholder="4" step="1" type="number"/>
+<label>C/T (초/개)</label>
+<input id="roi_a_ct" oninput="calcRoi()" placeholder="60" step="0.1" type="number"/>
+</div>
+<div class="roi-col">
+<div class="roi-col-title"><span class="roi-dot dot-b"></span>신규 (듀라카브)</div>
+<label>단가 (원)</label>
+<input id="roi_b_price" oninput="calcRoi()" placeholder="10000" step="1" type="number"/>
+<label>수명 (ea/코너)</label>
+<input id="roi_b_life" oninput="calcRoi()" placeholder="250" step="1" type="number"/>
+<label>코너 수</label>
+<input id="roi_b_corner" oninput="calcRoi()" placeholder="4" step="1" type="number"/>
+<label>C/T (초/개)</label>
+<input id="roi_b_ct" oninput="calcRoi()" placeholder="50" step="0.1" type="number"/>
+</div>
+</div>
+</div>
+
+<div class="card">
+<label>공통 조건</label>
+<div class="input-grid-2">
+<div>
+<label>월 생산량 (ea)</label>
+<input id="roi_monthly" oninput="calcRoi()" placeholder="예: 5000" step="1" type="number"/>
+</div>
+<div>
+<label>월 가공비 (원/월)</label>
+<input id="roi_monthly_cost" oninput="calcRoi()" placeholder="예: 5000000" step="10000" type="number"/>
+</div>
+</div>
+<div style="font-size:10px; color:var(--text-muted); margin-top:8px; line-height:1.5;">
+* 월 가공비: 기계 감가 · 인건비 · 전기료 · 설비비 등 <b>월 총 운영비</b><br/>
+* C/T 단축분은 개당 가공비 부담 감소로 자동 반영됩니다.
+</div>
+</div>
+
+<div class="roi-result-box">
+<div class="roi-result-label">월 절감액</div>
+<div class="roi-result-value" id="roiMonthlySaving">-</div>
+<div style="font-size:11px; color:var(--text-muted); margin-top:8px;" id="roiResultSub">값을 입력하세요</div>
+</div>
+
+<div class="card">
+<div class="roi-sub-grid">
+<div class="roi-sub-item">
+<div class="roi-sub-label">연 절감액</div>
+<div class="roi-sub-value" id="roiYearlySaving">-</div>
+</div>
+<div class="roi-sub-item">
+<div class="roi-sub-label">월 절감률</div>
+<div class="roi-sub-value" id="roiSavingRate">-</div>
+</div>
+</div>
+
+<div class="roi-bar-wrap" id="roiBarWrap" style="display:none;">
+<div class="roi-bar-row">
+<div class="roi-bar-label">기존</div>
+<div class="roi-bar-track"><div class="roi-bar-fill a" id="roiBarA" style="width:0%;"></div></div>
+<div class="roi-bar-value" id="roiBarAVal">-</div>
+</div>
+<div class="roi-bar-row">
+<div class="roi-bar-label">신규</div>
+<div class="roi-bar-track"><div class="roi-bar-fill b" id="roiBarB" style="width:0%;"></div></div>
+<div class="roi-bar-value" id="roiBarBVal">-</div>
+</div>
+<div style="font-size:10px; color:var(--text-muted); margin-top:4px; text-align:right;">막대: 개당 총원가 비교</div>
+</div>
+</div>
+
+<div class="card">
+<div class="info-box-head">
+<span>계산 상세</span>
+<button class="btn-copy" id="copyRoi" onclick="copyReport('roiReport','copyRoi')">복사</button>
+</div>
+<div class="info-box" id="roiReport">좌우 조건과 공통 조건을 입력하면 상세 리포트가 표시됩니다.</div>
+</div>
 </div>
 
 <!-- Duracarb CBN -->
@@ -1221,11 +1521,13 @@
       'ref-tools': '참고 자료',
       'mat-calc': '재질별 추천 절삭조건',
       'gcode-calc': '표준 G / M 코드 일람',
-      'tapdrill': '탭 드릴',
+      'tapdrill': '드릴 · 탭 조건',
       'pitch': '나사 피치',
       'arcr': '원호 R 계산',
+      'troubleshoot': '트러블슈팅 진단',
       'discount-calc': '견적 · 공구비 계산',
       'tool-cost': '견적 · 공구비 계산',
+      'roi-calc': '절감액 계산기',
       'cbn-guide': 'Duracarb CBN',
       'dura-official': 'Duracarb 공식자료'
     };
@@ -1237,8 +1539,10 @@
       'tapdrill': 'ref-tools',
       'pitch': 'ref-tools',
       'arcr': 'ref-tools',
+      'troubleshoot': 'ref-tools',
       'discount-calc': 'main',
       'tool-cost': 'main',
+      'roi-calc': 'main',
       'dura-official': 'main'
     };
 
@@ -1298,7 +1602,7 @@
       try {
         await navigator.clipboard.writeText(text);
         const old = btn.textContent;
-        btn.textContent = '✓ 복사됨';
+        btn.textContent = '복사됨';
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1400);
       } catch (e) {
@@ -1306,9 +1610,9 @@
         ta.value = text;
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand('copy'); btn.textContent = '✓ 복사됨'; } catch (e2) {}
+        try { document.execCommand('copy'); btn.textContent = '복사됨'; } catch (e2) {}
         document.body.removeChild(ta);
-        setTimeout(() => { btn.textContent = '📋 복사'; btn.classList.remove('copied'); }, 1400);
+        setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1400);
       }
     }
 
@@ -1656,8 +1960,11 @@ M30`;
       reflowDuraKind();
       setupBackGesture();
       updateTapDrillSizes();
+      updateTapCondSizes();
       renderPitchTable();
       initToolCostUI();
+      renderTroubleCards();
+      updateTapDrillResult();
 
       let savedTheme = 'light';
       try { savedTheme = localStorage.getItem('cnc_theme') || 'light'; } catch (e) {}
@@ -1742,12 +2049,142 @@ M30`;
     }
 
     /* ================================================================
+       절감액 계산기 (ROI)
+       ================================================================ */
+       function calcRoi() {
+      const aP = parseFloat(document.getElementById('roi_a_price').value);
+      const aL = parseFloat(document.getElementById('roi_a_life').value);
+      const aC = parseFloat(document.getElementById('roi_a_corner').value);
+      const aT = parseFloat(document.getElementById('roi_a_ct').value);
+      const bP = parseFloat(document.getElementById('roi_b_price').value);
+      const bL = parseFloat(document.getElementById('roi_b_life').value);
+      const bC = parseFloat(document.getElementById('roi_b_corner').value);
+      const bT = parseFloat(document.getElementById('roi_b_ct').value);
+      const monthly = parseFloat(document.getElementById('roi_monthly').value);
+      const machineCost = parseFloat(document.getElementById('roi_monthly_cost').value);
+
+      const resultEl = document.getElementById('roiMonthlySaving');
+      const subEl = document.getElementById('roiResultSub');
+      const yearEl = document.getElementById('roiYearlySaving');
+      const rateEl = document.getElementById('roiSavingRate');
+      const barWrap = document.getElementById('roiBarWrap');
+      const reportEl = document.getElementById('roiReport');
+      const barA = document.getElementById('roiBarA');
+      const barB = document.getElementById('roiBarB');
+      const barAVal = document.getElementById('roiBarAVal');
+      const barBVal = document.getElementById('roiBarBVal');
+
+      const valid = isFinite(aP) && aP >= 0 && isFinite(aL) && aL > 0 && isFinite(aC) && aC > 0 &&
+                    isFinite(bP) && bP >= 0 && isFinite(bL) && bL > 0 && isFinite(bC) && bC > 0 &&
+                    isFinite(aT) && aT > 0 && isFinite(bT) && bT > 0;
+
+      if (!valid) {
+        resultEl.textContent = '-';
+        resultEl.classList.remove('neg');
+        subEl.textContent = '좌우 공구 조건을 입력하세요';
+        yearEl.textContent = '-';
+        rateEl.textContent = '-';
+        barWrap.style.display = 'none';
+        reportEl.innerText = '좌우 조건과 공통 조건을 입력하면 상세 리포트가 표시됩니다.';
+        return;
+      }
+
+      const aPerTool = aP / (aL * aC);
+      const bPerTool = bP / (bL * bC);
+
+      const hasMonthly = isFinite(monthly) && monthly > 0;
+      const hasMachine = isFinite(machineCost) && machineCost > 0;
+
+      // 개당 가공비: 월 가공비 / 월 생산량
+      //  - 기존 공구:  월 가공비 ÷ 월 생산량
+      //  - 신규 공구:  C/T 단축분만큼 개당 부담 감소 → × (C/T_B / C/T_A)
+      let aTimeCost = 0, bTimeCost = 0;
+      if (hasMonthly && hasMachine) {
+        aTimeCost = machineCost / monthly;
+        bTimeCost = (machineCost / monthly) * (bT / aT);
+      }
+
+      const aTotal = aPerTool + aTimeCost;
+      const bTotal = bPerTool + bTimeCost;
+
+      let monthlySaving = 0, yearlySaving = 0, rate = 0;
+      if (hasMonthly) {
+        monthlySaving = (aTotal - bTotal) * monthly;
+        yearlySaving = monthlySaving * 12;
+        rate = aTotal > 0 ? (monthlySaving / (aTotal * monthly)) * 100 : 0;
+      }
+
+      resultEl.textContent = hasMonthly
+        ? (monthlySaving >= 0 ? '' : '-') + Math.abs(Math.round(monthlySaving)).toLocaleString('ko-KR') + '원'
+        : '-';
+      resultEl.classList.toggle('neg', monthlySaving < 0);
+
+            if (hasMonthly) {
+        if (monthlySaving > 0) subEl.textContent = '기존 조건 월 ' + Math.round(monthly).toLocaleString('ko-KR') + 'ea 기준 · 절감 효과 있음';
+        else if (monthlySaving < 0) subEl.textContent = '기존 조건 월 ' + Math.round(monthly).toLocaleString('ko-KR') + 'ea 기준 · 원가 증가 (재검토 필요)';
+        else subEl.textContent = '원가 동일';
+        yearEl.textContent = (yearlySaving >= 0 ? '' : '-') + Math.abs(Math.round(yearlySaving)).toLocaleString('ko-KR') + '원';
+        rateEl.textContent = rate.toFixed(2) + '%';
+      } else {
+        subEl.textContent = '월 생산량과 월 가공비를 입력하면 절감액이 산출됩니다';
+        yearEl.textContent = '-';
+        rateEl.textContent = '-';
+      }
+
+      const maxVal = Math.max(aTotal, bTotal);
+      if (maxVal > 0) {
+        barWrap.style.display = 'block';
+        barA.style.width = (aTotal / maxVal * 100).toFixed(1) + '%';
+        barB.style.width = (bTotal / maxVal * 100).toFixed(1) + '%';
+        barAVal.textContent = aTotal.toFixed(2) + '원';
+        barBVal.textContent = bTotal.toFixed(2) + '원';
+      } else {
+        barWrap.style.display = 'none';
+      }
+
+      let report = '=== 절감액 계산 결과 ===\n';
+      report += '[기존 (경쟁사)]\n';
+      report += `  • 단가        : ${aP.toLocaleString('ko-KR')}원\n`;
+      report += `  • 수명 × 코너 : ${aL} × ${aC} = ${aL * aC} ea\n`;
+      report += `  • 개당 공구비 : ${aPerTool.toFixed(2)}원\n`;
+      report += `  • C/T         : ${aT}초\n`;
+      if (hasMonthly && hasMachine) report += `  • 개당 가공비 : ${aTimeCost.toFixed(2)}원  (월 가공비 ÷ 월 생산량)\n`;
+      report += `  • 개당 총원가 : ${aTotal.toFixed(2)}원\n\n`;
+
+      report += '[신규 (듀라카브)]\n';
+      report += `  • 단가        : ${bP.toLocaleString('ko-KR')}원\n`;
+      report += `  • 수명 × 코너 : ${bL} × ${bC} = ${bL * bC} ea\n`;
+      report += `  • 개당 공구비 : ${bPerTool.toFixed(2)}원\n`;
+      report += `  • C/T         : ${bT}초\n`;
+      if (hasMonthly && hasMachine) {
+        report += `  • 개당 가공비 : ${bTimeCost.toFixed(2)}원  (C/T ${aT}→${bT}초, ${((1 - bT/aT) * 100).toFixed(1)}% 단축 반영)\n`;
+      }
+      report += `  • 개당 총원가 : ${bTotal.toFixed(2)}원\n\n`;
+
+      report += '------------------------------------\n';
+      report += `▶ 개당 총원가 차이 : ${(aTotal - bTotal).toFixed(2)}원\n`;
+      if (hasMonthly) {
+        report += `▶ 월 절감액        : ${Math.round(monthlySaving).toLocaleString('ko-KR')}원  (기존 조건 월 ${Math.round(monthly).toLocaleString('ko-KR')}ea 기준)\n`;
+        report += `▶ 연 절감액        : ${Math.round(yearlySaving).toLocaleString('ko-KR')}원\n`;
+        report += `▶ 월 절감률        : ${rate.toFixed(2)}%\n`;
+        if (hasMachine && bT < aT) {
+          const bMonthlyAtSameTime = Math.round(monthly * (aT / bT));
+          report += `\n[참고] C/T 단축 효과\n`;
+          report += `  • 동일 시간 시 신규 생산량 : ${bMonthlyAtSameTime.toLocaleString('ko-KR')}ea (${((aT / bT - 1) * 100).toFixed(1)}% 향상)\n`;
+          report += `  • 월 가공비 고정 시 개당 부담 : ${aTimeCost.toFixed(2)}원 → ${bTimeCost.toFixed(2)}원\n`;
+        }
+      } else {
+        report += '(월 생산량과 월 가공비를 입력하면 절감액이 산출됩니다)\n';
+      }
+      reportEl.innerText = report;
+      }
+
+    /* ================================================================
        공구비 계산기 (OP별 공정 그룹 · 형상/규격/브레이커 지원)
        ================================================================ */
     let toolMonthlyManual = false;
 
-        const SHAPE_CONFIG = {
-      /* === 터닝 - 네거티브 (양면 사용) === */
+    const SHAPE_CONFIG = {
       CNMG: { corners: 4, specs: ['120404','120408','120412','160608','160612','190612','190616'] },
       CNMA: { corners: 4, specs: ['120408','120412','160612'] },
       CNGA: { corners: 4, specs: ['120408','120412','160608','160612'] },
@@ -1778,7 +2215,6 @@ M30`;
       KNUX: { corners: 2, specs: ['160405','160410','160420'] },
       KNMX: { corners: 2, specs: ['160408','160412'] },
 
-      /* === 터닝 - 포지티브 (단면 사용) === */
       CCMT: { corners: 2, specs: ['060204','060208','060212','09T304','09T308','120404','120408','120412'] },
       CCMW: { corners: 2, specs: ['060204','09T304','120404','120408'] },
       CCGT: { corners: 2, specs: ['060202','060204','09T302','09T304','120402','120404'] },
@@ -2389,6 +2825,536 @@ M30`;
     }
 
     /* ================================================================
+       트러블슈팅 진단
+       ================================================================ */
+    const TROUBLE_CAT_LABEL = {
+      wear:'마모', chip:'치핑·파손', surface:'표면조도',
+      vib:'진동·소음', chipEvac:'칩 배출', accuracy:'치수·정밀도'
+    };
+
+        const TROUBLESHOOT_DATA = [
+      { cat:'wear', name:'크레이터 마모',
+        desc:'경사면(레이크면)에 오목하게 파이는 마모. 절삭열에 의한 확산 반응.',
+        causes:[{t:'절삭속도 과다',w:3},{t:'코팅 열화 (Al2O3 부족)',w:2},{t:'냉각 부족',w:2},{t:'경사각 과소',w:1}],
+        fix:['Vc 10~20% 감소','CVD 다층코팅 (Al2O3 함유) 사용','내부 쿨런트 or 고압냉각 적용','경사각 큰 브레이커로 변경'] },
+      { cat:'wear', name:'플랭크 마모',
+        desc:'여유면(플랭크)의 정상적 마모. VB 0.3mm 도달 시 교체 기준.',
+        causes:[{t:'정상 마모 (공구 수명 도달)',w:3},{t:'절삭속도 과다',w:2},{t:'피삭재 경도 높음',w:2},{t:'내마모성 코팅 부족',w:1}],
+        fix:['Vc 감소','내마모성 우수 재종 (TiAlN, AlTiN) 선택','수명 기준 재설정','여유각 확보'] },
+      { cat:'wear', name:'노치 마모',
+        desc:'절입 깊이(DOC) 위치에 국부적으로 생기는 V자 마모.',
+        causes:[{t:'피삭재 표피 경화층 (단조/주조)',w:3},{t:'절입 깊이 부적합',w:2},{t:'냉각 부족',w:1}],
+        fix:['절입 깊이 변경 (경화층 회피)','Vc 저감 + 인선 강화 재종','쿨런트 직접 분사','1회 절입으로 경화층 통과'] },
+      { cat:'wear', name:'경계 마모 (DOC Notching)',
+        desc:'절입 깊이 경계부에서 집중적으로 발생하는 국부 마모.',
+        causes:[{t:'냉각제 접근 불가',w:3},{t:'경사각 과소',w:2},{t:'피삭재 표면 상태',w:1}],
+        fix:['쿨런트 방향 조정 or 내부냉각','절입 깊이 조정','포지티브 경사각 인서트로 전환'] },
+      { cat:'wear', name:'소성 변형 (Plastic Deformation)',
+        desc:'인선이 고온·고압으로 변형되어 흐물흐물해지는 현상.',
+        causes:[{t:'절삭속도 과다 (고온)',w:3},{t:'내열성 낮은 재종',w:2},{t:'냉각 부족',w:2}],
+        fix:['Vc 대폭 감소','내열성 재종 (CVD 다층, Al2O3)','고압 쿨런트 적용','인선 강화 타입'] },
+
+      { cat:'chip', name:'미세 치핑 (Micro-chipping)',
+        desc:'인선에 작은 결손이 연속 발생. 초기엔 육안 식별 어려움.',
+        causes:[{t:'인성 부족 재종',w:3},{t:'절입 과다',w:2},{t:'피삭재 경화층',w:2},{t:'채터 진동',w:2}],
+        fix:['인성계 재종 (PVD) 전환','절입 깊이 감소','노즈R 강화 or 코너 호닝 상향','홀더 강성 확보'] },
+      { cat:'chip', name:'대형 치핑 / 파손',
+        desc:'인선 일부가 크게 떨어져 나감. 즉시 교체 필요.',
+        causes:[{t:'충격 (단속·절입) 과다',w:3},{t:'인성 매우 부족',w:3},{t:'채터 진동',w:2},{t:'공구 홀더 강성 부족',w:1}],
+        fix:['인성 재종 + 노즈R 크게','절입/이송 감소','강성 높은 홀더 사용, 오버행 최소화','단속 전용 재종 검토'] },
+      { cat:'chip', name:'열크랙 (Thermal Crack)',
+        desc:'인선에 지그재그 형태의 열피로 크랙. 단속가공에서 흔함.',
+        causes:[{t:'단속가공 + 급격한 온도변화',w:3},{t:'냉각 ON/OFF 반복',w:2},{t:'CVD 두꺼운 코팅',w:2}],
+        fix:['PVD 코팅으로 전환 (얇은 코팅)','냉각 지속 or 완전 건식','단속 전용 인성 재종'] },
+      { cat:'chip', name:'코팅 박리 (Flaking)',
+        desc:'코팅이 기재에서 떨어져 나가는 현상.',
+        causes:[{t:'기재-코팅 밀착력 부족',w:2},{t:'절삭속도/이송 부적합',w:2},{t:'BUE로 인한 인선 응력',w:2}],
+        fix:['다른 코팅 재종 시도','Vc 상향 (BUE 억제)','쿨런트 강화','예열 (프리히팅)'] },
+
+      { cat:'surface', name:'Ra 불량 (거칠기 초과)',
+        desc:'이론 조도보다 실제 조도가 나쁨. 가장 흔한 클레임.',
+        causes:[{t:'이송 과다',w:3},{t:'노즈R 과소',w:2},{t:'BUE 발생',w:2},{t:'채터 진동',w:2},{t:'노즈R 마모',w:1}],
+        fix:['이송 f 감소 (Rz ∝ f²/R)','노즈R 큰 인서트 (0.4 → 0.8)','와이퍼 인서트 검토','Vc 상향으로 BUE 억제'] },
+      { cat:'surface', name:'채터마크 (Chatter Mark)',
+        desc:'주기적인 물결무늬. 진동의 흔적.',
+        causes:[{t:'공구 오버행 과다',w:3},{t:'주축/홀더 강성 부족',w:2},{t:'공진 (Natural freq) 일치',w:2}],
+        fix:['오버행 최소화 (직경 × 4 이내)','Vc 또는 RPM ±10% 변경','절입/이송 재검토','댐핑 홀더 사용'] },
+      { cat:'surface', name:'BUE (구성인선)',
+        desc:'피삭재가 인선에 눌어붙어 가공면을 긁음.',
+        causes:[{t:'저속 절삭 (Vc 낮음)',w:3},{t:'점성 재질 (STS, Al)',w:2},{t:'냉각 부족',w:2},{t:'포지티브 경사각',w:1}],
+        fix:['Vc 상향 (BUE 회피 영역)','쿨런트 강화 or 오일 미스트','PVD 코팅 (TiAlN, AlCrN)','경사각·여유각 조정'] },
+      { cat:'surface', name:'스크래치 / 찍힘',
+        desc:'가공면에 선명한 긁힘. 칩 또는 인서트 조각에 의한 2차 손상.',
+        causes:[{t:'칩 배출 불량 (칩 끼임)',w:3},{t:'인서트 결손 파편',w:2},{t:'가이드/척 접촉',w:1}],
+        fix:['칩 브레이커 변경','쿨런트 방향 조정','인서트 결손 즉시 교체','펙 가공으로 칩 배출'] },
+      { cat:'surface', name:'버 (Burr) 과다',
+        desc:'가공 끝단에 버가 크게 남음.',
+        causes:[{t:'인선 예리도 부족 (노즈R 크거나 마모)',w:2},{t:'이송 과소',w:2},{t:'포지티브 경사각 부족',w:1}],
+        fix:['날카로운 포지티브 인서트','이송 상향','가공 끝단 chamfer / 2차 패스'] },
+
+      { cat:'vib', name:'채터 진동 (저주파)',
+        desc:'저주파 진동. 공작물 표면에 파형 자국.',
+        causes:[{t:'시스템 강성 부족',w:3},{t:'공진 주파수 일치',w:3},{t:'절입 과다',w:2},{t:'홀더 오버행 과다',w:2}],
+        fix:['RPM ±10% 변경 (공진 회피)','절입 감소 + 이송 상향','오버행 최소화, 댐핑 홀더','스테디레스트 추가'] },
+      { cat:'vib', name:'고주파 소음',
+        desc:'"끼이익" 소리. 인선 국부 진동 or 마찰.',
+        causes:[{t:'인선 마모',w:2},{t:'BUE 발생',w:2},{t:'Vc 부적합',w:2}],
+        fix:['인서트 교체','Vc 조정 (±20%)','쿨런트 강화'] },
+      { cat:'vib', name:'스핀들 부하 과다',
+        desc:'부하계 이상 상승. 알람 / 정지 발생.',
+        causes:[{t:'절입·이송 과다',w:3},{t:'인선 마모',w:2},{t:'공작물 경도 높음',w:2}],
+        fix:['ap · f 감소','Vc 상향 (비절삭력 감소)','인서트 교체','프로그램 분할 가공'] },
+
+      { cat:'chipEvac', name:'칩 엉킴 (Bird nest)',
+        desc:'칩이 실처럼 길게 엉켜 공작물·공구 감쌈. 가장 흔한 문제.',
+        causes:[{t:'이송 과소 (칩 얇음)',w:3},{t:'브레이커 부적합',w:3},{t:'절입 깊이 부족',w:2}],
+        fix:['이송 상향 (칩 두께 확보)','3D 브레이커로 변경','절입 깊이 상향','쿨런트 고압 분사'] },
+      { cat:'chipEvac', name:'칩 분쇄 불량',
+        desc:'칩이 짧게 안 끊기고 길게 나옴.',
+        causes:[{t:'이송 부족',w:3},{t:'절입 부족',w:2},{t:'Vc 저속',w:2}],
+        fix:['이송 상향 (주 대책)','절입 상향','Vc 상향','브레이커 재선정'] },
+      { cat:'chipEvac', name:'칩 끼임 (Chip packing)',
+        desc:'홈 / 내경 가공에서 칩이 빠져나오지 못하고 쌓임.',
+        causes:[{t:'홈 폭 협소',w:3},{t:'칩 배출 경로 부족',w:2},{t:'이송 부족',w:2}],
+        fix:['펙(Peck) 가공 (G74/G75)','고압 쿨런트 (내부 분사)','이송 상향','칩 브레이커 재선정'] },
+
+      { cat:'accuracy', name:'치수 드리프트',
+        desc:'가공 중 치수가 점진적으로 변화.',
+        causes:[{t:'인서트 마모 (열팽창)',w:3},{t:'열변위 (기계)',w:2},{t:'공작물 온도 상승',w:2}],
+        fix:['인서트 수명 단축 / 교체 주기 관리','워밍업 충분히, 쿨런트 온도 관리','치수 보정 (Off-set) 자동화'] },
+      { cat:'accuracy', name:'테이퍼 (Taper)',
+        desc:'축방향으로 직경이 변화. 원통도 불량.',
+        causes:[{t:'공작물 처짐',w:3},{t:'주축 정렬 불량',w:2},{t:'공구 마모 (Z 진행에 따른)',w:2}],
+        fix:['스테디레스트 or 심압대 사용','주축 정렬 점검','인서트 교체 주기 관리'] },
+      { cat:'accuracy', name:'진원도 불량',
+        desc:'단면이 완전한 원이 아님. 척 클램핑 흔적.',
+        causes:[{t:'척 클램핑력 과다',w:3},{t:'공작물 강성 부족 (얇은 벽)',w:3},{t:'주축 베어링 마모',w:2}],
+        fix:['클램핑 압력 감소','얇은 벽 전용 척 (콜릿, 소프트죠)','주축 베어링 점검'] },
+
+      { cat:'wear', name:'급성 마모 / 브레이크다운',
+        desc:'정상 수명 전에 인선이 갑자기 대파괴. 몇 초 안에 발생.',
+        causes:[{t:'절삭속도 과다 (국부 고온)',w:3},{t:'피삭재 내부 결함 (슬래그, 기공)',w:3},{t:'냉각 중단',w:2},{t:'공구 장착 불량',w:2}],
+        fix:['Vc 즉시 20~30% 감소','피삭재 검사 (초음파·육안)','냉각 라인 점검','클램핑·홀더 재장착'] },
+      { cat:'wear', name:'마이크로 브레이크다운',
+        desc:'코팅만 국부 미세 파괴, 기재 노출. 초기엔 조도만 나빠짐.',
+        causes:[{t:'코팅 밀착력 부족',w:2},{t:'국부 응력 집중 (경화층)',w:2},{t:'미세 진동',w:2}],
+        fix:['PVD 밀착 강화 코팅으로 변경','경화층 회피 절입','강성 보강, 미세 진동 제거'] },
+
+      { cat:'chip', name:'스폴링 (Spalling)',
+        desc:'인선 표면층이 조개껍질처럼 박리. 열충격과 압축피로 결합.',
+        causes:[{t:'단속가공 + 급격한 온도변화',w:3},{t:'두꺼운 CVD 코팅',w:2},{t:'과도한 절입 충격',w:2}],
+        fix:['PVD 코팅으로 전환','절입 경사각 조정 (충격 완화)','냉각 지속 또는 완전 건식'] },
+
+      { cat:'surface', name:'가공경화 (Work Hardening)',
+        desc:'STS·Ti 가공 시 표면이 더 단단해져 다음 패스에서 인선 파손.',
+        causes:[{t:'이송 과소 (문지름)',w:3},{t:'Vc 과소',w:2},{t:'동일 깊이 반복 절입',w:2}],
+        fix:['이송 상향 (최소 침투 유지)','Vc 상향','절입 깊이를 경화층 이하로','1회 절입으로 경화층 통과'] },
+      { cat:'surface', name:'뜯김 (Tearing)',
+        desc:'점성 재질에서 표면이 뜯겨나감. BUE보다 심한 형태.',
+        causes:[{t:'저속 절삭',w:3},{t:'예리도 낮은 인서트',w:2},{t:'냉각 부족',w:2},{t:'포지티브 경사각 부족',w:1}],
+        fix:['Vc 상향','포지티브·날카로운 인서트','쿨런트 강화 (오일 미스트)','코팅 변경 (AlCrN)'] },
+      { cat:'surface', name:'나선 자국 (Spiral Mark)',
+        desc:'가공면에 일정 피치의 나선 모양 자국.',
+        causes:[{t:'이송 / RPM 조합 문제',w:3},{t:'노즈R 부적합',w:2},{t:'진동 (미세)',w:2}],
+        fix:['이송 미세 조정','노즈R 변경 (0.4 ↔ 0.8)','RPM 미세 조정','바이트 중심 높이 재확인'] },
+
+      { cat:'vib', name:'세레이션 진동',
+        desc:'톱니 모양 진동 패턴. 절입 주기와 공진이 맞물려 발생.',
+        causes:[{t:'절입 주기 = 공진 주파수',w:3},{t:'시스템 강성 부족',w:2},{t:'회전수 부적합',w:2}],
+        fix:['RPM 5~15% 변경','절입 주기 변경 (날 수, 이송)','댐핑 홀더, 스테디 사용'] },
+
+      { cat:'chipEvac', name:'칩 색 이상 (Chip Color)',
+        desc:'칩 색으로 절삭온도 판정. 은백색 → 황금 → 청색 → 흑색 순으로 온도 상승.',
+        causes:[{t:'Vc 과다 (청색·흑색)',w:3},{t:'냉각 부족',w:2},{t:'이송 과소 (얇은 칩, 열 축적)',w:2}],
+        fix:['은백색~황금색 목표','Vc 감소 또는 이송 상향','쿨런트 압력·방향 점검','코팅 변경 (내열성 우선)'] },
+
+      { cat:'accuracy', name:'백테이퍼 (Back Taper)',
+        desc:'축 방향 끝이 더 가늘어짐. 원통도 반대 방향 불량.',
+        causes:[{t:'심압대 밀기 과다',w:3},{t:'주축 정렬 반대 방향',w:2},{t:'공구 처짐',w:1}],
+        fix:['심압대 압력 감소','주축 정렬 재조정','공구 오버행 최소화'] },
+      { cat:'accuracy', name:'나사 정밀도 이상',
+        desc:'나사 유효경·피치 오차 초과. G76 지령 오류 또는 인선 파손.',
+        causes:[{t:'G76 P/Q 지령 오류',w:3},{t:'인서트 파손 / 치수 마모',w:2},{t:'주축 회전 동기 오차',w:2}],
+        fix:['피치표 재확인 (P/Q)','인서트 교체 (60° 인선)','주축 엔코더 점검','G92/G76 클램프 RPM 재설정'] }
+    ];
+
+    let troubleFilter = 'all';
+    let troubleOpenedId = null;
+
+    function renderTroubleCards() {
+      const grid = document.getElementById('troubleGrid');
+      const countEl = document.getElementById('troubleCount');
+      if (!grid) return;
+      const searchEl = document.getElementById('troubleSearch');
+      const q = (searchEl && searchEl.value ? searchEl.value : '').toLowerCase().trim();
+      const filtered = TROUBLESHOOT_DATA.filter(item => {
+        const matchesCat = troubleFilter === 'all' || item.cat === troubleFilter;
+        const searchStr = (item.name + ' ' + item.desc + ' ' +
+          item.causes.map(c => c.t).join(' ') + ' ' +
+          item.fix.join(' ')).toLowerCase();
+        const matchesQ = !q || searchStr.includes(q);
+        return matchesCat && matchesQ;
+      });
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:26px 10px; font-size:12px; background:var(--input-bg); border:1px dashed var(--border); border-radius:10px;">검색 결과가 없습니다.</div>';
+        countEl.textContent = '';
+        return;
+      }
+      grid.innerHTML = filtered.map(item => {
+        const dataIdx = TROUBLESHOOT_DATA.indexOf(item);
+        const id = 'tc_' + dataIdx;
+        const isOpen = troubleOpenedId === id;
+        const causes = item.causes.map(c =>
+          '<div class="trouble-cause"><span class="star">' + '★'.repeat(c.w) + '☆'.repeat(3 - c.w) + '</span><span>' + escapeHtml(c.t) + '</span></div>'
+        ).join('');
+        const fixes = item.fix.map(f =>
+          '<div class="trouble-fix">' + escapeHtml(f) + '</div>'
+        ).join('');
+        return '<div class="trouble-card cat-' + item.cat + ' ' + (isOpen ? 'open' : '') + '" onclick="toggleTroubleCard(\'' + id + '\')">' +
+          '<div class="trouble-card-head">' +
+            '<div class="trouble-name">' + escapeHtml(item.name) + '</div>' +
+            '<span class="trouble-cat-tag">' + (TROUBLE_CAT_LABEL[item.cat] || '') + '</span>' +
+          '</div>' +
+          '<div class="trouble-desc">' + escapeHtml(item.desc) + '</div>' +
+          '<div class="trouble-detail">' +
+            '<div class="trouble-section-title">주요 원인 (★ 가중치)</div>' +
+            '<div class="trouble-cause-list">' + causes + '</div>' +
+            '<div class="trouble-section-title">대책</div>' +
+            '<div class="trouble-fix-list">' + fixes + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      countEl.textContent = '표시 ' + filtered.length + ' / 전체 ' + TROUBLESHOOT_DATA.length + '개';
+    }
+
+    function setTroubleFilter(cat, btn) {
+      troubleFilter = cat;
+      document.querySelectorAll('#troubleFilterTabs .trouble-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderTroubleCards();
+    }
+
+    function toggleTroubleCard(id) {
+      troubleOpenedId = (troubleOpenedId === id) ? null : id;
+      renderTroubleCards();
+    }
+
+        /* ================================================================
+       드릴 · 탭 조건 (세분화 v2)
+       ================================================================ */
+    const DRILL_TYPE_MULT = {
+      carbide: { vcK: 1.00, fK: 1.00, name: '카바이드 솔리드' },
+      hss:     { vcK: 0.40, fK: 0.80, name: 'HSS (고속도강)' },
+      insert:  { vcK: 1.30, fK: 1.20, name: '인서트 드릴 (U드릴)' }
+    };
+
+    const DRILL_COAT_MULT = {
+      '1.00': { k: 1.00, name: '무코팅' },
+      '1.15': { k: 1.15, name: 'TiN' },
+      '1.30': { k: 1.30, name: 'TiCN' },
+      '1.50': { k: 1.50, name: 'TiAlN / AlCrN' },
+      '1.80': { k: 1.80, name: 'DLC / 다이아' }
+    };
+
+    const DRILL_MAT_PARAM = {
+      P: {
+        name: 'P 탄소강/합금강',
+        subs: [
+          { key: 'low',   name: '저탄소강 (S10C~S25C)', vc: 100, fCoef: 0.022 },
+          { key: 'mid',   name: '중탄소강 (S35C~S55C)', vc: 85,  fCoef: 0.020 },
+          { key: 'alloy', name: '합금강 (SCM, SNCM)',   vc: 70,  fCoef: 0.018 }
+        ]
+      },
+      M: {
+        name: 'M 스테인리스',
+        subs: [
+          { key: 'ss304', name: '304계',            vc: 50, fCoef: 0.015 },
+          { key: 'ss316', name: '316계 / 고합금',    vc: 35, fCoef: 0.013 },
+          { key: 'free',  name: '쾌삭 (303, 416)',  vc: 65, fCoef: 0.018 }
+        ]
+      },
+      K: {
+        name: 'K 주철',
+        subs: [
+          { key: 'gray',    name: '회주철 (FC)',     vc: 120, fCoef: 0.025 },
+          { key: 'ductile', name: '구상흑연 (FCD)', vc: 80,  fCoef: 0.022 }
+        ]
+      },
+      N: {
+        name: 'N 알루미늄',
+        subs: [
+          { key: 'pure',  name: '순알루미늄 (1050, 1100)',      vc: 250, fCoef: 0.030 },
+          { key: 'alloy', name: '합금알루미늄 (6061, 7075)',   vc: 180, fCoef: 0.028 }
+        ]
+      },
+      S: {
+        name: 'S 내열합금/티타늄',
+        subs: [
+          { key: 'ti', name: '티타늄 (Ti-6Al-4V)',    vc: 30, fCoef: 0.010 },
+          { key: 'ni', name: '인코넬 / 내열합금',     vc: 15, fCoef: 0.008 }
+        ]
+      },
+      H: {
+        name: 'H 고경도강',
+        subs: [
+          { key: 'h45', name: '45~55 HRC',   vc: 40, fCoef: 0.012 },
+          { key: 'h55', name: '55 HRC 이상', vc: 20, fCoef: 0.008 }
+        ]
+      }
+    };
+
+    const TAP_STYLE_MULT = {
+      spiral:      { k: 1.00, name: '스파이럴 (맹공)' },
+      point:       { k: 1.05, name: '포인트 (관통)' },
+      spiralFlute: { k: 0.95, name: '스파이럴 플룻' },
+      straight:    { k: 0.90, name: '스트레이트' }
+    };
+
+    const TAP_MAT_PARAM = {
+      P: {
+        name: 'P 탄소강/합금강',
+        subs: [
+          { key: 'low',   name: '저탄소강 (S10C~S25C)', vc: 18 },
+          { key: 'mid',   name: '중탄소강 (S35C~S55C)', vc: 15 },
+          { key: 'alloy', name: '합금강 (SCM, SNCM)',   vc: 12 }
+        ]
+      },
+      M: {
+        name: 'M 스테인리스',
+        subs: [
+          { key: 'ss304', name: '304계',           vc: 8 },
+          { key: 'ss316', name: '316계 / 고합금',   vc: 6 },
+          { key: 'free',  name: '쾌삭 (303, 416)', vc: 12 }
+        ]
+      },
+      K: {
+        name: 'K 주철',
+        subs: [
+          { key: 'gray',    name: '회주철 (FC)',     vc: 20 },
+          { key: 'ductile', name: '구상흑연 (FCD)', vc: 14 }
+        ]
+      },
+      N: {
+        name: 'N 알루미늄',
+        subs: [
+          { key: 'pure',  name: '순알루미늄 (1050, 1100)',    vc: 40 },
+          { key: 'alloy', name: '합금알루미늄 (6061, 7075)', vc: 30 }
+        ]
+      },
+      S: {
+        name: 'S 내열합금/티타늄',
+        subs: [
+          { key: 'ti', name: '티타늄 (Ti-6Al-4V)', vc: 5 },
+          { key: 'ni', name: '인코넬 / 내열합금',  vc: 3 }
+        ]
+      },
+      H: {
+        name: 'H 고경도강',
+        subs: [
+          { key: 'h45', name: '45~55 HRC',   vc: 8 },
+          { key: 'h55', name: '55 HRC 이상', vc: 5 }
+        ]
+      }
+    };
+
+    function switchTapSubTab(tab, btn) {
+      document.querySelectorAll('#tapSubTabs .dura-filter-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('tapdrillPanel').style.display = tab === 'tapdrill' ? 'block' : 'none';
+      document.getElementById('drillCondPanel').style.display = tab === 'drillCond' ? 'block' : 'none';
+      document.getElementById('tapCondPanel').style.display = tab === 'tapCond' ? 'block' : 'none';
+      if (tab === 'drillCond') { onDrillMatChange(); }
+      if (tab === 'tapCond') { onTapMatChange(); }
+    }
+
+    function onDrillMatChange() {
+      const mat = document.getElementById('dr_mat').value;
+      const subSel = document.getElementById('dr_submat');
+      const conf = DRILL_MAT_PARAM[mat];
+      if (!conf || !subSel) return;
+      subSel.innerHTML = conf.subs.map(s => `<option value="${s.key}">${s.name}</option>`).join('');
+      calcDrillCond();
+    }
+
+    function onTapMatChange() {
+      const mat = document.getElementById('tc_mat').value;
+      const subSel = document.getElementById('tc_submat');
+      const conf = TAP_MAT_PARAM[mat];
+      if (!conf || !subSel) return;
+      subSel.innerHTML = conf.subs.map(s => `<option value="${s.key}">${s.name}</option>`).join('');
+      calcTapCond();
+    }
+
+    function getLDRatioMultiplier(depth, dia) {
+      if (!isFinite(depth) || depth <= 0 || !isFinite(dia) || dia <= 0) return { k: 1.00, ld: 0 };
+      const ld = depth / dia;
+      if (ld <= 3) return { k: 1.00, ld };
+      if (ld <= 5) return { k: 0.85, ld };
+      if (ld <= 8) return { k: 0.70, ld };
+      return { k: 0.55, ld };
+    }
+
+    function calcDrillCond() {
+      const dia = parseFloat(document.getElementById('dr_dia').value);
+      const drillType = document.getElementById('dr_type').value;
+      const mat = document.getElementById('dr_mat').value;
+      const subSel = document.getElementById('dr_submat');
+      if (subSel.options.length === 0) { onDrillMatChange(); return; }
+      const subKey = subSel.value;
+      const coatKey = document.getElementById('dr_coat').value;
+      const depth = parseFloat(document.getElementById('dr_depth').value);
+
+      const resEl = document.getElementById('drResult');
+      const subEl = document.getElementById('drResultSub');
+      const reportEl = document.getElementById('drillCondReport');
+
+      const matConf = DRILL_MAT_PARAM[mat];
+      if (!matConf) return;
+      const subConf = matConf.subs.find(s => s.key === subKey) || matConf.subs[0];
+      const typeConf = DRILL_TYPE_MULT[drillType] || DRILL_TYPE_MULT.carbide;
+      const coatConf = DRILL_COAT_MULT[coatKey] || DRILL_COAT_MULT['1.00'];
+      const ldConf = getLDRatioMultiplier(depth, dia);
+
+      if (!isFinite(dia) || dia <= 0) {
+        resEl.textContent = '-';
+        subEl.textContent = '직경과 재질을 선택하세요';
+        reportEl.innerText = '직경과 재질을 입력하면 Vc · N · f · F · 펙 깊이가 산출됩니다.';
+        return;
+      }
+
+      const vcBase = subConf.vc;
+      const vc = vcBase * typeConf.vcK * coatConf.k * ldConf.k;
+      const n = Math.round((1000 * vc) / (Math.PI * dia));
+      const f = +(dia * subConf.fCoef * typeConf.fK).toFixed(3);
+      const F = Math.round(f * n);
+      const peckDepth = +(dia * 1.5).toFixed(1);
+
+      resEl.textContent = 'N ' + n + ' RPM';
+      subEl.textContent = `${subConf.name} · Vc ${vc.toFixed(1)} m/min · f ${f} mm/rev`;
+
+      let report = '[드릴 절삭조건]\n';
+      report += `• 드릴 직경      : Ø${dia} mm\n`;
+      report += `• 드릴 종류      : ${typeConf.name} (×${typeConf.vcK.toFixed(2)})\n`;
+      report += `• 피삭재         : ${matConf.name} · ${subConf.name}\n`;
+      report += `• 코팅           : ${coatConf.name} (×${coatConf.k.toFixed(2)})\n`;
+      if (ldConf.ld > 0) {
+        report += `• L/D 비율       : ${ldConf.ld.toFixed(2)} (보정 ×${ldConf.k.toFixed(2)})\n`;
+      }
+      report += `------------------------------------\n`;
+      report += `▶ 기준 Vc        : ${vcBase} m/min\n`;
+      report += `▶ 적용 Vc        : ${vc.toFixed(1)} m/min\n`;
+      report += `▶ 회전수 N       : ${n} RPM\n`;
+      report += `▶ 회전당 이송 f  : ${f} mm/rev\n`;
+      report += `▶ 분당 이송 F    : ${F} mm/min\n`;
+      report += `▶ 권장 펙 깊이   : ${peckDepth} mm (직경 × 1.5)\n`;
+      if (isFinite(depth) && depth > 0) {
+        const pecks = Math.ceil(depth / peckDepth);
+        report += `\n[홀 깊이 ${depth} mm 기준]\n`;
+        report += `▶ 필요 펙 횟수   : 약 ${pecks} 회 (G83)\n`;
+        if (depth > dia * 4) {
+          report += `\n[경고] 심공 영역 (L/D ${ldConf.ld.toFixed(1)})\n   → G83 펙 사이클 필수, 고압 쿨런트 권장\n`;
+        } else if (depth > dia * 2) {
+          report += `\n[참고] L/D ${ldConf.ld.toFixed(1)} — G83 또는 G73 권장\n`;
+        }
+      }
+      report += `\n[참고] 센터 드릴: Ø${(dia * 0.3).toFixed(1)} mm (직경 × 0.3) 선행 권장\n`;
+      reportEl.innerText = report;
+    }
+
+    function updateTapCondSizes() {
+      const type = document.getElementById('tc_type').value;
+      const sel = document.getElementById('tc_size');
+      if (!sel) return;
+      sel.innerHTML = '';
+      TAP_DRILL_DATA[type].forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.size;
+        opt.textContent = item.size;
+        sel.appendChild(opt);
+      });
+      calcTapCond();
+    }
+
+    function calcTapCond() {
+      const type = document.getElementById('tc_type').value;
+      const size = document.getElementById('tc_size').value;
+      const mat = document.getElementById('tc_mat').value;
+      const subSel = document.getElementById('tc_submat');
+      if (subSel.options.length === 0) { onTapMatChange(); return; }
+      const subKey = subSel.value;
+      const mode = document.getElementById('tc_mode').value;
+      const style = document.getElementById('tc_style').value;
+
+      const resEl = document.getElementById('tcResult');
+      const subEl = document.getElementById('tcResultSub');
+      const reportEl = document.getElementById('tapCondReport');
+
+      const item = TAP_DRILL_DATA[type].find(x => x.size === size);
+      const matConf = TAP_MAT_PARAM[mat];
+      if (!item || !matConf) {
+        resEl.textContent = '-';
+        subEl.textContent = '규격과 재질을 선택하세요';
+        reportEl.innerText = '규격과 재질을 입력하면 Vc · N · F · G84 지령이 산출됩니다.';
+        return;
+      }
+
+      const subConf = matConf.subs.find(s => s.key === subKey) || matConf.subs[0];
+      const styleConf = TAP_STYLE_MULT[style] || TAP_STYLE_MULT.spiral;
+
+      let pitch = item.pitch;
+      let nominalDia;
+      if (type === 'M') {
+        nominalDia = parseFloat(size.replace('M', ''));
+      } else if (type === 'UNC' || type === 'UNF') {
+        const inch = parseFloat(size.split('-')[0]);
+        nominalDia = inch * 25.4;
+      } else if (type === 'PT' || type === 'NPT') {
+        const frac = size.replace(/PT|NPT/, '');
+        const parts = frac.split('/');
+        const inch = parseFloat(parts[0]) / parseFloat(parts[1]);
+        nominalDia = inch * 25.4;
+      } else {
+        nominalDia = item.drill + pitch;
+      }
+
+      const vcBase = subConf.vc;
+      const vc = vcBase * styleConf.k;
+      const n = Math.round((1000 * vc) / (Math.PI * nominalDia));
+      const F = Math.round(pitch * n);
+
+      resEl.textContent = 'N ' + n + ' RPM';
+      subEl.textContent = `${item.size} · P${pitch.toFixed(3)} · ${subConf.name}`;
+
+      let report = '[탭 절삭조건]\n';
+      report += `• 나사 규격      : ${item.size}\n`;
+      report += `• 피치           : ${pitch.toFixed(3)} mm\n`;
+      report += `• 호칭 직경      : Ø${nominalDia.toFixed(2)} mm\n`;
+      report += `• 탭 드릴        : Ø${item.drill.toFixed(2)} mm\n`;
+      report += `• 피삭재         : ${matConf.name} · ${subConf.name}\n`;
+      report += `• 탭 방식        : ${mode === 'rigid' ? '리지드 (싱크로)' : '텐션 (플로팅)'}\n`;
+      report += `• 탭 종류        : ${styleConf.name} (×${styleConf.k.toFixed(2)})\n`;
+      report += `------------------------------------\n`;
+      report += `▶ 기준 Vc        : ${vcBase} m/min\n`;
+      report += `▶ 적용 Vc        : ${vc.toFixed(1)} m/min\n`;
+      report += `▶ 회전수 N       : ${n} RPM\n`;
+      report += `▶ 분당 이송 F    : ${F} mm/min (= 피치 × N)\n`;
+      report += `\n[G84 지령 예]\n`;
+      report += `  S${n} M03\n`;
+      if (mode === 'rigid') {
+        report += `  M29 S${n}   (리지드탭 모드)\n`;
+      }
+      report += `  G98 G84 X_ Y_ Z-${(nominalDia * 2).toFixed(1)} R2.0 F${F}\n`;
+      report += `  G80\n`;
+      if (mode === 'rigid') {
+        report += `\n[경고] 리지드탭: M29 필수\n   → 미지령 시 탭 파손 위험\n`;
+      } else {
+        report += `\n[참고] 텐션탭 홀더: 압축/인장 스트로크 확인\n`;
+      }
+      report += `\n[탭 드릴] Ø${item.drill.toFixed(2)} mm (호칭 - 피치)\n`;
+      reportEl.innerText = report;
+    }
+
+    /* ================================================================
        이하 기존 로직
        ================================================================ */
     function showViewOnly(name) {
@@ -2412,6 +3378,8 @@ M30`;
         recalcMonthlyFromCT();
         renderToolCostUI();
       }, 60);
+      if (name === 'troubleshoot') setTimeout(() => { renderTroubleCards(); }, 30);
+      if (name === 'roi-calc') setTimeout(() => { calcRoi(); }, 30);
     }
 
     function goHome() {
@@ -2987,7 +3955,7 @@ M30`;
     function startLathePlay() {
       if (lathePlayIdx >= latheSegments.length) lathePlayIdx = 0;
       latheIsPlaying = true;
-      document.getElementById('btnLathePlay').innerText = '일시정지 ❚❚';
+      document.getElementById('btnLathePlay').innerText = '일시정지';
       latheLastTime = performance.now();
       cancelAnimationFrame(latheAnimReq);
       latheAnimReq = requestAnimationFrame(latheAnimLoop);
@@ -3008,7 +3976,7 @@ M30`;
     function pauseLathePlay() {
       latheIsPlaying = false;
       cancelAnimationFrame(latheAnimReq);
-      document.getElementById('btnLathePlay').innerText = '재생 ▶';
+      document.getElementById('btnLathePlay').innerText = '재생';
     }
     function stopLathePlay() {
       pauseLathePlay();
@@ -3322,7 +4290,7 @@ M30`;
     function startMctPlay() {
       if (mctPlayIdx >= mctMoves.length) mctPlayIdx = 0;
       mctIsPlaying = true;
-      document.getElementById('btnMctPlay').innerText = '일시정지 ❚❚';
+      document.getElementById('btnMctPlay').innerText = '일시정지';
       mctLastTime = performance.now();
       cancelAnimationFrame(mctAnimReq);
       mctAnimReq = requestAnimationFrame(mctAnimLoop);
@@ -3343,7 +4311,7 @@ M30`;
     function pauseMctPlay() {
       mctIsPlaying = false;
       cancelAnimationFrame(mctAnimReq);
-      document.getElementById('btnMctPlay').innerText = '재생 ▶';
+      document.getElementById('btnMctPlay').innerText = '재생';
     }
     function stopMctPlay() {
       pauseMctPlay();
@@ -3542,9 +4510,9 @@ M30`;
         else if (krDeg >= 30) { minHm = 0.03; maxHm = 0.12; mode = '중간 리드각'; }
         else { minHm = 0.01; maxHm = 0.08; mode = '하이피드'; }
         let status = '';
-        if (hm < minHm) status = `⚠ 너무 얇음 → 마모 촉진 (이송 Fz ↑ 권장) [${mode} 기준 ${minHm}~${maxHm}mm]`;
-        else if (hm > maxHm) status = `⚠ 너무 두꺼움 → 치핑 위험 (이송 Fz ↓ 권장) [${mode} 기준 ${minHm}~${maxHm}mm]`;
-        else status = `✅ 적정 범위 [${mode} 기준 ${minHm}~${maxHm}mm]`;
+        if (hm < minHm) status = `너무 얇음 → 마모 촉진 (이송 Fz ↑ 권장) [${mode} 기준 ${minHm}~${maxHm}mm]`;
+        else if (hm > maxHm) status = `너무 두꺼움 → 치핑 위험 (이송 Fz ↓ 권장) [${mode} 기준 ${minHm}~${maxHm}mm]`;
+        else status = `적정 범위 [${mode} 기준 ${minHm}~${maxHm}mm]`;
         chipLine = `\n\n[칩 두께 계산 · 리드각 ${krDeg}° · ${mode}]\n` +
           `• 평균 칩 두께 (hm)  = ${hm.toFixed(4)} mm\n` +
           `• 최대 칩 두께 (hex) = ${hex.toFixed(4)} mm\n` +
@@ -3704,7 +4672,7 @@ M30`;
       else { progR = drawingR - noseR; op = '도면 R - 노즈 R'; }
       let warn = '';
       if (progR <= 0) {
-        warn = '\n\n⚠ 프로그램 R이 0 이하입니다.\n   노즈R이 도면 R보다 큽니다. G41/G42 보정 사용을 권장합니다.';
+        warn = '\n\n[경고] 프로그램 R이 0 이하입니다.\n   노즈R이 도면 R보다 큽니다. G41/G42 보정 사용을 권장합니다.';
       }
       valueEl.textContent = 'R' + progR.toFixed(3);
       subEl.textContent = `${arcrType === 'outer' ? '외경' : '내경'}  ·  ${op}`;
