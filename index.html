@@ -96,6 +96,7 @@
     textarea { height: 90px; font-family: monospace; font-size: 11px; resize: none; white-space: pre; transition: border-color 0.2s; }
     textarea.dragover { border-color: var(--accent); background: var(--surface); }
     .input-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .input-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
     .btn-row { display: flex; gap: 6px; }
     .btn-run { flex: 1; background: var(--primary); color: #fff; border: none; border-radius: 6px; padding: 9px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s, transform 0.1s; }
     .btn-sub { background: var(--btn-sub-bg); color: var(--btn-sub-text); border: none; border-radius: 6px; padding: 9px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.1s; }
@@ -253,21 +254,112 @@
     .tool-section-title::before { content: ""; width: 3px; height: 12px; background: var(--accent); border-radius: 2px; }
     .tool-reverse-grid input[readonly] { background: rgba(56, 189, 248, 0.08); color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; cursor: default; }
     .tool-reverse-grid input[readonly]:focus { box-shadow: none; border-color: var(--border); }
-    .tool-cost-table { min-width: 368px; table-layout: fixed; font-size: 10px; }
-    .tool-cost-table th, .tool-cost-table td { padding: 5px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tool-cost-table th { font-size: 9.5px; letter-spacing: -0.2px; }
-    .tool-cost-table th:first-child, .tool-cost-table td:first-child { text-align: center; }
-    .tool-cost-table th:nth-child(2), .tool-cost-table td:nth-child(2), .tool-cost-table th:nth-child(4), .tool-cost-table td:nth-child(4), .tool-cost-table th:nth-child(5), .tool-cost-table td:nth-child(5), .tool-cost-table th:nth-child(6), .tool-cost-table td:nth-child(6), .tool-cost-table th:nth-child(7), .tool-cost-table td:nth-child(7) { text-align: right; }
-    .tool-cost-table th:nth-child(3), .tool-cost-table td:nth-child(3) { text-align: center; }
-    .tool-cost-table th:last-child, .tool-cost-table td:last-child { text-align: center; padding: 4px 1px; }
-    .tool-cost-table .tool-row-cost, .tool-cost-table .tool-row-monthcost { font-family: monospace; font-weight: 700; color: var(--accent); font-size: 10px; font-variant-numeric: tabular-nums; }
-    .tool-cost-table .tool-row-monthqty { font-family: monospace; font-size: 10px; color: var(--text); font-variant-numeric: tabular-nums; }
-    .tool-row-name { text-align: center; font-weight: 800; color: var(--accent); font-family: monospace; font-size: 10.5px; }
+    .tool-optional-badge {
+      display: inline-block;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      margin-left: 4px;
+      letter-spacing: 0.3px;
+    }
+    .tool-cost-table { min-width: 500px; table-layout: fixed; font-size: 10px; }
+    .tool-cost-table tbody tr { background: transparent !important; }
+    .tool-cost-table thead th { padding: 5px 3px; white-space: nowrap; font-size: 9.5px; letter-spacing: -0.2px; }
+    .tool-cost-table thead th:nth-child(1) { text-align: center; }
+    .tool-cost-table thead th:nth-child(2),
+    .tool-cost-table thead th:nth-child(5),
+    .tool-cost-table thead th:nth-child(6),
+    .tool-cost-table thead th:nth-child(7) { text-align: right; }
+    .tool-cost-table thead th:nth-child(3),
+    .tool-cost-table thead th:nth-child(4),
+    .tool-cost-table thead th:nth-child(8) { text-align: center; }
+    .tool-cost-table .tool-row td {
+      padding: 6px 4px !important;
+      text-align: right;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tool-cost-table .tool-row td:first-child { text-align: center; padding: 7px 4px !important; }
+    .tool-cost-table .tool-row td:last-child { text-align: center; padding: 4px 1px !important; }
+    .tool-cost-table .tool-row-name { font-size: 11px; line-height: 1.3; font-weight: 700; }
+    .tool-cost-table .tool-row-name .tool-code {
+      color: var(--accent); font-family: monospace; font-weight: 800;
+      display: block; font-size: 11px;
+    }
+    .tool-cost-table .tool-row-name .tool-shape-spec {
+      display: block; font-size: 10px; color: var(--text);
+      margin-top: 1px; font-weight: 700; font-family: monospace;
+    }
+    .tool-cost-table .tool-row-name .tool-breaker {
+      display: block; font-size: 9px; color: var(--text-muted);
+      margin-top: 1px; font-weight: 600;
+    }
+    .tool-cost-table .tool-row-cost,
+    .tool-cost-table .tool-row-monthcost {
+      font-family: monospace; font-weight: 700;
+      color: var(--accent); font-size: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .tool-cost-table .tool-row-monthqty {
+      font-family: monospace; font-size: 10px;
+      color: var(--text); font-variant-numeric: tabular-nums;
+    }
     .tool-del-btn { background: transparent; border: 1px solid var(--border); color: #ef4444; width: 20px; height: 20px; border-radius: 4px; cursor: pointer; font-weight: 900; font-size: 11px; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s, transform 0.1s; }
     .tool-del-btn:active { background: rgba(239,68,68,0.2); transform: scale(0.95); }
     .tool-reset-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer; transition: background 0.15s, transform 0.1s; }
     .tool-reset-btn:active { background: var(--btn-sub-bg); transform: scale(0.97); }
     .tool-total-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 4px 2px; margin-top: 6px; border-top: 1px dashed var(--border); font-size: 12px; font-weight: 700; color: var(--text); }
+    .op-header-row td {
+      background: var(--thead-bg) !important;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 12px;
+      padding: 8px 10px !important;
+      border-top: 2px solid var(--border) !important;
+      border-bottom: 1px solid var(--border) !important;
+    }
+    .op-header-row:first-child td { border-top: none !important; }
+    .op-header-row.active td {
+      background: linear-gradient(90deg, rgba(56,189,248,.15), var(--thead-bg)) !important;
+      border-top-color: var(--accent) !important;
+    }
+    .op-header-content { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .op-header-title { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; flex: 1; min-width: 0; }
+    .op-header-title:hover { opacity: 0.85; }
+    .op-header-title .op-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .op-active-badge {
+      font-size: 9px; background: var(--primary); color: #fff;
+      padding: 2px 6px; border-radius: 8px; font-weight: 700;
+      letter-spacing: 0.3px; flex-shrink: 0;
+    }
+    .op-tool-count { font-size: 10px; color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+    .op-btn-group { display: flex; gap: 4px; flex-shrink: 0; }
+    .op-rename-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 2px 7px; border-radius: 4px;
+      font-size: 10px; font-weight: 600; cursor: pointer;
+    }
+    .op-rename-btn:active { background: var(--btn-sub-bg); }
+    .op-del-btn {
+      background: transparent; border: 1px solid rgba(239,68,68,0.5);
+      color: #ef4444; width: 22px; height: 22px; border-radius: 4px;
+      cursor: pointer; font-weight: 900; font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      line-height: 1; padding: 0;
+    }
+    .op-del-btn:active { background: rgba(239,68,68,0.15); }
+    .op-subtotal-row td {
+      background: var(--surface) !important;
+      font-size: 10.5px; color: var(--text-muted);
+      padding: 5px 10px !important;
+      text-align: right; font-weight: 600;
+    }
+    .op-subtotal-row .op-subtotal-label {
+      float: left; color: var(--text); font-weight: 800;
+    }
     .sub-note { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
     .g76-details { margin: 6px 0; }
     .g76-details summary {
@@ -794,8 +886,6 @@
 </div>
 </div>
 
-
-
 <!-- 할인율 계산기 -->
 <div class="sub-view" id="view-discount-calc">
 <div class="dura-filter-tabs">
@@ -846,6 +936,8 @@
       <label>공구 입력 (개별 추가)</label>
       <button class="tool-reset-btn" onclick="resetToolList()" type="button">🔄 전체 초기화</button>
     </div>
+
+    <!-- 1행: 단가 / 코너수 -->
     <div class="input-grid-2">
       <div>
         <label>공구 단가 (원)</label>
@@ -853,9 +945,11 @@
       </div>
       <div>
         <label>인서트 코너 수</label>
-        <input id="toolCornerCount" min="1" max="16" oninput="updateToolInputPreview()" placeholder="예: 4" step="1" type="number" value="4"/>
+        <input id="toolCornerCount" min="1" max="16" oninput="updateToolInputPreview()" placeholder="예: 4" step="1" type="number"/>
       </div>
     </div>
+
+    <!-- 2행: 수명 / 개당 공구비 -->
     <div class="input-grid-2">
       <div>
         <label>공구 수명 (ea/코너)</label>
@@ -866,8 +960,30 @@
         <input id="toolInputPreview" placeholder="-" readonly type="text"/>
       </div>
     </div>
-    <div class="btn-row" style="margin-top:6px;">
+
+    <!-- 3행: 선택사항 (형상 / 규격 / 브레이커·재종) -->
+    <div style="margin-top:4px;">
+      <label>선택사항 <span class="tool-optional-badge">OPTIONAL</span></label>
+      <div class="input-grid-3">
+        <div>
+          <input autocomplete="off" id="toolShape" list="toolShapeList" oninput="onToolShapeChange()" placeholder="형상 (WNMG)"/>
+          <datalist id="toolShapeList"></datalist>
+        </div>
+        <div>
+          <input autocomplete="off" id="toolSpec" list="toolSpecList" oninput="updateToolInputPreview()" placeholder="규격 (080412)"/>
+          <datalist id="toolSpecList"></datalist>
+        </div>
+        <div>
+          <input autocomplete="off" id="toolBreaker" oninput="updateToolInputPreview()" placeholder="브레이커/재종"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:8px;">
       <button class="btn-run" onclick="addToolFromInputs()" type="button" style="flex:1;">+ 공구를 리스트에 추가</button>
+    </div>
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="btn-sub" onclick="addProcess()" type="button" style="flex:1;">+ 공정 추가하기</button>
     </div>
   </div>
 
@@ -908,18 +1024,21 @@
   <div class="card">
     <div class="card-head-row">
       <label>공구 리스트</label>
-      <span style="font-size:10px;color:var(--text-muted);">자동 번호 T01, T02, ...</span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:10px;color:var(--text-muted);">OP별 T01 자동 부여</span>
+        <button class="btn-file-load" type="button" onclick="saveToolCostAsImage()">📷 이미지 저장</button>
+      </div>
     </div>
     <div class="data-table-wrap">
       <table class="data-table tool-cost-table">
         <colgroup>
-          <col style="width:36px;"/>
-          <col style="width:56px;"/>
-          <col style="width:34px;"/>
-          <col style="width:46px;"/>
-          <col style="width:56px;"/>
-          <col style="width:56px;"/>
+          <col style="width:120px;"/>
           <col style="width:60px;"/>
+          <col style="width:34px;"/>
+          <col style="width:50px;"/>
+          <col style="width:56px;"/>
+          <col style="width:56px;"/>
+          <col style="width:70px;"/>
           <col style="width:24px;"/>
         </colgroup>
         <thead>
@@ -1625,24 +1744,73 @@ M30`;
       document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
     }
 
-    /* 공구비 계산기 */
+    /* ================================================================
+       공구비 계산기 (OP별 공정 그룹 · 형상/규격/브레이커 지원)
+       ================================================================ */
     let toolMonthlyManual = false;
 
+    const SHAPE_CONFIG = {
+      WNMG: { corners: 6, specs: ['060404','060408','080404','080408','080412','080416','080420','080424'] },
+      WCMT: { corners: 3, specs: ['040304','060304','060308','080304','080308'] },
+      CNMG: { corners: 4, specs: ['120404','120408','120412','160608','160612','190612','190616'] },
+      CCMT: { corners: 2, specs: ['060204','060208','060212','09T304','09T308','120404','120408','120412'] },
+      CCGT: { corners: 2, specs: ['060202','060204','09T302','09T304','120402','120404'] },
+      DNMG: { corners: 4, specs: ['150604','150608','150612','150616'] },
+      DCMT: { corners: 2, specs: ['070204','070208','11T304','11T308','11T312'] },
+      DCGT: { corners: 2, specs: ['070202','070204','11T302','11T304'] },
+      VNMG: { corners: 4, specs: ['160404','160408','160412'] },
+      VCMT: { corners: 2, specs: ['110302','110304','160404','160408'] },
+      TNMG: { corners: 6, specs: ['160404','160408','160412','220408','220412'] },
+      TCMT: { corners: 3, specs: ['090204','090208','110204','16T304','16T308'] },
+      SNMG: { corners: 8, specs: ['120408','120412','120416','150612','190616','250724'] },
+      SCMT: { corners: 4, specs: ['09T304','09T308','120408'] },
+      KNMG: { corners: 4, specs: ['160408','160412'] },
+      RNMG: { corners: 2, specs: ['120400','160600'] },
+      WNGA: { corners: 6, specs: ['080408','080412'] },
+      CNGA: { corners: 4, specs: ['120408','120412'] },
+      DNGA: { corners: 4, specs: ['150408','150412'] }
+    };
+
+    let processes = [];
+    let activeProcessId = null;
+    let opCounter = 0;
+    let lastShapeApplied = '';
+
     function initToolCostUI() {
+      const shapeList = document.getElementById('toolShapeList');
+      if (shapeList) {
+        shapeList.innerHTML = Object.keys(SHAPE_CONFIG)
+          .map(k => `<option value="${k}"></option>`).join('');
+      }
+      if (processes.length === 0) addProcess();
       updateToolInputPreview();
       recalcMonthlyFromCT();
-      calcToolCost();
+      renderToolCostUI();
+    }
+
+    function onToolShapeChange() {
+      const shapeEl = document.getElementById('toolShape');
+      const specList = document.getElementById('toolSpecList');
+      const cornerInput = document.getElementById('toolCornerCount');
+      const shape = shapeEl.value.trim().toUpperCase();
+      if (SHAPE_CONFIG[shape]) {
+        specList.innerHTML = SHAPE_CONFIG[shape].specs.map(s => `<option value="${s}"></option>`).join('');
+        if (lastShapeApplied !== shape) {
+          cornerInput.value = SHAPE_CONFIG[shape].corners;
+          lastShapeApplied = shape;
+        }
+      } else {
+        specList.innerHTML = '';
+        lastShapeApplied = '';
+      }
+      updateToolInputPreview();
     }
 
     function updateToolInputPreview() {
-      const priceEl = document.getElementById('toolUnitPrice');
-      const cornersEl = document.getElementById('toolCornerCount');
-      const lifeEl = document.getElementById('toolLifeQty');
+      const price = parseFloat(document.getElementById('toolUnitPrice').value);
+      const corners = parseFloat(document.getElementById('toolCornerCount').value);
+      const life = parseFloat(document.getElementById('toolLifeQty').value);
       const preview = document.getElementById('toolInputPreview');
-      if (!priceEl || !cornersEl || !lifeEl || !preview) return;
-      const price = parseFloat(priceEl.value);
-      const corners = parseFloat(cornersEl.value);
-      const life = parseFloat(lifeEl.value);
       if (isFinite(price) && price >= 0 && isFinite(corners) && corners > 0 && isFinite(life) && life > 0) {
         preview.value = (price / (life * corners)).toFixed(2) + '원';
       } else {
@@ -1650,62 +1818,110 @@ M30`;
       }
     }
 
-    function addToolFromInputs() {
-      const priceEl = document.getElementById('toolUnitPrice');
-      const cornersEl = document.getElementById('toolCornerCount');
-      const lifeEl = document.getElementById('toolLifeQty');
-      const price = parseFloat(priceEl.value);
-      const corners = parseFloat(cornersEl.value);
-      const life = parseFloat(lifeEl.value);
-      if (!isFinite(price) || price < 0) { alert('공구 단가를 입력하세요.'); priceEl.focus(); return; }
-      if (!isFinite(corners) || corners <= 0) { alert('코너 수를 입력하세요.'); cornersEl.focus(); return; }
-      if (!isFinite(life) || life <= 0) { alert('공구 수명(ea/코너)을 입력하세요.'); lifeEl.focus(); return; }
-      const tbody = document.getElementById('toolCostRows');
-      const tr = document.createElement('tr');
-      tr.dataset.price = price;
-      tr.dataset.corners = corners;
-      tr.dataset.life = life;
-      tr.innerHTML =
-        '<td class="tool-row-name"></td>' +
-        '<td>' + Math.round(price).toLocaleString('ko-KR') + '</td>' +
-        '<td>' + corners + '</td>' +
-        '<td>' + Math.round(life).toLocaleString('ko-KR') + '</td>' +
-        '<td class="tool-row-cost">-</td>' +
-        '<td class="tool-row-monthqty">-</td>' +
-        '<td class="tool-row-monthcost">-</td>' +
-        '<td><button class="tool-del-btn" type="button">✕</button></td>';
-      tr.querySelector('.tool-del-btn').onclick = () => {
-        tr.remove();
-        renumberToolRows();
-        calcToolCost();
+    function addProcess() {
+      opCounter++;
+      const opNum = opCounter * 10;
+      const proc = {
+        id: 'op_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        name: 'OP' + String(opNum).padStart(2, '0'),
+        tools: []
       };
-      tbody.appendChild(tr);
-      priceEl.value = '';
-      lifeEl.value = '';
-      updateToolInputPreview();
-      priceEl.focus();
-      renumberToolRows();
-      calcToolCost();
+      processes.push(proc);
+      activeProcessId = proc.id;
+      renderToolCostUI();
     }
 
-    function renumberToolRows() {
-      const tbody = document.getElementById('toolCostRows');
-      if (!tbody) return;
-      [...tbody.children].forEach((tr, i) => {
-        const nameCell = tr.querySelector('.tool-row-name');
-        if (nameCell) nameCell.textContent = 'T' + String(i + 1).padStart(2, '0');
+    function deleteProcess(procId) {
+      const proc = processes.find(p => p.id === procId);
+      if (!proc) return;
+      if (proc.tools.length > 0) {
+        if (!confirm(`[${proc.name}] 공정을 삭제하시겠습니까?\n공구 ${proc.tools.length}개가 함께 삭제됩니다.`)) return;
+      } else {
+        if (!confirm(`[${proc.name}] 빈 공정을 삭제하시겠습니까?`)) return;
+      }
+      processes = processes.filter(p => p.id !== procId);
+      if (processes.length === 0) {
+        opCounter = 0;
+        addProcess();
+        return;
+      }
+      if (activeProcessId === procId) {
+        activeProcessId = processes[processes.length - 1].id;
+      }
+      renderToolCostUI();
+    }
+
+    function setActiveProcess(procId) {
+      activeProcessId = procId;
+      renderToolCostUI();
+    }
+
+    function renameProcess(procId) {
+      const proc = processes.find(p => p.id === procId);
+      if (!proc) return;
+      const newName = prompt('공정 이름을 입력하세요:', proc.name);
+      if (newName && newName.trim()) {
+        proc.name = newName.trim();
+        renderToolCostUI();
+      }
+    }
+
+    function addToolFromInputs() {
+      const shape = document.getElementById('toolShape').value.trim().toUpperCase();
+      const spec = document.getElementById('toolSpec').value.trim().toUpperCase();
+      const breaker = document.getElementById('toolBreaker').value.trim();
+      const price = parseFloat(document.getElementById('toolUnitPrice').value);
+      const corners = parseFloat(document.getElementById('toolCornerCount').value);
+      const life = parseFloat(document.getElementById('toolLifeQty').value);
+
+      if (!isFinite(price) || price < 0) { alert('공구 단가를 입력하세요.'); document.getElementById('toolUnitPrice').focus(); return; }
+      if (!isFinite(corners) || corners <= 0) { alert('코너 수를 입력하세요.'); document.getElementById('toolCornerCount').focus(); return; }
+      if (!isFinite(life) || life <= 0) { alert('공구 수명(ea/코너)을 입력하세요.'); document.getElementById('toolLifeQty').focus(); return; }
+
+      const proc = processes.find(p => p.id === activeProcessId) || processes[processes.length - 1];
+      if (!proc) { alert('먼저 공정을 추가하세요.'); return; }
+
+      proc.tools.push({
+        id: 'tool_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        shape, spec, breaker, price, corners, life
       });
+
+      document.getElementById('toolShape').value = '';
+      document.getElementById('toolSpec').value = '';
+      document.getElementById('toolBreaker').value = '';
+      document.getElementById('toolUnitPrice').value = '';
+      document.getElementById('toolCornerCount').value = '';
+      document.getElementById('toolLifeQty').value = '';
+      document.getElementById('toolSpecList').innerHTML = '';
+      document.getElementById('toolInputPreview').value = '';
+      lastShapeApplied = '';
+
+      renderToolCostUI();
+      document.getElementById('toolUnitPrice').focus();
+    }
+
+    function deleteTool(procId, toolId) {
+      const proc = processes.find(p => p.id === procId);
+      if (!proc) return;
+      proc.tools = proc.tools.filter(t => t.id !== toolId);
+      renderToolCostUI();
     }
 
     function resetToolList() {
       if (!confirm('공구 리스트를 모두 지우고 초기화하시겠습니까?')) return;
-      const tbody = document.getElementById('toolCostRows');
-      if (tbody) tbody.innerHTML = '';
+      processes = [];
+      opCounter = 0;
+      activeProcessId = null;
+      lastShapeApplied = '';
+      document.getElementById('toolShape').value = '';
+      document.getElementById('toolSpec').value = '';
+      document.getElementById('toolBreaker').value = '';
       document.getElementById('toolUnitPrice').value = '';
-      document.getElementById('toolCornerCount').value = '4';
+      document.getElementById('toolCornerCount').value = '';
       document.getElementById('toolLifeQty').value = '';
-      updateToolInputPreview();
-      calcToolCost();
+      document.getElementById('toolInputPreview').value = '';
+      document.getElementById('toolSpecList').innerHTML = '';
+      addProcess();
     }
 
     function recalcMonthlyFromCT() {
@@ -1725,7 +1941,7 @@ M30`;
         qtyInput.value = '';
         if (yearMirror) yearMirror.value = '';
         hint.textContent = 'C/T를 입력하면 월 생산량이 자동 산출됩니다.';
-        calcToolCost();
+        renderToolCostUI();
         return;
       }
       const totalSec = days * hours * 3600 * (rate / 100) * lines;
@@ -1733,12 +1949,10 @@ M30`;
       qtyInput.value = monthlyQty;
       if (yearMirror) yearMirror.value = (monthlyQty * 12).toLocaleString('ko-KR') + ' ea';
       hint.textContent = '자동 산출: ' + days + '일 × ' + hours + 'h × ' + rate + '% × ' + lines + '라인 ÷ C/T ' + ct + '초 = ' + monthlyQty.toLocaleString('ko-KR') + 'ea';
-      calcToolCost();
+      renderToolCostUI();
     }
 
-    function onToolReverseInput() {
-      recalcMonthlyFromCT();
-    }
+    function onToolReverseInput() { recalcMonthlyFromCT(); }
 
     function onToolMonthlyQtyInput() {
       const qtyInput = document.getElementById('toolMonthlyQty');
@@ -1770,81 +1984,377 @@ M30`;
         if (yearMirror) yearMirror.value = '';
         hint.textContent = '월 생산량을 지우면 C/T 기반 자동 산출로 돌아갑니다.';
       }
-      calcToolCost();
+      renderToolCostUI();
     }
 
-    function calcToolCost() {
+    function renderToolCostUI() {
       const tbody = document.getElementById('toolCostRows');
       if (!tbody) return;
-      const rows = [...tbody.children];
-      let totalPerPiece = 0;
-      let totalMonthlyCost = 0;
-      const details = [];
-      let validCount = 0;
-      rows.forEach((tr, i) => {
-        const nameCell = tr.querySelector('.tool-row-name');
-        const costCell = tr.querySelector('.tool-row-cost');
-        const name = nameCell && nameCell.textContent ? nameCell.textContent : ('T' + String(i + 1).padStart(2, '0'));
-        const price = parseFloat(tr.dataset.price);
-        const corners = parseFloat(tr.dataset.corners);
-        const life = parseFloat(tr.dataset.life);
-        if (isFinite(price) && price >= 0 && isFinite(corners) && corners > 0 && isFinite(life) && life > 0) {
-          const totalLife = life * corners;
-          const perPiece = price / totalLife;
-          if (costCell) costCell.textContent = perPiece.toFixed(2) + '원';
-          const monthQtyCell = tr.querySelector('.tool-row-monthqty');
-          const monthCostCell = tr.querySelector('.tool-row-monthcost');
-          const monthlyQtyVal = parseFloat(document.getElementById('toolMonthlyQty').value);
-          const hasMonthlyVal = isFinite(monthlyQtyVal) && monthlyQtyVal > 0;
-          if (hasMonthlyVal) {
-            const monthUsedRaw = monthlyQtyVal / totalLife;
-            const monthUsedCeil = Math.ceil(monthUsedRaw);
-            const monthCost = monthUsedCeil * price;
-            if (monthQtyCell) {
-              monthQtyCell.textContent = monthUsedCeil.toLocaleString('ko-KR');
-              monthQtyCell.title = '실사용(올림 전): ' + monthUsedRaw.toFixed(2);
-            }
-            if (monthCostCell) monthCostCell.textContent = Math.round(monthCost).toLocaleString('ko-KR');
-            totalMonthlyCost += monthCost;
-          } else {
-            if (monthQtyCell) { monthQtyCell.textContent = '-'; monthQtyCell.title = ''; }
-            if (monthCostCell) monthCostCell.textContent = '-';
-          }
-          totalPerPiece += perPiece;
-          validCount++;
-          details.push('  • ' + name.padEnd(5, ' ') + ' : ' + perPiece.toFixed(2) + '원  (' + Math.round(price).toLocaleString('ko-KR') + '원 ÷ ' + totalLife.toLocaleString('ko-KR') + 'ea)');
-        }
-      });
-      const totalEl = document.getElementById('toolTotalPerPiece');
-      if (totalEl) totalEl.textContent = totalPerPiece.toFixed(2) + '원';
-      const monthlyQty = parseFloat(document.getElementById('toolMonthlyQty').value);
-      const hasMonthly = isFinite(monthlyQty) && monthlyQty > 0;
-      const monthTotalEl = document.getElementById('toolTotalMonthlyCost');
-      if (monthTotalEl) {
-        monthTotalEl.textContent = (hasMonthly && validCount > 0)
-          ? Math.round(totalMonthlyCost).toLocaleString('ko-KR') + '원'
-          : '-';
-      }
-      const reportEl = document.getElementById('toolCostReport');
-      if (!reportEl) return;
-      if (validCount === 0) {
-        reportEl.innerText = '공구 정보를 입력하세요.\n공구 단가, 코너 수, 수명을 입력한 뒤 [+ 공구를 리스트에 추가]를 누르면 부품 1개당 공구비가 누적됩니다.';
+
+      const monthlyQtyVal = parseFloat(document.getElementById('toolMonthlyQty').value);
+      const hasMonthly = isFinite(monthlyQtyVal) && monthlyQtyVal > 0;
+
+      if (processes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:20px;">공정을 추가하세요.</td></tr>';
+        document.getElementById('toolTotalPerPiece').textContent = '0.00원';
+        document.getElementById('toolTotalMonthlyCost').textContent = '-';
         return;
       }
-      let report = '=== 부품 1개당 공구비 (' + validCount + '종 누적) ===\n';
+
+      let html = '';
+      processes.forEach(proc => {
+        const isActive = proc.id === activeProcessId;
+        const toolCount = proc.tools.length;
+
+        html += `<tr class="op-header-row ${isActive ? 'active' : ''}">
+          <td colspan="8">
+            <div class="op-header-content">
+              <div class="op-header-title" onclick="setActiveProcess('${proc.id}')" title="클릭하면 이 공정이 입력 대상이 됩니다">
+                <span class="op-name">▸ ${escapeHtml(proc.name)}</span>
+                ${isActive ? '<span class="op-active-badge">입력중</span>' : ''}
+                <span class="op-tool-count">${toolCount}개</span>
+              </div>
+              <div class="op-btn-group">
+                <button class="op-rename-btn" type="button" onclick="event.stopPropagation();renameProcess('${proc.id}')">이름변경</button>
+                <button class="op-del-btn" type="button" onclick="event.stopPropagation();deleteProcess('${proc.id}')">✕</button>
+              </div>
+            </div>
+          </td>
+        </tr>`;
+
+        proc.tools.forEach((tool, ti) => {
+          const toolNo = 'T' + String(ti + 1).padStart(2, '0');
+          const totalLife = tool.life * tool.corners;
+          const perPiece = tool.price / totalLife;
+
+          let nameCell = `<span class="tool-code">${toolNo}</span>`;
+          const shapeSpec = [tool.shape, tool.spec].filter(Boolean).join(' ');
+          if (shapeSpec) nameCell += `<span class="tool-shape-spec">${escapeHtml(shapeSpec)}</span>`;
+          if (tool.breaker) nameCell += `<span class="tool-breaker">${escapeHtml(tool.breaker)}</span>`;
+
+          let monthUsedCell = '-';
+          let monthCostCell = '-';
+          if (hasMonthly) {
+            const rawUsed = monthlyQtyVal / totalLife;
+            const ceilUsed = Math.ceil(rawUsed);
+            monthUsedCell = ceilUsed.toLocaleString('ko-KR');
+            monthCostCell = Math.round(ceilUsed * tool.price).toLocaleString('ko-KR');
+          }
+
+          html += `<tr class="tool-row">
+            <td class="tool-row-name">${nameCell}</td>
+            <td>${Math.round(tool.price).toLocaleString('ko-KR')}</td>
+            <td>${tool.corners}</td>
+            <td>${Math.round(tool.life).toLocaleString('ko-KR')}</td>
+            <td class="tool-row-cost">${perPiece.toFixed(2)}원</td>
+            <td class="tool-row-monthqty">${monthUsedCell}</td>
+            <td class="tool-row-monthcost">${monthCostCell}</td>
+            <td><button class="tool-del-btn" type="button" onclick="deleteTool('${proc.id}','${tool.id}')">✕</button></td>
+          </tr>`;
+        });
+
+        if (toolCount > 0) {
+          const opPerPiece = proc.tools.reduce((s, t) => s + t.price / (t.life * t.corners), 0);
+          let subtotalRight = `개당 ${opPerPiece.toFixed(2)}원`;
+          if (hasMonthly) {
+            const opMonthly = proc.tools.reduce((s, t) => {
+              const tl = t.life * t.corners;
+              return s + Math.ceil(monthlyQtyVal / tl) * t.price;
+            }, 0);
+            subtotalRight += ` · 월 ${Math.round(opMonthly).toLocaleString('ko-KR')}원`;
+          }
+          html += `<tr class="op-subtotal-row">
+            <td colspan="8"><span class="op-subtotal-label">${escapeHtml(proc.name)} 소계</span>${subtotalRight}</td>
+          </tr>`;
+        }
+      });
+
+      tbody.innerHTML = html;
+
+      let totalPerPiece = 0;
+      let totalMonthlyCost = 0;
+      let validCount = 0;
+      const details = [];
+
+      processes.forEach(proc => {
+        if (proc.tools.length === 0) return;
+        details.push(`[${proc.name}]`);
+        let opPerPiece = 0;
+        let opMonthly = 0;
+        proc.tools.forEach((tool, ti) => {
+          const tl = tool.life * tool.corners;
+          const perPiece = tool.price / tl;
+          opPerPiece += perPiece;
+          const toolNo = 'T' + String(ti + 1).padStart(2, '0');
+          const label = [tool.shape, tool.spec].filter(Boolean).join(' ') || '(규격 미입력)';
+          const breakerTag = tool.breaker ? ' · ' + tool.breaker : '';
+          details.push(`  • ${toolNo} ${label}${breakerTag}  :  ${perPiece.toFixed(2)}원`);
+          if (hasMonthly) {
+            opMonthly += Math.ceil(monthlyQtyVal / tl) * tool.price;
+          }
+          validCount++;
+        });
+        totalPerPiece += opPerPiece;
+        if (hasMonthly) {
+          totalMonthlyCost += opMonthly;
+          details.push(`  ▶ ${proc.name} 소계 : 개당 ${opPerPiece.toFixed(2)}원 / 월 ${Math.round(opMonthly).toLocaleString('ko-KR')}원`);
+        } else {
+          details.push(`  ▶ ${proc.name} 소계 : 개당 ${opPerPiece.toFixed(2)}원`);
+        }
+      });
+
+      document.getElementById('toolTotalPerPiece').textContent = totalPerPiece.toFixed(2) + '원';
+      const monthEl = document.getElementById('toolTotalMonthlyCost');
+      if (hasMonthly && validCount > 0) {
+        monthEl.textContent = Math.round(totalMonthlyCost).toLocaleString('ko-KR') + '원';
+      } else {
+        monthEl.textContent = '-';
+      }
+
+      const reportEl = document.getElementById('toolCostReport');
+      if (validCount === 0) {
+        reportEl.innerText = '공구 정보를 입력하세요.\n단가 · 코너 · 수명을 입력한 뒤 [+ 공구를 리스트에 추가]를 누르면 개당 공구비가 누적됩니다.\n형상/규격/브레이커는 선택사항입니다.\n[+ 공정 추가하기] 로 OP20, OP30 등 추가 공정을 만들 수 있습니다.';
+        return;
+      }
+      let report = '=== 공구비 계산 결과 ===\n';
       report += details.join('\n');
       report += '\n------------------------------------\n';
       report += '▶ 합계 개당 공구비 : ' + totalPerPiece.toFixed(2) + '원';
       if (hasMonthly) {
-        report += '\n\n[월 기준]\n';
-        report += '• 월 생산량  : ' + Math.round(monthlyQty).toLocaleString('ko-KR') + 'ea\n';
-        report += '• 월 공구비  : ' + Math.round(totalMonthlyCost).toLocaleString('ko-KR') + '원';
+        report += '\n▶ 합계 월 공구비   : ' + Math.round(totalMonthlyCost).toLocaleString('ko-KR') + '원';
+        report += '\n  (월 생산량 ' + Math.round(monthlyQtyVal).toLocaleString('ko-KR') + 'ea 기준)';
       } else {
         report += '\n\n(월 생산량을 입력하면 월 공구비도 계산됩니다)';
       }
       reportEl.innerText = report;
     }
 
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function saveToolCostAsImage() {
+      const hasData = processes.some(p => p.tools.length > 0);
+      if (!hasData) { alert('저장할 공구 데이터가 없습니다.'); return; }
+
+      const monthlyQtyVal = parseFloat(document.getElementById('toolMonthlyQty').value);
+      const hasMonthly = isFinite(monthlyQtyVal) && monthlyQtyVal > 0;
+
+      const W = 900;
+      const PAD = 40;
+      const HEADER_H = 150;
+      const OP_H = 46;
+      const ROW_H = 76;
+      const SUB_H = 40;
+      const FOOTER_H = hasMonthly ? 180 : 130;
+
+      let contentH = 0;
+      processes.forEach(proc => {
+        if (proc.tools.length === 0) return;
+        contentH += OP_H + proc.tools.length * ROW_H + SUB_H + 14;
+      });
+      const H = HEADER_H + contentH + FOOTER_H;
+
+      const scale = 2;
+      const canvas = document.createElement('canvas');
+      canvas.width = W * scale;
+      canvas.height = H * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 28px -apple-system, "Segoe UI", Roboto, sans-serif';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText('공구비 계산서', PAD, PAD + 32);
+
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}  ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      ctx.fillStyle = '#64748b';
+      ctx.font = '13px -apple-system, "Segoe UI", Roboto, sans-serif';
+      ctx.fillText(dateStr, PAD, PAD + 58);
+
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(PAD, PAD + 78);
+      ctx.lineTo(W - PAD, PAD + 78);
+      ctx.stroke();
+
+      if (hasMonthly) {
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 14px -apple-system, sans-serif';
+        ctx.fillText(`월 생산량  ${Math.round(monthlyQtyVal).toLocaleString('ko-KR')} ea`, PAD, PAD + 108);
+      }
+
+      const COL = {
+        price: W - 400,
+        corners: W - 320,
+        life: W - 240,
+        perPiece: W - 145,
+        monthCost: W - PAD - 5
+      };
+
+      let y = HEADER_H;
+      let totalPerPiece = 0;
+      let totalMonthly = 0;
+
+      processes.forEach(proc => {
+        if (proc.tools.length === 0) return;
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(PAD, y, W - PAD * 2, OP_H - 8);
+        ctx.fillStyle = '#0369a1';
+        ctx.font = 'bold 16px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(proc.name, PAD + 14, y + 26);
+        ctx.fillStyle = '#64748b';
+        ctx.font = '11px -apple-system, sans-serif';
+        ctx.fillText(`${proc.tools.length}개 공구`, W - PAD - 60, y + 26);
+        y += OP_H;
+
+        let opPerPiece = 0;
+        let opMonthly = 0;
+
+        proc.tools.forEach((tool, ti) => {
+          const tl = tool.life * tool.corners;
+          const perPiece = tool.price / tl;
+          opPerPiece += perPiece;
+
+          let monthUsed = 0, monthCost = 0;
+          if (hasMonthly) {
+            monthUsed = Math.ceil(monthlyQtyVal / tl);
+            monthCost = monthUsed * tool.price;
+            opMonthly += monthCost;
+          }
+
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(PAD, y);
+          ctx.lineTo(W - PAD, y);
+          ctx.stroke();
+
+          if (ti === 0) {
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = 'bold 10px -apple-system, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText('단가', COL.price, y + 14);
+            ctx.fillText('코너', COL.corners, y + 14);
+            ctx.fillText('수명', COL.life, y + 14);
+            ctx.fillText('개당', COL.perPiece, y + 14);
+            ctx.fillText('월 공구비', COL.monthCost, y + 14);
+            ctx.textAlign = 'left';
+          }
+
+          const toolNo = 'T' + String(ti + 1).padStart(2, '0');
+          ctx.fillStyle = '#0284c7';
+          ctx.font = 'bold 16px "Courier New", monospace';
+          ctx.fillText(toolNo, PAD + 14, y + 28);
+
+          const shapeSpec = [tool.shape, tool.spec].filter(Boolean).join(' ');
+          if (shapeSpec) {
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 13px -apple-system, sans-serif';
+            ctx.fillText(shapeSpec, PAD + 14, y + 48);
+          }
+
+          if (tool.breaker) {
+            ctx.fillStyle = '#64748b';
+            ctx.font = '11px -apple-system, sans-serif';
+            ctx.fillText(tool.breaker, PAD + 14, y + 65);
+          }
+
+          ctx.textAlign = 'right';
+          ctx.fillStyle = '#0f172a';
+          ctx.font = '13px "Courier New", monospace';
+          ctx.fillText(Math.round(tool.price).toLocaleString('ko-KR'), COL.price, y + 46);
+          ctx.fillText(String(tool.corners), COL.corners, y + 46);
+          ctx.fillText(Math.round(tool.life).toLocaleString('ko-KR'), COL.life, y + 46);
+
+          ctx.fillStyle = '#0284c7';
+          ctx.font = 'bold 13px "Courier New", monospace';
+          ctx.fillText(perPiece.toFixed(2) + '원', COL.perPiece, y + 46);
+
+          ctx.fillStyle = '#0f172a';
+          ctx.font = '13px "Courier New", monospace';
+          ctx.fillText(hasMonthly ? Math.round(monthCost).toLocaleString('ko-KR') : '-', COL.monthCost, y + 46);
+          ctx.textAlign = 'left';
+
+          y += ROW_H;
+        });
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.fillRect(PAD, y, W - PAD * 2, SUB_H - 4);
+        ctx.fillStyle = '#334155';
+        ctx.font = 'bold 12px -apple-system, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`${proc.name} 소계`, PAD + 14, y + 24);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#0284c7';
+        let subText = `개당 ${opPerPiece.toFixed(2)}원`;
+        if (hasMonthly) subText += `   ·   월 ${Math.round(opMonthly).toLocaleString('ko-KR')}원`;
+        ctx.fillText(subText, W - PAD - 14, y + 24);
+        ctx.textAlign = 'left';
+        y += SUB_H + 14;
+
+        totalPerPiece += opPerPiece;
+        totalMonthly += opMonthly;
+      });
+
+      const footerTop = H - FOOTER_H + 20;
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(PAD, footerTop);
+      ctx.lineTo(W - PAD, footerTop);
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 15px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('합계 개당 공구비', PAD + 4, footerTop + 38);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#0284c7';
+      ctx.font = 'bold 22px "Courier New", monospace';
+      ctx.fillText(totalPerPiece.toFixed(2) + '원', W - PAD - 4, footerTop + 40);
+
+      if (hasMonthly) {
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 15px -apple-system, sans-serif';
+        ctx.fillText('합계 월 공구비', PAD + 4, footerTop + 78);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#0284c7';
+        ctx.font = 'bold 22px "Courier New", monospace';
+        ctx.fillText(Math.round(totalMonthly).toLocaleString('ko-KR') + '원', W - PAD - 4, footerTop + 80);
+      }
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '10px -apple-system, sans-serif';
+      ctx.fillText('Duracarb 도우미 · https://uunu88.github.io/cnc-calc/', PAD, H - 18);
+
+      canvas.toBlob(blob => {
+        if (!blob) { alert('이미지 변환 실패'); return; }
+        const url = URL.createObjectURL(blob);
+        const d = new Date();
+        const fname = `공구비계산서_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}_${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.png`;
+        const link = document.createElement('a');
+        link.download = fname;
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+      }, 'image/png');
+    }
+
+    /* ================================================================
+       이하 기존 로직
+       ================================================================ */
     function showViewOnly(name) {
       document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
       document.getElementById('view-main').style.display = 'none';
@@ -1864,7 +2374,7 @@ M30`;
       if (name === 'mct-path') setTimeout(() => { resizeMCT(); resetMctView(); }, 60);
       if (name === 'tool-cost') setTimeout(() => {
         recalcMonthlyFromCT();
-        calcToolCost();
+        renderToolCostUI();
       }, 60);
     }
 
@@ -1884,9 +2394,7 @@ M30`;
       try { history.pushState({ view: name }, ''); } catch (e) {}
     }
 
-    function goBack() {
-      history.back();
-    }
+    function goBack() { history.back(); }
 
     function switchCostTab(target, btn) {
       showViewOnly(target);
@@ -1901,13 +2409,12 @@ M30`;
       };
     }
 
-    /* 공구 번호 정규화: T1 / T01 / T101 / T0101 → 모두 "T01" 로 통일 */
     function normalizeToolNo(raw) {
       let s = String(raw).trim();
       if (!s) return 'T00';
-      if (s.length <= 2) return 'T' + s.padStart(2, '0');  // T1, T01 → T01
-      if (s.length === 3) s = '0' + s;                     // T101 → T0101
-      return 'T' + s.slice(0, 2);                          // T0101 → T01
+      if (s.length <= 2) return 'T' + s.padStart(2, '0');
+      if (s.length === 3) s = '0' + s;
+      return 'T' + s.slice(0, 2);
     }
 
     function clearGcode(textareaId, machine) {
