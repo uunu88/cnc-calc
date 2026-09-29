@@ -62,7 +62,6 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
-    /* FIX: 중복 display 제거 — JS에서 showViewOnly/goHome 시 flex 제어 */
     header { display: none; background: var(--header-bg); padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left)); align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; gap: 8px; }
     header h1 { font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -0.6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
     header h1 span { color: var(--accent); }
@@ -416,6 +415,188 @@
     .trouble-rec { font-size:10.5px; color:var(--accent); font-weight:700; background:rgba(56,189,248,.1); padding:7px 9px; border-radius:6px; border-left:3px solid var(--accent); margin-top:10px; font-family:monospace; line-height:1.4; }
     .trouble-count { font-size:10px; color:var(--text-muted); margin:8px 0 0; text-align:right; }
 
+    /* ============ 인서트 손상 판별 ============ */
+    .insert-section-title {
+      font-size: 12px; font-weight: 800; color: var(--text);
+      margin: 0 0 10px; display: flex; align-items: center; gap: 6px;
+    }
+    .insert-section-title::before {
+      content: ""; width: 3px; height: 14px;
+      background: var(--accent); border-radius: 2px;
+    }
+    .insert-obs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 6px; margin-bottom: 10px;
+    }
+    .insert-obs-card {
+      padding: 9px 10px; border: 1px solid var(--border);
+      border-radius: 8px; background: var(--surface);
+    }
+    .insert-obs-card b {
+      display: block; font-size: 11px; color: var(--accent);
+      margin-bottom: 4px; font-weight: 800;
+    }
+    .insert-obs-card p {
+      font-size: 10px; color: var(--text); line-height: 1.45;
+    }
+    .insert-tip {
+      font-size: 10px; color: var(--text-muted);
+      background: rgba(56,189,248,.08); border-left: 3px solid var(--accent);
+      padding: 7px 10px; border-radius: 6px; line-height: 1.45;
+    }
+    .insert-tree-item {
+      border: 1px solid var(--border); border-radius: 8px;
+      margin-bottom: 6px; background: var(--surface);
+      overflow: hidden;
+    }
+    .insert-tree-item summary {
+      padding: 9px 12px; cursor: pointer; font-size: 11.5px;
+      font-weight: 700; color: var(--text); list-style: none;
+      display: flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .insert-tree-item summary::-webkit-details-marker { display: none; }
+    .insert-tree-item summary::before {
+      content: "Q"; flex-shrink: 0;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      font-size: 10px; font-weight: 900;
+    }
+    .insert-tree-item summary:hover { background: var(--btn-sub-bg); }
+    .insert-tree-item[open] summary {
+      border-bottom: 1px solid var(--border); background: var(--card-bg);
+    }
+    .insert-tree-body {
+      padding: 10px 12px; font-size: 11px; line-height: 1.55;
+      color: var(--text);
+    }
+    .insert-tree-body .row {
+      display: flex; gap: 8px; margin: 5px 0; align-items: flex-start;
+    }
+    .insert-tree-body .row .tag {
+      flex-shrink: 0; font-weight: 800; font-size: 10px;
+      padding: 2px 7px; border-radius: 4px; margin-top: 1px;
+    }
+    .insert-tree-body .tag.yes { background: rgba(34,197,94,.15); color: #22c55e; }
+    .insert-tree-body .tag.no  { background: rgba(148,163,184,.15); color: var(--text-muted); }
+    .insert-tree-body b { color: var(--accent); }
+    .insert-damage-card {
+      border: 1px solid var(--border); border-radius: 10px;
+      margin-bottom: 8px; background: var(--input-bg);
+      overflow: hidden;
+    }
+    .insert-damage-card.cat-wear     { border-left: 4px solid #ca8a04; }
+    .insert-damage-card.cat-chip     { border-left: 4px solid #dc2626; }
+    .insert-damage-card.cat-surface  { border-left: 4px solid #0284c7; }
+    .insert-damage-card.cat-vib      { border-left: 4px solid #a78bfa; }
+    .insert-damage-card.cat-other    { border-left: 4px solid #06b6d4; }
+    .insert-damage-head {
+      display: flex; gap: 12px; padding: 11px 13px;
+      align-items: flex-start;
+    }
+    .insert-svg {
+      width: 84px; height: 84px; flex-shrink: 0;
+      border-radius: 6px; overflow: hidden;
+    }
+    .insert-svg .svg-frame { fill: var(--bg); }
+    .insert-svg .svg-body  { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
+    .insert-svg .svg-side-face {
+      fill: var(--surface); stroke: var(--border); stroke-width: 1;
+      filter: brightness(0.82);
+    }
+    .insert-svg .svg-side-face-dim {
+      fill: var(--surface); stroke: var(--border); stroke-width: 1;
+      filter: brightness(0.62);
+    }
+    .insert-svg .svg-edge  { stroke: var(--accent); fill: none; }
+    .insert-svg .svg-damage { fill: #ef4444; stroke: #ef4444; }
+    .insert-svg .svg-damage-area { fill: rgba(239,68,68,.4); stroke: #ef4444; stroke-width: 1.2; }
+    .insert-svg .svg-secondary { fill: #facc15; stroke: #ca8a04; stroke-width: 1; }
+    .insert-svg .svg-hole { fill: var(--bg); stroke: var(--border); stroke-width: 1.5; }
+    .insert-svg .svg-text-label {
+      fill: var(--text); font-family: inherit; font-weight: 800;
+    }
+    .insert-damage-info { flex: 1; min-width: 0; }
+    .insert-damage-name {
+      font-size: 13.5px; font-weight: 800; color: var(--text);
+      letter-spacing: -.2px; line-height: 1.2;
+    }
+    .insert-damage-sub {
+      font-size: 9.5px; color: var(--text-muted);
+      font-weight: 600; letter-spacing: .04em; margin-top: 2px;
+    }
+    .insert-damage-desc {
+      font-size: 10.5px; color: var(--text); line-height: 1.5;
+      margin-top: 5px;
+    }
+    .insert-damage-key {
+      font-size: 10.5px; color: var(--accent); font-weight: 700;
+      background: rgba(56,189,248,.08);
+      padding: 5px 8px; border-radius: 5px;
+      margin-top: 6px; line-height: 1.45;
+    }
+    .insert-damage-key::before {
+      content: "핵심: "; font-weight: 900; color: var(--yellow);
+    }
+    .insert-damage-body {
+      border-top: 1px dashed var(--border);
+      padding: 10px 13px; font-size: 10.5px; line-height: 1.55;
+    }
+    .insert-damage-body h4 {
+      font-size: 10px; font-weight: 800; color: var(--accent);
+      margin: 8px 0 4px; letter-spacing: .05em;
+    }
+    .insert-damage-body h4:first-child { margin-top: 0; }
+    .insert-damage-body ul {
+      list-style: none; display: flex; flex-direction: column;
+      gap: 3px; padding: 0; margin: 0;
+    }
+    .insert-damage-body li {
+      padding-left: 12px; position: relative; color: var(--text);
+    }
+    .insert-damage-body li::before {
+      content: "·"; position: absolute; left: 3px;
+      color: var(--accent); font-weight: 900;
+    }
+    .insert-damage-toggle {
+      padding: 7px 13px; border-top: 1px solid var(--border);
+      background: var(--card-bg); font-size: 10.5px;
+      color: var(--accent); font-weight: 700;
+      cursor: pointer; text-align: center;
+      user-select: none;
+    }
+    .insert-damage-toggle:hover { background: var(--surface); }
+    .insert-compare-wrap {
+      overflow-x: auto; border-radius: 8px;
+      border: 1px solid var(--border); margin-top: 6px;
+    }
+    .insert-compare-table {
+      width: 100%; min-width: 480px;
+      border-collapse: collapse; font-size: 10.5px;
+    }
+    .insert-compare-table th,
+    .insert-compare-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top; line-height: 1.5;
+    }
+    .insert-compare-table th {
+      background: var(--thead-bg); color: var(--thead-text);
+      font-weight: 800; text-align: left;
+      white-space: nowrap; position: sticky; top: 0;
+    }
+    .insert-compare-table tr:last-child td { border-bottom: none; }
+    .insert-compare-table .pair {
+      font-weight: 800; color: var(--text); white-space: nowrap;
+    }
+    .insert-compare-table .pick { color: var(--accent); font-weight: 700; }
+    @media (max-width: 480px) {
+      .insert-obs-grid { grid-template-columns: 1fr; }
+      .insert-damage-head { flex-direction: column; gap: 9px; }
+      .insert-svg { width: 84px; height: 84px; }
+    }
+
     /* ============ 절감액 계산기 (ROI) ============ */
     .roi-compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
     .roi-col { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px; }
@@ -488,328 +669,133 @@
     /* =========================================================
        V11 PRODUCT UI — 홈 화면 전용 디자인 레이어
        ========================================================= */
-    .home-dashboard {
-      padding: 2px 0 18px;
-      max-width: 980px;
-      width: 100%;
-      margin: 0 auto;
-    }
+    .home-dashboard { padding: 2px 0 18px; max-width: 980px; width: 100%; margin: 0 auto; }
     .home-hero {
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 18px;
-      min-height: 178px;
-      padding: 26px 24px 24px;
-      margin-bottom: 20px;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background:
-        radial-gradient(circle at 85% 15%, rgba(56,189,248,.18), transparent 32%),
-        linear-gradient(135deg, var(--header-bg), var(--card-bg));
-      box-shadow: 0 12px 35px rgba(15,23,42,.10);
+      position: relative; overflow: hidden; display: flex;
+      justify-content: space-between; align-items: flex-start;
+      gap: 18px; min-height: 0; height: auto;
+      padding: 13px 18px 12px; margin-bottom: 14px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: linear-gradient(135deg, var(--card-bg), var(--surface));
+      box-shadow: 0 4px 14px rgba(15,23,42,.06);
     }
-    .home-hero::after {
-      content: "";
-      position: absolute;
-      width: 180px;
-      height: 180px;
-      right: -75px;
-      bottom: -105px;
-      border-radius: 50%;
-      border: 1px solid rgba(56,189,248,.16);
-      box-shadow: 0 0 0 25px rgba(56,189,248,.035), 0 0 0 50px rgba(56,189,248,.025);
-      pointer-events: none;
-    }
-    .home-hero-copy { position: relative; z-index: 1; }
-    .home-eyebrow, .section-kicker {
-      color: var(--accent);
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: .16em;
+    .home-hero::after { display: none; }
+    .home-hero-copy { position: relative; z-index: 1; width: 100%; max-width: none; }
+    .home-eyebrow {
+      display: block; color: var(--accent); font-size: 9px; font-weight: 900;
+      letter-spacing: .16em; line-height: 1.1; margin: 0;
     }
     .home-hero h2 {
-      margin-top: 7px;
-      font-size: clamp(24px, 4vw, 36px);
-      line-height: 1.12;
-      letter-spacing: -1.2px;
-      font-weight: 800;
-      color: var(--text);
+      margin: 4px 0 0; color: var(--text); font-size: 23px;
+      line-height: 1.1; font-weight: 700; letter-spacing: -0.8px;
+      white-space: nowrap; cursor: default; user-select: none;
+      -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
     }
     .home-hero h2 strong { color: var(--accent); }
     .home-hero p {
-      margin-top: 9px;
-      color: var(--text-muted);
-      font-size: 12px;
-      line-height: 1.55;
+      display: block; margin-top: 5px; font-size: 11px;
+      line-height: 1.25; white-space: nowrap; color: var(--text-muted);
     }
     .home-hero-badge {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-      padding: 9px 11px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: color-mix(in srgb, var(--card-bg) 82%, transparent);
+      position: relative; z-index: 1; display: flex;
+      align-items: center; gap: 8px; flex-shrink: 0;
+      padding: 9px 11px; border: 1px solid var(--border);
+      border-radius: 10px; background: color-mix(in srgb, var(--card-bg) 82%, transparent);
       backdrop-filter: blur(8px);
     }
     .home-hero-badge b, .home-hero-badge small { display: block; }
-.home-hero-badge-link { cursor: pointer; transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
-.home-hero-badge-link:hover { transform: translateY(-1px); border-color: var(--accent); box-shadow: 0 6px 18px rgba(15,23,42,.12); }
-.home-hero-badge-link:active { transform: scale(.98); }
-.home-hero-badge-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
     .home-hero-badge b { font-size: 10px; color: var(--text); }
     .home-hero-badge small { margin-top: 2px; font-size: 9px; color: var(--text-muted); }
     .hero-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.12);
     }
-
     .home-section { margin-bottom: 20px; }
     .home-section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin: 0 2px 9px;
-      gap: 10px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin: 0 2px 9px; gap: 10px;
     }
     .home-section-head.compact { margin-bottom: 9px; }
-    .home-section-head h3 {
-      margin-top: 3px;
-      font-size: 15px;
-      line-height: 1.2;
-      color: var(--text);
-      letter-spacing: -.3px;
+    .home-section-head h3 { margin-top: 3px; font-size: 15px; line-height: 1.2; color: var(--text); letter-spacing: -.3px; }
+    .section-kicker {
+      color: var(--accent); font-size: 9px; font-weight: 900;
+      letter-spacing: .16em;
     }
-    .section-hint {
-      font-size: 10px;
-      color: var(--text-muted);
-      padding-bottom: 1px;
-    }
-
-    .primary-tools {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 9px;
-    }
+    .primary-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; }
     .tool-card {
-      position: relative;
-      min-width: 0;
-      min-height: 142px;
-      padding: 15px 14px;
-      border: 1px solid var(--border);
+      position: relative; min-width: 0; min-height: 142px;
+      padding: 15px 14px; border: 1px solid var(--border);
       border-radius: 14px;
       background: linear-gradient(145deg, var(--card-bg), var(--surface));
-      color: var(--text);
-      text-align: left;
-      cursor: pointer;
+      color: var(--text); text-align: left; cursor: pointer;
       box-shadow: 0 5px 18px rgba(15,23,42,.07);
       transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
     }
-    .tool-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--accent);
-      box-shadow: 0 9px 24px rgba(15,23,42,.12);
-    }
+    .tool-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 9px 24px rgba(15,23,42,.12); }
     .tool-card:active { transform: translateY(0) scale(.985); }
-    .tool-card-dark {
-      background: linear-gradient(145deg, #0f172a, #172554);
-      border-color: #334155;
-      color: #fff;
-    }
-    .tool-card-blue {
-      background: linear-gradient(145deg, #075985, #0e7490);
-      border-color: rgba(125,211,252,.35);
-      color: #fff;
-    }
+    .tool-card-dark { background: linear-gradient(145deg, #0f172a, #172554); border-color: #334155; color: #fff; }
+    .tool-card-blue { background: linear-gradient(145deg, #075985, #0e7490); border-color: rgba(125,211,252,.35); color: #fff; }
     .tool-card-dark .tool-card-desc, .tool-card-blue .tool-card-desc { color: rgba(255,255,255,.72); }
-    .tool-card-dark .tool-icon, .tool-card-blue .tool-icon {
-      color: #fff;
-      border-color: rgba(255,255,255,.22);
-      background: rgba(255,255,255,.09);
-    }
+    .tool-card-dark .tool-icon, .tool-card-blue .tool-icon { color: #fff; border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.09); }
     .tool-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      height: 24px;
-      min-width: 30px;
-      padding: 0 7px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface);
-      color: var(--accent);
+      display: inline-flex; align-items: center; justify-content: center;
+      height: 24px; min-width: 30px; padding: 0 7px;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: var(--surface); color: var(--accent);
       font: 800 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
       letter-spacing: .04em;
     }
-    .tool-card-title {
-      display: block;
-      margin-top: 22px;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: -.25px;
-    }
-    .tool-card-desc {
-      display: block;
-      margin-top: 5px;
-      color: var(--text-muted);
-      font-size: 10px;
-      line-height: 1.4;
-    }
-    .tool-card-arrow {
-      position: absolute;
-      right: 13px;
-      bottom: 12px;
-      font-size: 17px;
-      color: var(--accent);
-      font-weight: 400;
-    }
+    .tool-card-title { display: block; margin-top: 22px; font-size: 14px; font-weight: 800; letter-spacing: -.25px; }
+    .tool-card-desc { display: block; margin-top: 5px; color: var(--text-muted); font-size: 10px; line-height: 1.4; }
+    .tool-card-arrow { position: absolute; right: 13px; bottom: 12px; font-size: 17px; color: var(--accent); font-weight: 400; }
     .tool-card-dark .tool-card-arrow, .tool-card-blue .tool-card-arrow { color: #7dd3fc; }
-
-    .secondary-tools {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
+    .secondary-tools { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .secondary-card, .utility-card {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      min-width: 0;
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      background: var(--card-bg);
-      color: var(--text);
-      text-align: left;
-      cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; min-width: 0; border: 1px solid var(--border);
+      border-radius: 11px; background: var(--card-bg);
+      color: var(--text); text-align: left; cursor: pointer;
       transition: border-color .15s ease, background .15s ease, transform .15s ease;
     }
-    .secondary-card {
-      padding: 11px 12px;
-    }
-    .secondary-card:hover, .utility-card:hover {
-      border-color: var(--accent);
-      background: var(--surface);
-    }
+    .secondary-card { padding: 11px 12px; }
+    .secondary-card:hover, .utility-card:hover { border-color: var(--accent); background: var(--surface); }
     .secondary-card:active, .utility-card:active { transform: scale(.99); }
     .secondary-icon, .utility-mark {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 34px;
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      background: rgba(56,189,248,.10);
-      color: var(--accent);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 0 0 34px; width: 34px; height: 34px; border-radius: 9px;
+      background: rgba(56,189,248,.10); color: var(--accent);
       font: 900 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
       border: 1px solid rgba(56,189,248,.14);
     }
     .secondary-card > span:nth-child(2), .utility-card > span:nth-child(2) {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      flex: 1;
+      display: flex; flex-direction: column; min-width: 0; flex: 1;
     }
-    .secondary-card b, .utility-card b {
-      font-size: 11.5px;
-      line-height: 1.3;
-    }
-    .secondary-card small, .utility-card small {
-      margin-top: 2px;
-      color: var(--text-muted);
-      font-size: 9.5px;
-      line-height: 1.3;
-    }
-    .secondary-card em {
-      font-style: normal;
-      color: var(--text-muted);
-      font-size: 19px;
-      padding-left: 4px;
-    }
-
-    .home-bottom-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .utility-card {
-      padding: 9px 11px;
-    }
+    .secondary-card b, .utility-card b { font-size: 11.5px; line-height: 1.3; }
+    .secondary-card small, .utility-card small { margin-top: 2px; color: var(--text-muted); font-size: 9.5px; line-height: 1.3; }
+    .secondary-card em { font-style: normal; color: var(--text-muted); font-size: 19px; padding-left: 4px; }
+    .home-bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .utility-card { padding: 9px 11px; }
     .utility-mark { flex-basis: 30px; width: 30px; height: 30px; border-radius: 8px; }
-
     .home-dashboard .home-footer-note {
-      margin: 0;
-      padding: 13px 12px;
-      border-style: solid;
-      border-radius: 10px;
-      text-align: left;
-      font-size: 9.5px;
+      margin: 0; padding: 13px 12px; border-style: solid;
+      border-radius: 10px; text-align: left; font-size: 9.5px;
     }
-    .home-footer-note strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 9px;
-      letter-spacing: .13em;
-    }
+    .home-footer-note strong { display: block; margin-bottom: 4px; font-size: 9px; letter-spacing: .13em; }
     .home-footer-note p { margin: 2px 0; }
-
     @media (max-width: 760px) {
       .primary-tools { grid-template-columns: 1fr 1fr; }
-      .home-hero { min-height: 165px; padding: 22px 18px 19px; }
-      .home-hero h2 { font-size: 26px; }
+      .home-hero { padding: 12px 14px 11px; }
+      .home-hero h2 { font-size: 20px; }
+      .home-hero p { font-size: 10px; }
     }
     @media (max-width: 480px) {
       .home-dashboard { padding-top: 0; }
-      .home-hero {
-        display: block;
-        min-height: 158px;
-        padding: 19px 16px 17px;
-        border-radius: 15px;
-        margin-bottom: 17px;
-      }
-      .home-hero-copy {
-        width: 100%;
-        max-width: none;
-      }
-      .home-hero h2 {
-        font-size: 23px;
-        line-height: 1.12;
-        letter-spacing: -1px;
-        white-space: normal;
-      }
-      .home-hero p {
-        max-width: 56%;
-        margin-top: 8px;
-        font-size: 10.5px;
-        line-height: 1.5;
-      }
-      .home-hero-badge {
-        position: absolute;
-        right: 16px;
-        bottom: 16px;
-        max-width: 44%;
-        min-width: 0;
-        padding: 7px 8px;
-      }
+      .home-hero { display: block; padding: 11px 12px 10px; border-radius: 10px; margin-bottom: 14px; }
+      .home-hero h2 { font-size: 18px; line-height: 1.1; letter-spacing: -0.6px; white-space: nowrap; }
+      .home-hero p { font-size: 9.5px; white-space: nowrap; }
+      .home-hero-badge { position: absolute; right: 16px; bottom: 16px; max-width: 44%; min-width: 0; padding: 7px 8px; }
       .home-hero-badge > div { min-width: 0; }
-      .home-hero-badge b,
-      .home-hero-badge small {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
+      .home-hero-badge b, .home-hero-badge small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .home-hero-badge b { font-size: 9px; }
       .home-hero-badge small { font-size: 8px; }
       .primary-tools { gap: 7px; }
@@ -822,194 +808,30 @@
       .utility-card b { font-size: 10px; }
       .utility-card small { font-size: 8px; }
     }
-
 </style>
 
-<style id="v12-mobile-final-polish">
-/* Compact hero: 테마 변수 기반으로 변경 */
-.home-hero {
-  min-height: 0;
-  height: auto;
-  padding: 13px 18px;
-  margin-bottom: 16px;
-  align-items: center;
-  background: linear-gradient(135deg, var(--card-bg), var(--surface));
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(15,23,42,.06);
-}
-.home-hero::after { display: none; }
-.home-hero-copy {
-  width: 100%;
-  max-width: none;
-}
-.home-eyebrow { display: none; }
-.home-hero h2 {
-  margin: 0;
-  color: var(--text);
-  font-size: 15px;
-  line-height: 1.35;
-  font-weight: 700;
-  letter-spacing: -.25px;
-  white-space: nowrap;
-}
-.home-hero h2 strong { color: var(--accent); }
-.home-hero p { display: none; }
-
-/* Duracarb 카탈로그 바로가기 — 테마 대응 칩 */
+<style id="v12-consolidated">
+/* ===== 카탈로그 바로가기 버튼 ===== */
 .catalog-shortcut {
-  appearance: none;
-  -webkit-appearance: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 10px 6px 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
+  appearance: none; -webkit-appearance: none;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 10px 6px 8px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--surface);
   color: var(--text-muted);
   font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  letter-spacing: -0.01em;
-  cursor: pointer;
-  white-space: nowrap;
+  letter-spacing: -0.01em; cursor: pointer; white-space: nowrap;
   transition: color .15s ease, border-color .15s ease, background .15s ease, transform .1s ease;
 }
 .catalog-shortcut svg {
-  width: 13px;
-  height: 13px;
-  flex: 0 0 13px;
-  stroke: currentColor;
-  stroke-width: 2;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: .85;
+  width: 13px; height: 13px; flex: 0 0 13px;
+  stroke: currentColor; stroke-width: 2; fill: none;
+  stroke-linecap: round; stroke-linejoin: round; opacity: .85;
 }
-.catalog-shortcut:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--card-bg);
-}
+.catalog-shortcut:hover { color: var(--accent); border-color: var(--accent); background: var(--card-bg); }
 .catalog-shortcut:active { transform: scale(.97); }
-.catalog-shortcut:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
+.catalog-shortcut:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-@media (max-width: 480px) {
-  .catalog-shortcut {
-    padding: 5px 8px 5px 7px;
-    font-size: 10px;
-    gap: 4px;
-  }
-  .catalog-shortcut svg { width: 12px; height: 12px; flex-basis: 12px; }
-}
-/* Mobile: keep the hero text on one line and only as tall as needed */
-@media (max-width: 760px) {
-  .home-hero { min-height: 0; padding: 12px 14px; }
-  .home-hero h2 { font-size: 13px; }
-}
-@media (max-width: 480px) {
-  .home-hero {
-    display: block;
-    min-height: 0;
-    padding: 11px 12px;
-    margin-bottom: 14px;
-    border-radius: 10px;
-  }
-  .home-hero h2 {
-    font-size: 11.5px;
-    line-height: 1.3;
-    white-space: nowrap;
-  }
-}
-</style>
-
-
-<style id="catalog-button-final">
-.catalog-inline-link {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 8px !important;
-  width: fit-content !important;
-  min-width: 0 !important;
-  margin: 4px auto 0 !important;
-  padding: 7px 13px !important;
-  border: 1px solid rgba(2,132,199,.38) !important;
-  border-radius: 8px !important;
-  background: rgba(2,132,199,.08) !important;
-  color: var(--accent) !important;
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  letter-spacing: -.01em !important;
-  box-shadow: 0 2px 8px rgba(2,132,199,.08) !important;
-}
-.catalog-inline-link:hover,
-.catalog-inline-link:active {
-  background: rgba(2,132,199,.14) !important;
-  border-color: rgba(2,132,199,.58) !important;
-  color: var(--accent) !important;
-  transform: translateY(-1px);
-}
-.catalog-inline-dot {
-  width: 6px !important;
-  height: 6px !important;
-  flex: 0 0 6px !important;
-  border-radius: 50% !important;
-  background: var(--accent) !important;
-  opacity: 1 !important;
-}
-@media (max-width:480px) {
-  .catalog-inline-link {
-    font-size: 10.5px !important;
-    padding: 7px 11px !important;
-    margin-top: 3px !important;
-  }
-}
-</style>
-
-<style id="mobile10-hero-fix">
-    /* MOBILE10: 히어로는 정확히 3줄을 유지하고 높이만 컴팩트하게 */
-    .home-hero {
-      min-height: 0;
-      height: auto;
-      padding: 13px 18px 12px;
-      margin-bottom: 14px;
-      align-items: flex-start;
-      display: flex;
-    }
-    .home-hero-copy { width: 100%; max-width: none; }
-    .home-eyebrow {
-      display: block;
-      font-size: 9px;
-      line-height: 1.1;
-      letter-spacing: .16em;
-      margin: 0;
-    }
-    .home-hero h2 {
-      margin-top: 4px;
-      font-size: 23px;
-      line-height: 1.1;
-      letter-spacing: -0.8px;
-      white-space: nowrap;
-    }
-    .home-hero p {
-      display: block;
-      margin-top: 5px;
-      font-size: 11px;
-      line-height: 1.25;
-      white-space: nowrap;
-      color: var(--text-muted);
-    }
-    @media (max-width: 600px) {
-      .home-hero { padding: 11px 14px 10px; }
-      .home-eyebrow { font-size: 8px; }
-      .home-hero h2 { font-size: 20px; }
-      .home-hero p { font-size: 9.5px; }
-    }
-</style>
-<style id="v12-1-stability-polish">
+/* ===== 토스트 ===== */
 .app-toast {
   position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom));
   transform: translate(-50%, 14px); opacity: 0; pointer-events: none; z-index: 1000;
@@ -1021,6 +843,8 @@
 .app-toast.show { opacity: 1; transform: translate(-50%, 0); }
 .app-toast[data-type="success"] { border-color: rgba(34,197,94,.55); }
 .app-toast[data-type="error"] { border-color: rgba(239,68,68,.6); }
+
+/* ===== 데이터 백업 ===== */
 .data-backup-tools {
   margin: 0 0 12px; padding: 10px; border: 1px solid var(--border);
   border-radius: 10px; background: var(--card-bg);
@@ -1031,18 +855,17 @@
 .data-backup-head small { color:var(--text-muted); font-size:9px; }
 .data-backup-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
 .data-backup-actions .btn-sub { margin:0; padding:8px 6px; }
-@media(max-width:480px){
-  .data-backup-head { align-items:flex-start; flex-direction:column; gap:3px; }
-  .data-backup-actions { grid-template-columns:1fr 1fr 1fr; }
-  .data-backup-actions .btn-sub { font-size:10px; }
+
+@media (max-width: 760px) {
+  .catalog-shortcut { padding: 5px 8px 5px 7px; font-size: 10px; gap: 4px; }
+  .catalog-shortcut svg { width: 12px; height: 12px; flex-basis: 12px; }
 }
-</style><style id="data-tools-easter-egg">
-/* 데이터 관리 이스터에그 — 히어로 타이틀 클릭용 */
-.home-hero h2 {
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
+@media (max-width: 600px) {
+  .home-eyebrow { font-size: 8px; }
+}
+@media (max-width: 480px) {
+  .data-backup-head { align-items: flex-start; flex-direction: column; gap:3px; }
+  .data-backup-actions .btn-sub { font-size:10px; }
 }
 </style>
 </head>
@@ -1073,14 +896,13 @@
       <button class="catalog-shortcut" type="button"
         title="Duracarb 카탈로그 (PDF) 열기"
         onclick="window.open('duracarb-catalog-2026.pdf', '_blank')">
-  <svg viewBox="0 0 24 24" aria-hidden="true">
-    <!-- external-link 아이콘 -->
-    <path d="M15 3h6v6"/>
-    <path d="M10 14L21 3"/>
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-  </svg>
-  Duracarb 전체 카탈로그 바로가기
-</button>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 3h6v6"/>
+          <path d="M10 14L21 3"/>
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        </svg>
+        Duracarb 전체 카탈로그 바로가기
+      </button>
     </div>
 
     <div class="primary-tools">
@@ -1090,21 +912,18 @@
         <span class="tool-card-desc">G코드 경로 · C/T 시뮬레이션</span>
         <span class="tool-card-arrow">→</span>
       </button>
-
       <button class="tool-card tool-card-blue" onclick="openView('mct-path')">
         <span class="tool-icon">MCT</span>
         <span class="tool-card-title">MCT 밀링</span>
         <span class="tool-card-desc">3축 경로 · C/T 시뮬레이션</span>
         <span class="tool-card-arrow">→</span>
       </button>
-
       <button class="tool-card" onclick="openView('lathe-calc')">
         <span class="tool-icon">01</span>
         <span class="tool-card-title">선반 절삭조건</span>
         <span class="tool-card-desc">Vc · RPM · 이송 · 조도</span>
         <span class="tool-card-arrow">→</span>
       </button>
-
       <button class="tool-card" onclick="openView('mct-calc')">
         <span class="tool-icon">02</span>
         <span class="tool-card-title">밀링 절삭조건</span>
@@ -1393,7 +1212,7 @@
 <div class="menu-btn" onclick="openView('gcode-calc')">G / M 코드 일람<span>선반 · MCT · M코드 검색</span></div>
 <div class="menu-btn" onclick="openView('tapdrill')">드릴 · 탭 조건<span>탭드릴 · 드릴 · 탭 조건</span></div>
 <div class="menu-btn" onclick="openView('pitch')">나사 피치<span>G76 지령 참고</span></div>
-<div class="menu-btn" onclick="openView('arcr')">원호 R 계산<span>노즈R 보정 프로그램 R</span></div>
+<div class="menu-btn" onclick="openView('insert-diag')">인서트 손상 판별<span>외관 보고 손상 유형 찾기</span></div>
 <div class="menu-btn" onclick="openView('troubleshoot')">트러블슈팅 진단<span>증상별 원인 · 대책</span></div>
 </div>
 </div>
@@ -1789,34 +1608,50 @@
 </div>
 </div>
 
-<!-- 원호 R 계산 -->
-<div class="sub-view" id="view-arcr">
-<div class="card">
-<label>노즈 R (mm)</label>
-<div class="input-grid-2">
-<select id="arcrNoseR" onchange="onArcRNoseChange()">
-<option value="0.2">0.2</option>
-<option value="0.4">0.4</option>
-<option value="0.8" selected>0.8</option>
-<option value="1.2">1.2</option>
-</select>
-<input id="arcrNoseRCustom" oninput="calcArcR()" placeholder="직접 입력 (선택)" step="0.1" type="number"/>
-</div>
-<label>도면 R (mm)</label>
-<input id="arcrDrawingR" oninput="calcArcR()" placeholder="예: 3.0" step="0.1" type="number"/>
-<label>코너 종류</label>
-<div class="input-grid-2">
-<button class="tab-btn active" id="arcrOuterBtn" onclick="setArcRType('outer')">외경 코너</button>
-<button class="tab-btn" id="arcrInnerBtn" onclick="setArcRType('inner')">내경 코너</button>
-</div>
-<div class="screw-result-box">
-<div class="screw-result-label">PROGRAM R</div>
-<div class="screw-result-value" id="arcrValue">-</div>
-<div class="screw-result-sub" id="arcrSub">값을 입력하세요</div>
-</div>
-<div class="info-box-head"><span>계산 상세</span><button class="btn-copy" id="copyArcR" onclick="copyReport('arcrReport','copyArcR')">복사</button></div>
-<div class="info-box" id="arcrReport">노즈R과 도면 R을 입력하세요.</div>
-</div>
+<!-- 인서트 손상 판별 -->
+<div class="sub-view" id="view-insert-diag">
+  <div class="card">
+    <div class="insert-section-title">인서트 관찰법</div>
+    <div class="insert-obs-grid">
+      <div class="insert-obs-card">
+        <b>① 평면 (Rake)</b>
+        <p>인서트를 위에서 내려다봄<br>→ 크레이터, BUE, 코팅 박리</p>
+      </div>
+      <div class="insert-obs-card">
+        <b>② 측면 (Flank)</b>
+        <p>정면에서 봄<br>→ 플랭크 마모, 노치</p>
+      </div>
+      <div class="insert-obs-card">
+        <b>③ 코너 확대</b>
+        <p>인선 끝만 자세히<br>→ 치핑, 열크랙</p>
+      </div>
+    </div>
+    <div class="insert-tip">
+      <b>측광(비스듬히 조명) </b>휴대폰 카메라 확대로 찍어서 보는 것도 좋습니다. 
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="insert-section-title">판별 결정 트리</div>
+    <div id="insertTreeWrap"></div>
+  </div>
+
+  <div class="card">
+    <div class="insert-section-title">손상 11종 상세</div>
+    <div id="insertDamageList"></div>
+  </div>
+
+  <div class="card">
+    <div class="insert-section-title">헷갈리는 짝 구분법</div>
+    <div class="insert-compare-wrap">
+      <table class="insert-compare-table">
+        <thead>
+          <tr><th>헷갈리는 짝</th><th>이렇게 구분</th></tr>
+        </thead>
+        <tbody id="insertCompareRows"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <!-- 트러블슈팅 진단 -->
@@ -1890,7 +1725,6 @@
       <label>공구 입력 (개별 추가)</label>
       <button class="tool-reset-btn" onclick="resetToolList()" type="button">전체 초기화</button>
     </div>
-
     <div class="input-grid-2">
       <div>
         <label>공구 단가 (원)</label>
@@ -1901,7 +1735,6 @@
         <input id="toolCornerCount" min="1" max="16" oninput="updateToolInputPreview()" placeholder="예: 4" step="1" type="number"/>
       </div>
     </div>
-
     <div class="input-grid-2">
       <div>
         <label>공구 수명 (ea/코너)</label>
@@ -1912,7 +1745,6 @@
         <input id="toolInputPreview" placeholder="-" readonly type="text"/>
       </div>
     </div>
-
     <div style="margin-top:4px;">
       <label>선택사항 <span class="tool-optional-badge">OPTIONAL</span></label>
       <div class="input-grid-3">
@@ -1929,7 +1761,6 @@
         </div>
       </div>
     </div>
-
     <div class="btn-row" style="margin-top:8px;">
       <button class="btn-run" onclick="addToolFromInputs()" type="button" style="flex:1;">+ 공구 리스트에 추가</button>
     </div>
@@ -1942,7 +1773,6 @@
     <label>월 생산량 (ea)</label>
     <input id="toolMonthlyQty" min="0" oninput="onToolMonthlyQtyInput()" placeholder="C/T 입력 시 자동 산출" step="1" type="number"/>
     <div class="tool-monthly-hint" id="toolMonthlyHint">C/T를 입력하면 월 생산량이 자동 산출됩니다.</div>
-
     <div class="tool-section-title">월 생산량 역산 조건 (C/T 기반)</div>
     <div class="tool-reverse-grid" id="toolReverseWrap">
       <div>
@@ -2277,11 +2107,11 @@
       'mct-calc': '밀링 절삭조건 계산',
       'duracarb-2026': 'Duracarb 재종표',
       'ref-tools': '참고 자료',
+      'insert-diag': '인서트 손상 판별',
       'mat-calc': '재질별 추천 절삭조건',
       'gcode-calc': '표준 G / M 코드 일람',
       'tapdrill': '드릴 · 탭 조건',
       'pitch': '나사 피치',
-      'arcr': '원호 R 계산',
       'troubleshoot': '트러블슈팅 진단',
       'discount-calc': '견적 · 공구비 계산',
       'tool-cost': '견적 · 공구비 계산',
@@ -2292,11 +2122,11 @@
 
     const VIEW_PARENT = {
       'ref-tools': 'main',
+      'insert-diag': 'ref-tools',
       'mat-calc': 'ref-tools',
       'gcode-calc': 'ref-tools',
       'tapdrill': 'ref-tools',
       'pitch': 'ref-tools',
-      'arcr': 'ref-tools',
       'troubleshoot': 'ref-tools',
       'discount-calc': 'main',
       'tool-cost': 'main',
@@ -2711,11 +2541,7 @@ M30`;
       });
     }
 
-    /* =========================================================
-       FIX: DOMContentLoaded — 동적 select 옵션을 먼저 채운 뒤 상태 복원
-       ========================================================= */
     window.addEventListener('DOMContentLoaded', () => {
-      // 1) UI 및 정적 데이터 준비
       installDataTools();
       setupDragAndDrop('latheGcode', 'latheGcode');
       setupDragAndDrop('latheBox', 'latheGcode');
@@ -2726,7 +2552,6 @@ M30`;
       reflowDuraKind();
       setupBackGesture();
 
-      // 2) 저장된 폼에서 매트릭스 선택자를 미리 시드 (submat 옵션 생성 위함)
       let savedForms = null;
       try {
         const raw = localStorage.getItem(APP_STATE_KEY);
@@ -2740,24 +2565,19 @@ M30`;
 
       const drMatSel = document.getElementById('dr_mat');
       if (savedForms && savedForms.dr_mat && drMatSel) drMatSel.value = savedForms.dr_mat;
-      onDrillMatChange(); // dr_submat 옵션 생성
+      onDrillMatChange();
 
       const tcMatSel = document.getElementById('tc_mat');
       if (savedForms && savedForms.tc_mat && tcMatSel) tcMatSel.value = savedForms.tc_mat;
-      onTapMatChange(); // tc_submat 옵션 생성
+      onTapMatChange();
 
-      // 3) 나머지 동적 select 옵션 채우기
       updateTapDrillSizes();
       updateTapCondSizes();
       renderPitchTable();
-
-      // 4) 공구비 UI 초기 구조 준비 (기본 공정 없으면 추가)
       initToolCostUI();
-
-      // 5) 저장된 상태 복원
       loadAppState();
+      recalcMonthlyFromCT();
 
-      // 6) 복원값 기반 후속 렌더링 재적용
       filterMaterials();
       applyTableFilters();
       renderTroubleCards();
@@ -2766,7 +2586,6 @@ M30`;
       calcRoi();
       ['life', 'corner', 'ct'].forEach(f => updateRoiFieldUI(f));
 
-      // 7) 테마 (백업 테마가 있으면 그쪽 우선)
       let savedTheme = 'light';
       try { savedTheme = localStorage.getItem('cnc_theme') || 'light'; } catch (e) {}
       applyTheme(savedTheme);
@@ -2873,9 +2692,6 @@ M30`;
       document.getElementById('userDeliveryRows').innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">매입가와 가산율을 입력하면 계산표가 표시됩니다.</td></tr>';
     }
 
-    /* ================================================================
-       가동 조건 공유 (공구비 계산기 ↔ ROI)
-       ================================================================ */
     const LINE_COND_IDS = {
       'tool-cost': { lines: 'toolLines', hours: 'toolDailyHours', days: 'toolWorkDays', rate: 'toolWorkRate' },
       'roi': { lines: 'roi_lines', hours: 'roi_hours', days: 'roi_days', rate: 'roi_rate' }
@@ -2890,16 +2706,10 @@ M30`;
         const dstEl = document.getElementById(dstIds[k]);
         if (srcEl && dstEl) dstEl.value = srcEl.value;
       });
-      if (source === 'tool-cost') {
-        recalcMonthlyFromCT();
-      } else {
-        calcRoi();
-      }
+      recalcMonthlyFromCT();
+      if (typeof calcRoi === 'function') calcRoi();
     }
 
-    /* =========================================================
-       안정성 / 백업 / 입력 검증 공통 레이어
-       ========================================================= */
     function showToast(message, type = 'info', duration = 2600) {
       let toast = document.getElementById('appToast');
       if (!toast) {
@@ -2957,11 +2767,10 @@ M30`;
       });
     }
 
-    /* FIX: toolMonthlyManual도 백업 대상에 포함 */
     function buildBackupState() {
       return {
         app: 'Duracarb Workshop Tool',
-        version: '12.2',
+        version: '12.3',
         savedAt: new Date().toISOString(),
         theme: document.documentElement.getAttribute('data-theme') || 'light',
         forms: collectFormState(),
@@ -3010,26 +2819,25 @@ M30`;
             opCounter = Number.isFinite(state.opCounter) ? state.opCounter : 0;
             activeProcessId = state.activeProcessId || (processes[0] && processes[0].id);
           }
-if (typeof state.toolMonthlyManual === 'boolean') {
-  toolMonthlyManual = state.toolMonthlyManual;
-  const wrap = document.getElementById('toolReverseWrap');
-  const hint = document.getElementById('toolMonthlyHint');
-  if (wrap && hint) {
-    if (toolMonthlyManual) {
-      wrap.classList.add('locked');
-      hint.classList.add('manual');
-    } else {
-      wrap.classList.remove('locked');
-      hint.classList.remove('manual');
-    }
-  }
-}
+          if (typeof state.toolMonthlyManual === 'boolean') {
+            toolMonthlyManual = state.toolMonthlyManual;
+            const wrap = document.getElementById('toolReverseWrap');
+            const hint = document.getElementById('toolMonthlyHint');
+            if (wrap && hint) {
+              if (toolMonthlyManual) {
+                wrap.classList.add('locked');
+                hint.classList.add('manual');
+              } else {
+                wrap.classList.remove('locked');
+                hint.classList.remove('manual');
+              }
+            }
+          }
           if (state.theme) {
             applyTheme(state.theme);
             try { localStorage.setItem('cnc_theme', state.theme); } catch (e) {}
           }
           saveAppState();
-          // FIX: 복원 후 필터 재적용
           if (typeof initToolCostUI === 'function') initToolCostUI();
           if (typeof updateTapDrillResult === 'function') updateTapDrillResult();
           if (typeof updateTapDrillSizes === 'function') updateTapDrillSizes();
@@ -3062,45 +2870,41 @@ if (typeof state.toolMonthlyManual === 'boolean') {
       location.reload();
     }
 
-function installDataTools() {
-  if (document.getElementById('dataBackupTools')) return;
-  const home = document.getElementById('view-main');
-  const footer = home && home.querySelector('.home-footer-note');
-  if (!home || !footer) return;
-  const box = document.createElement('section');
-  box.id = 'dataBackupTools';
-  box.className = 'data-backup-tools';
-  box.style.display = 'none';  // 기본 숨김
-  box.innerHTML = `
-    <div class="data-backup-head"><div><span class="section-kicker">DATA</span><b>작업 데이터</b></div><small>브라우저 변경 전 백업 권장</small></div>
-    <div class="data-backup-actions">
-      <button type="button" class="btn-sub" onclick="exportAppBackup()">JSON 백업</button>
-      <button type="button" class="btn-sub" onclick="document.getElementById('appBackupInput').click()">JSON 복원</button>
-      <button type="button" class="btn-sub btn-clear" onclick="resetAppData()">전체 초기화</button>
-      <input id="appBackupInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreAppBackup(event)">
-    </div>`;
-  home.insertBefore(box, footer);
+    function installDataTools() {
+      if (document.getElementById('dataBackupTools')) return;
+      const home = document.getElementById('view-main');
+      const footer = home && home.querySelector('.home-footer-note');
+      if (!home || !footer) return;
+      const box = document.createElement('section');
+      box.id = 'dataBackupTools';
+      box.className = 'data-backup-tools';
+      box.style.display = 'none';
+      box.innerHTML = `
+        <div class="data-backup-head"><div><span class="section-kicker">DATA</span><b>작업 데이터</b></div><small>브라우저 변경 전 백업 권장</small></div>
+        <div class="data-backup-actions">
+          <button type="button" class="btn-sub" onclick="exportAppBackup()">JSON 백업</button>
+          <button type="button" class="btn-sub" onclick="document.getElementById('appBackupInput').click()">JSON 복원</button>
+          <button type="button" class="btn-sub btn-clear" onclick="resetAppData()">전체 초기화</button>
+          <input id="appBackupInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreAppBackup(event)">
+        </div>`;
+      home.insertBefore(box, footer);
 
-  // 히어로 타이틀 5회 탭 → 토글
-  const trigger = home.querySelector('.home-hero h2');
-  if (trigger) {
-    let tapCount = 0, tapTimer = null;
-    trigger.addEventListener('click', () => {
-      tapCount++;
-      clearTimeout(tapTimer);
-      tapTimer = setTimeout(() => { tapCount = 0; }, 800);
-      if (tapCount >= 5) {
-        tapCount = 0;
-        box.style.display = (box.style.display === 'none') ? 'block' : 'none';
-        showToast(box.style.display === 'none' ? '데이터 관리 숨김' : '데이터 관리 열림', 'info');
+      const trigger = home.querySelector('.home-hero h2');
+      if (trigger) {
+        let tapCount = 0, tapTimer = null;
+        trigger.addEventListener('click', () => {
+          tapCount++;
+          clearTimeout(tapTimer);
+          tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+          if (tapCount >= 5) {
+            tapCount = 0;
+            box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+            showToast(box.style.display === 'none' ? '데이터 관리 숨김' : '데이터 관리 열림', 'info');
+          }
+        });
       }
-    });
-  }
-}
+    }
 
-    /* ================================================================
-       localStorage 저장/복원
-       ================================================================ */
     const APP_STATE_KEY = 'cnc_app_state_v1';
     const debouncedSave = debounce(saveAppState, 500);
 
@@ -3114,7 +2918,6 @@ function installDataTools() {
       }
     }
 
-    /* FIX: applyTheme은 여기서 호출하지 않음 (중복 방지) — toolMonthlyManual도 복원 */
     function loadAppState() {
       try {
         const raw = localStorage.getItem(APP_STATE_KEY);
@@ -3129,8 +2932,30 @@ function installDataTools() {
         }
         if (typeof state.toolMonthlyManual === 'boolean') {
           toolMonthlyManual = state.toolMonthlyManual;
+          const wrap = document.getElementById('toolReverseWrap');
+          const hint = document.getElementById('toolMonthlyHint');
+          if (wrap && hint) {
+            if (toolMonthlyManual) {
+              wrap.classList.add('locked');
+              hint.classList.add('manual');
+              const qty = parseFloat(document.getElementById('toolMonthlyQty').value);
+              if (isFinite(qty) && qty > 0) {
+                const hours = parseFloat(document.getElementById('toolDailyHours').value) || 22;
+                const days = parseFloat(document.getElementById('toolWorkDays').value) || 22;
+                const rate = parseFloat(document.getElementById('toolWorkRate').value) || 90;
+                const lines = Math.max(1, parseFloat(document.getElementById('toolLines').value) || 1);
+                const totalSec = days * hours * 3600 * (rate / 100) * lines;
+                const reqCT = totalSec / qty;
+                hint.textContent = '수동 입력 · 목표 ' + Math.round(qty).toLocaleString('ko-KR') +
+                  'ea 달성에 필요한 C/T ≈ ' + reqCT.toFixed(2) + '초 (' +
+                  days + '일 × ' + hours + 'h × ' + rate + '% × ' + lines + '라인 기준)';
+              }
+            } else {
+              wrap.classList.remove('locked');
+              hint.classList.remove('manual');
+            }
+          }
         }
-        // 테마는 여기서 복원하지 않음 — DOMContentLoaded의 localStorage 기반 적용만 사용
         return state;
       } catch (e) {
         console.warn('[State load failed]', e);
@@ -3139,9 +2964,6 @@ function installDataTools() {
       }
     }
 
-    /* ================================================================
-       절감액 계산기 (ROI)
-       ================================================================ */
     const roiAutoState = { life: true, corner: true, ct: true };
 
     function updateRoiFieldUI(field) {
@@ -3286,9 +3108,6 @@ function installDataTools() {
       reportEl.innerText = report;
     }
 
-    /* ================================================================
-       공구비 계산기
-       ================================================================ */
     let toolMonthlyManual = false;
 
     const SHAPE_CONFIG = {
@@ -3321,7 +3140,6 @@ function installDataTools() {
       RNGA: { corners: 2, specs: ['120400','160600'] },
       KNUX: { corners: 2, specs: ['160405','160410','160420'] },
       KNMX: { corners: 2, specs: ['160408','160412'] },
-
       CCMT: { corners: 2, specs: ['060204','060208','060212','09T304','09T308','120404','120408','120412'] },
       CCMW: { corners: 2, specs: ['060204','09T304','120404','120408'] },
       CCGT: { corners: 2, specs: ['060202','060204','09T302','09T304','120402','120404'] },
@@ -3931,6 +3749,329 @@ function installDataTools() {
     }
 
     /* ================================================================
+       인서트 손상 판별 — 비스듬한 측면뷰 (인선=전면좌측, 중앙홀 노출)
+       ================================================================ */
+ const INSERT_DAMAGES = [
+  /* 1. 크레이터 - 엣지 안쪽 4.5mm, 엣지와 평행 */
+  {
+    id:'crater', name:'크레이터 마모', sub:'CRATER WEAR', cat:'wear',
+    desc:'경사면(레이크면)에 오목하게 파이는 마모. 절삭열에 의한 확산 반응.',
+    key:'코너 뒤쪽 경사면이 움푹 파임',
+    look:[
+      '위치: 코너 인선 바로 안쪽, 경사면(윗면)',
+      '모양: 숟가락으로 퍼낸 듯 오목하게 움푹',
+      '초기: 인선 윤곽이 흐려짐',
+      '진행: 검은 산화물 덩어리가 인선 뒤쪽에 붙음'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <ellipse cx="59" cy="64" rx="8" ry="4" transform="rotate(-41 59 64)" class="svg-damage-area"/>
+    </svg>`
+  },
+  /* 2. 플랭크 - 엣지 t=0~0.75 전체 띠, 폭 2.5 */
+  {
+    id:'flank', name:'플랭크 마모', sub:'FLANK WEAR', cat:'wear',
+    desc:'여유면이 균일하게 닳아나는 정상 마모. ISO 3685 VB=0.3mm 도달 시 교체.',
+    key:'코너에서 오른쪽 여유면에 띠가 인선을 따라 생김',
+    look:[
+      '위치: 코너 S-E 여유면 전체',
+      '모양: 인선을 따라 평평한 띠 (VB)',
+      '초기: 코너 쪽 반짝이는 얇은 라인',
+      '진행: 띠 폭이 넓어짐'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <path d="M 50,78 L 76.3,55.5 L 77.9,57.4 L 51.6,79.9 Z" class="svg-damage-area"/>
+    </svg>`
+  },
+  /* 3. 노치 - 엣지 위 t=0.5 지점 V자 */
+  {
+    id:'notch', name:'노치 마모', sub:'NOTCH WEAR', cat:'wear',
+    desc:'절입 깊이(DOC) 라인에 국부적으로 파이는 V자 마모. 경화층·산화 스케일 원인.',
+    key:'코너에서 DOC 거리 지점 인선에만 V자 홈이 파임',
+    look:[
+      '위치: 코너에서 일정 거리 떨어진 인선',
+      '모양: V자 홈이 여유면으로 파고듦',
+      '플랭크와 달리 국부적 (한 지점만)',
+      '피삭재 표피 경화층(단조/주조)에서 흔함'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <path d="M 64,66 L 66.5,71.5 L 69.3,61.5" stroke="#ef4444" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>`
+  },
+  /* 4. 미세 치핑 - 엣지 위 t=0.1, 0.2, 0.3 */
+  {
+    id:'microchip', name:'미세 치핑', sub:'MICRO-CHIPPING', cat:'chip',
+    desc:'코너 인선에 작은 결손이 여러 개 생기는 현상. 초기엔 확대경 필요.',
+    key:'코너 오른쪽 인선에 이빨 빠진 자국이 있음',
+    look:[
+      '위치: 코너 S-E 인선',
+      '모양: 이빨 빠진 것처럼 작은 결손 여러 개',
+      '초기: 손끝으로 쓸면 걸림 (확대경 필요)',
+      '진행: 육안으로도 보임'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <polygon points="53.5,75.5 54.5,74.5 55.5,75.8" class="svg-damage"/>
+      <polygon points="57,72.5 58,71.5 59,72.8" class="svg-damage"/>
+      <polygon points="60.5,69.5 61.5,68.5 62.5,69.8" class="svg-damage"/>
+    </svg>`
+  },
+  /* 5. 대형 치핑 - 코너 통째 오른쪽 편향 */
+  {
+    id:'macrochip', name:'대형 치핑 / 파손', sub:'MACRO-CHIPPING', cat:'chip',
+    desc:'코너 일부가 큰 조각으로 떨어져 나감. 즉시 교체 필요.',
+    key:'코너가 통째로 사라져 있음',
+    look:[
+      '위치: 절삭 코너 자체 (S)',
+      '모양: 큰 조각이 툭 떨어져 나감',
+      '육안으로 즉시 식별 가능',
+      '단속·절입 충격 또는 인성 부족이 원인'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <path d="M 58,68.5 L 50,72 L 50,78 L 62,72 Z" class="svg-damage"/>
+    </svg>`
+  },
+  /* 6. 열크랙 - 엣지 위 t=0.11, 0.21, 0.29 수직선 */
+  {
+    id:'thermal', name:'열크랙', sub:'THERMAL CRACK', cat:'chip',
+    desc:'인선에 수직 방향으로 빗살무늬 크랙. 단속가공 열피로.',
+    key:'코너 오른쪽 인선에 수직으로 뻗는 평행한 금',
+    look:[
+      '위치: 코너 S-E 인선에 수직 방향',
+      '모양: 빗살(comb) 무늬 — 평행한 크랙 여러 개',
+      '초기: 코너 근처만',
+      '진행: 인선에 수직으로 파고들어 파손'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <line x1="53.8" y1="74.7" x2="50.5" y2="70.9" class="svg-damage" stroke-width="1.3"/>
+      <line x1="56.8" y1="72.1" x2="53.5" y2="68.3" class="svg-damage" stroke-width="1.3"/>
+      <line x1="59.9" y1="69.5" x2="56.6" y2="65.7" class="svg-damage" stroke-width="1.3"/>
+    </svg>`
+  },
+  /* 7. 코팅 박리 - 엣지 안쪽 얇은 띠 (t=0.15~0.45) */
+  {
+    id:'flaking', name:'코팅 박리', sub:'FLAKING', cat:'chip',
+    desc:'코팅이 기재에서 국부적으로 떨어져 나감. 인선 색이 변함.',
+    key:'코팅이 사라지고 기재(은색)가 노출',
+    look:[
+      '위치: 코너 인선에 붙은 레이크면',
+      '모양: 불규칙하게 얇게 옆으로 벗겨짐',
+      '기재(은색)가 대비되어 확실히 보임',
+      '밀착력 부족 또는 BUE 응력이 원인'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <path d="M 55.3,73.5 Q 61,68 65.8,64.5 L 63.8,62.2 Q 59,66 53.3,71.2 Z" class="svg-damage-area"/>
+    </svg>`
+  },
+  /* 8. BUE - 코너 위 엣지 방향 타원 */
+  {
+    id:'bue', name:'BUE (구성인선)', sub:'BUILT-UP EDGE', cat:'surface',
+    desc:'피삭재가 인선에 눌어붙어 있는 상태. 저속·점성 재질에서 자주 발생.',
+    key:'피삭재 색 덩어리가 코너 인선에 붙어 있음',
+    look:[
+      '위치: 절삭 코너(S) 인선',
+      '모양: 피삭재 색(스테인리스=흰색, 알루미늄=은색) 융기',
+      '손톱으로 살짝 긁으면 떨어짐 (코팅이 아님)',
+      'Vc 낮을 때, 점성 재질에서 잘 생김'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <ellipse cx="54" cy="75" rx="6" ry="3" transform="rotate(-41 54 75)" class="svg-secondary"/>
+      <text x="54" y="76.5" text-anchor="middle" font-size="4" class="svg-text-label">BUE</text>
+    </svg>`
+  },
+  /* 9. 소성 변형 - 코너 오른쪽 편향 (엣지 방향) */
+  {
+    id:'plastic', name:'소성 변형', sub:'PLASTIC DEFORMATION', cat:'wear',
+    desc:'인선이 고온·고압으로 변형되어 흐물흐물해지는 현상.',
+    key:'코너가 오른쪽으로 눌리거나 뭉개짐',
+    look:[
+      '위치: 절삭 코너 (S)',
+      '모양: 코너가 눌리거나 오른쪽으로 휘어짐',
+      '원래 각도와 비교하면 명확',
+      '"고온에서 성형된" 느낌'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <ellipse cx="55" cy="76" rx="7" ry="5" transform="rotate(-41 55 76)" class="svg-damage-area"/>
+    </svg>`
+  },
+  /* 10. 마이크로 BD - 엣지 위 점 (t=0.1, 0.2, 0.3) */
+  {
+    id:'microbd', name:'마이크로 브레이크다운', sub:'MICRO BREAKDOWN', cat:'chip',
+    desc:'코팅만 국부적으로 미세 파괴되어 기재가 노출. 초기엔 조도만 나빠짐.',
+    key:'코너 인선에 코팅이 점처럼 깨짐',
+    look:[
+      '위치: 코너 S-E 인선',
+      '모양: 코팅이 깨져서 기재가 점처럼 노출',
+      '코팅 박리보다 국부적·미세함',
+      '초기엔 조도만 나빠지고 인선은 멀쩡해 보임'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <circle cx="53.5" cy="75" r="1.4" class="svg-damage"/>
+      <circle cx="57" cy="72" r="1.3" class="svg-damage"/>
+      <circle cx="60.5" cy="69" r="1.3" class="svg-damage"/>
+    </svg>`
+  },
+  /* 11. 스폴링 - 엣지 안쪽 조개껍질 파임 (크레이터보다 안쪽) */
+  {
+    id:'spalling', name:'스폴링', sub:'SPALLING', cat:'chip',
+    desc:'인선 표층이 조개껍질처럼 얇게 박리. 열충격과 압축피로 결합.',
+    key:'인선 표층이 조개껍질처럼 곡면으로 벗겨져 나감',
+    look:[
+      '위치: 코너 인선 바로 안쪽 (레이크면)',
+      '모양: 조개껍질을 파낸 듯 곡면으로 움푹',
+      '코팅 박리보다는 좁고, 파임은 더 깊음',
+      '두꺼운 CVD 코팅 + 단속가공에서 흔함'
+    ],
+    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+      <path d="M 52,74 Q 58,68 62,61 Q 63,57 58,58 Q 54,61 52,66 Q 50,70 50,74 Q 51,75 52,74 Z" class="svg-damage-area"/>
+    </svg>`
+  }
+];
+
+    const INSERT_TREE = [
+      { q:'코팅이 벗겨져 기재(은색)가 보이나?',
+        yes:'코팅 박리 또는 마이크로 브레이크다운',
+        no:'다음 질문으로' },
+      { q:'피삭재 색 금속이 인선에 붙어 있나? (손톱으로 긁어보기)',
+        yes:'BUE (구성인선)',
+        no:'다음 질문으로' },
+      { q:'큰 조각이 툭 떨어져 나갔나?',
+        yes:'대형 치핑 / 파손',
+        no:'다음 질문으로' },
+      { q:'인선에 작은 이빨 빠진 자국이 여러 개 있나?',
+        yes:'미세 치핑',
+        no:'다음 질문으로' },
+      { q:'인선에 수직인 빗살무늬 크랙이 있나?',
+        yes:'열크랙 (Thermal Crack)',
+        no:'다음 질문으로' },
+      { q:'인선이 굽거나 옆으로 뭉개졌나?',
+        yes:'소성 변형',
+        no:'다음 질문으로' },
+      { q:'경사면(윗면)이 오목하게 파였나?',
+        yes:'크레이터 마모',
+        no:'다음 질문으로' },
+      { q:'여유면(측면)에 평평한 마모 띠가 있나?',
+        yes:'플랭크 마모',
+        no:'노치 마모 또는 정상' }
+    ];
+
+    const INSERT_COMPARE = [
+      { a:'크레이터 마모', b:'소성 변형',
+        diff:'크레이터는 <b class="pick">경사면(뒤쪽)</b>이 파임, 소성 변형은 <b class="pick">인선 자체</b>가 굽음' },
+      { a:'미세 치핑', b:'노치 마모',
+        diff:'치핑은 인선 <b class="pick">전체에 흩어짐</b>, 노치는 <b class="pick">DOC 위치 한 지점</b>만' },
+      { a:'플랭크 마모', b:'노치 마모',
+        diff:'플랭크는 <b class="pick">균일한 폭</b>으로 전체가 닳음, 노치는 <b class="pick">V자로 파임</b>' },
+      { a:'코팅 박리', b:'BUE',
+        diff:'박리는 <b class="pick">인서트 자체 색이 변함</b>, BUE는 <b class="pick">다른 재질이 붙음</b>' },
+      { a:'코팅 박리', b:'마이크로 브레이크다운',
+        diff:'박리는 <b class="pick">면적이 넓음</b>, 브레이크다운은 <b class="pick">점처럼 국부적</b>' },
+      { a:'열크랙', b:'스폴링',
+        diff:'열크랙은 <b class="pick">선(線) 형태</b>, 스폴링은 <b class="pick">면(面)이 얇게 벗겨짐</b>' }
+    ];
+
+    function renderInsertDiagnosis() {
+      const treeWrap = document.getElementById('insertTreeWrap');
+      if (treeWrap && treeWrap.innerHTML.trim() === '') {
+        treeWrap.innerHTML = INSERT_TREE.map((item, i) =>
+          '<details class="insert-tree-item">' +
+            '<summary>' + (i + 1) + '. ' + item.q + '</summary>' +
+            '<div class="insert-tree-body">' +
+              '<div class="row"><span class="tag yes">YES</span><span>→ <b>' + item.yes + '</b></span></div>' +
+              '<div class="row"><span class="tag no">NO</span><span>' + item.no + '</span></div>' +
+            '</div>' +
+          '</details>'
+        ).join('');
+      }
+
+      const list = document.getElementById('insertDamageList');
+      if (list && list.innerHTML.trim() === '') {
+        list.innerHTML = INSERT_DAMAGES.map(d =>
+          '<div class="insert-damage-card cat-' + d.cat + '" data-id="' + d.id + '">' +
+            '<div class="insert-damage-head">' +
+              d.svg +
+              '<div class="insert-damage-info">' +
+                '<div class="insert-damage-name">' + d.name + '</div>' +
+                '<div class="insert-damage-sub">' + d.sub + '</div>' +
+                '<div class="insert-damage-desc">' + d.desc + '</div>' +
+                '<div class="insert-damage-key">' + d.key + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="insert-damage-body" style="display:none;">' +
+              '<h4>진단 포인트</h4>' +
+              '<ul>' + d.look.map(x => '<li>' + x + '</li>').join('') + '</ul>' +
+            '</div>' +
+            '<div class="insert-damage-toggle" onclick="toggleInsertDamage(this)">자세히 보기 ▾</div>' +
+          '</div>'
+        ).join('');
+      }
+
+      const cmp = document.getElementById('insertCompareRows');
+      if (cmp && cmp.innerHTML.trim() === '') {
+        cmp.innerHTML = INSERT_COMPARE.map(x =>
+          '<tr>' +
+            '<td class="pair">' + x.a + ' <span style="color:var(--text-muted)">vs</span> ' + x.b + '</td>' +
+            '<td>' + x.diff + '</td>' +
+          '</tr>'
+        ).join('');
+      }
+    }
+
+    function toggleInsertDamage(el) {
+      const card = el.parentElement;
+      const body = card.querySelector('.insert-damage-body');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        el.textContent = '접기 ▴';
+      } else {
+        body.style.display = 'none';
+        el.textContent = '자세히 보기 ▾';
+      }
+    }
+
+    /* ================================================================
        트러블슈팅 진단
        ================================================================ */
     const TROUBLE_CAT_LABEL = {
@@ -3939,186 +4080,151 @@ function installDataTools() {
     };
 
     const TROUBLESHOOT_DATA = [
-  { cat:'wear', name:'크레이터 마모',
-    desc:'경사면(레이크면)에 오목하게 파이는 마모. 절삭열에 의한 확산 반응.',
-    causes:[{t:'절삭속도 과다',w:3},{t:'코팅 열화 (Al2O3 부족)',w:2},{t:'냉각 부족',w:2},{t:'경사각 과소',w:1}],
-    fix:['Vc 10~20% 감소','이송(f) 감소','CVD 다층코팅 (Al2O3 함유) 사용','경사각(Rake) 큰 브레이커로 변경','내부 쿨런트 또는 고압냉각 적용','코팅 재종 변경 검토'] },
-
-  { cat:'wear', name:'플랭크 마모',
-    desc:'여유면(플랭크)의 정상적 마모. ISO 3685:1993 기준: 정상 마모 VB=0.3mm(평균), 불규칙 마모 VBmax=0.6mm 도달 시 교체.',
-    causes:[{t:'정상 마모 (공구 수명 도달)',w:3},{t:'절삭속도 과다',w:2},{t:'피삭재 경도 높음',w:2},{t:'내마모성 코팅 부족',w:1}],
-    fix:['Vc 감소','내마모성 우수 재종 (TiAlN, AlTiN) 선택','습식 절삭(Wet) 전환','여유각(Relief angle) 증가','수명 기준 재설정 (ISO 3685)'] },
-
-  { cat:'wear', name:'노치 마모',
-    desc:'절입 깊이(DOC) 위치에 국부적으로 생기는 V자 마모.',
-    causes:[{t:'피삭재 표피 경화층 (단조/주조)',w:3},{t:'절입 깊이 부적합',w:2},{t:'냉각 부족',w:1}],
-    fix:['절입 깊이 변경 (경화층 회피)','Vc 저감 + 인선 강화 재종','쿨런트 직접 분사','1회 절입으로 경화층 통과'] },
-
-  { cat:'wear', name:'소성 변형 (Plastic Deformation)',
-    desc:'인선이 고온·고압으로 변형되어 흐물흐물해지는 현상.',
-    causes:[{t:'절삭속도 과다 (고온)',w:3},{t:'내열성 낮은 재종',w:2},{t:'냉각 부족',w:2}],
-    fix:['Vc 대폭 감소','내열성 재종 (CVD 다층, Al2O3)','고압 쿨런트 적용','인선 강화 타입'] },
-
-  { cat:'wear', name:'급성 마모 / 브레이크다운',
-    desc:'정상 수명 전에 인선이 갑자기 대파괴. 몇 초 안에 발생.',
-    causes:[{t:'절삭속도 과다 (국부 고온)',w:3},{t:'피삭재 내부 결함 (슬래그, 기공)',w:3},{t:'냉각 중단',w:2},{t:'공구 장착 불량',w:2}],
-    fix:['Vc 즉시 20~30% 감소','피삭재 검사 (초음파·육안)','냉각 라인 점검','클램핑·홀더 재장착'] },
-
-  { cat:'wear', name:'마이크로 브레이크다운',
-    desc:'코팅만 국부 미세 파괴, 기재 노출. 초기엔 조도만 나빠짐.',
-    causes:[{t:'코팅 밀착력 부족',w:2},{t:'국부 응력 집중 (경화층)',w:2},{t:'미세 진동',w:2}],
-    fix:['PVD 밀착 강화 코팅으로 변경','경화층 회피 절입','강성 보강, 미세 진동 제거'] },
-
-  { cat:'chip', name:'미세 치핑 (Micro-chipping)',
-    desc:'인선에 작은 결손이 연속 발생. 초기엔 육안 식별 어려움.',
-    causes:[{t:'인성 부족 재종',w:3},{t:'절입 과다',w:2},{t:'피삭재 경화층',w:2},{t:'채터 진동',w:2}],
-    fix:['인성계 재종 (PVD) 전환','절입 깊이 감소','코너 호닝(Honing) 증가','홀더 강성 확보'] },
-
-  { cat:'chip', name:'대형 치핑 / 파손',
-    desc:'인선 일부가 크게 떨어져 나감. 즉시 교체 필요.',
-    causes:[{t:'충격 (단속·절입) 과다',w:3},{t:'인성 매우 부족',w:3},{t:'채터 진동',w:2},{t:'공구 홀더 강성 부족',w:1}],
-    fix:['인성 재종 + 노즈R 크게','절입/이송 감소','Lead angle 증가 (절삭력 분산)','강성 높은 홀더 사용, 오버행 최소화','단속 전용 재종 검토'] },
-
-  { cat:'chip', name:'열크랙 (Thermal Crack)',
-    desc:'인선에 수직으로 빗살무늬 크랙. 단속가공 열피로.',
-    causes:[{t:'단속가공 + 급격한 온도변화',w:3},{t:'냉각 ON/OFF 반복',w:2},{t:'CVD 두꺼운 코팅',w:2}],
-    fix:['PVD 코팅으로 전환 (얇은 코팅)','냉각 지속 또는 완전 건식','단속 전용 인성 재종'] },
-
-  { cat:'chip', name:'코팅 박리 (Flaking)',
-    desc:'코팅이 기재에서 떨어져 나가는 현상.',
-    causes:[{t:'기재-코팅 밀착력 부족',w:2},{t:'절삭속도/이송 부적합',w:2},{t:'BUE로 인한 인선 응력',w:2}],
-    fix:['다른 코팅 재종 시도','Vc 상향 (BUE 억제)','쿨런트 강화'] },
-
-  { cat:'chip', name:'스폴링 (Spalling)',
-    desc:'인선 표층이 조개껍질처럼 박리. 열충격과 압축피로 결합.',
-    causes:[{t:'단속가공 + 급격한 온도변화',w:3},{t:'두꺼운 CVD 코팅',w:2},{t:'과도한 절입 충격',w:2}],
-    fix:['PVD 코팅으로 전환','절입 경사각 조정 (충격 완화)','냉각 지속 또는 완전 건식'] },
-
-  { cat:'chip', name:'밀링 인선 파손 (엔드밀)',
-    desc:'엔드밀 코너 또는 날 끝이 결손.',
-    causes:[{t:'슬롯(풀) 절삭',w:3},{t:'오버행 과다',w:2},{t:'Fz 과다',w:2}],
-    fix:['풀슬롯 → 트로코이달 또는 램핑','오버행 최소화','Fz 감소, ae/ap 재검토'] },
-
-  { cat:'surface', name:'Ra 불량 (거칠기 초과)',
-    desc:'이론 조도보다 실제 조도가 나쁨. 가장 흔한 클레임.',
-    causes:[{t:'이송 과다',w:3},{t:'노즈R 과소',w:2},{t:'BUE 발생',w:2},{t:'채터 진동',w:2},{t:'노즈R 마모',w:1}],
-    fix:['이송 f 감소 (Rz ∝ f²/R)','노즈R 큰 인서트 (0.4 → 0.8)','와이퍼 인서트 검토','Vc 상향으로 BUE 억제'] },
-
-  { cat:'surface', name:'채터마크 (Chatter Mark)',
-    desc:'주기적인 물결무늬. 진동의 흔적.',
-    causes:[{t:'공구 오버행 과다',w:3},{t:'주축/홀더 강성 부족',w:2},{t:'공진 (Natural freq) 일치',w:2}],
-    fix:['오버행 최소화 (직경 × 4 이내)','Vc 또는 RPM ±10% 변경','절입/이송 재검토','댐핑 홀더 사용'] },
-
-  { cat:'surface', name:'BUE (눌어붙음 / 구성인선)',
-    desc:'피삭재가 인선에 눌어붙어 가공면을 긁음. 저속·점성 재질에서 자주 발생.',
-    causes:[{t:'저속 절삭 (Vc 낮음)',w:3},{t:'이송 과소 (칩 두께 얇음)',w:2},{t:'점성 재질 (STS, Al)',w:2},{t:'냉각 부족',w:2},{t:'네거티브 경사각',w:1}],
-    fix:['Vc 상향 (BUE 회피 영역)','이송(f) 상향 (칩 두께 확보)','쿨런트 강화 또는 오일 미스트','PVD 코팅 (TiAlN, AlCrN) 적용','포지티브 경사각·큰 여유각으로 전환'] },
-
-  { cat:'surface', name:'스크래치 / 찍힘',
-    desc:'가공면에 선명한 긁힘. 칩 또는 인서트 조각에 의한 2차 손상.',
-    causes:[{t:'칩 배출 불량 (칩 끼임)',w:3},{t:'인서트 결손 파편',w:2},{t:'가이드/척 접촉',w:1}],
-    fix:['칩 브레이커 변경','쿨런트 방향 조정','인서트 결손 즉시 교체','펙 가공으로 칩 배출'] },
-
-  { cat:'surface', name:'버 (Burr) 과다',
-    desc:'가공 끝단에 버가 크게 남음.',
-    causes:[{t:'인선 예리도 부족 (노즈R 크거나 마모)',w:2},{t:'이송 과소',w:2},{t:'포지티브 경사각 부족',w:1}],
-    fix:['날카로운 포지티브 인서트','이송 상향','가공 끝단 chamfer / 2차 패스'] },
-
-  { cat:'surface', name:'가공경화 (Work Hardening)',
-    desc:'STS·Ti 가공 시 표면이 더 단단해져 다음 패스에서 인선 파손.',
-    causes:[{t:'이송 과소 (문지름)',w:3},{t:'Vc 과소',w:2},{t:'동일 깊이 반복 절입',w:2}],
-    fix:['이송 상향 (최소 침투 유지)','Vc 상향','절입 깊이를 경화층 이하로','1회 절입으로 경화층 통과'] },
-
-  { cat:'surface', name:'뜯김 (Tearing)',
-    desc:'점성 재질에서 표면이 뜯겨나감. BUE보다 심한 형태.',
-    causes:[{t:'저속 절삭',w:3},{t:'예리도 낮은 인서트',w:2},{t:'냉각 부족',w:2},{t:'포지티브 경사각 부족',w:1}],
-    fix:['Vc 상향','포지티브·날카로운 인서트','쿨런트 강화 (오일 미스트)','코팅 변경 (AlCrN)'] },
-
-  { cat:'surface', name:'나선 자국 (Spiral Mark)',
-    desc:'가공면에 일정 피치의 나선 모양 자국.',
-    causes:[{t:'이송 / RPM 조합 문제',w:3},{t:'노즈R 부적합',w:2},{t:'진동 (미세)',w:2}],
-    fix:['이송 미세 조정','노즈R 변경 (0.4 ↔ 0.8)','RPM 미세 조정','바이트 중심 높이 재확인'] },
-
-  { cat:'surface', name:'밀링 이송자국 (Feed Mark)',
-    desc:'가공면에 일정 간격의 이송 자국이 남음.',
-    causes:[{t:'Fz 과다',w:3},{t:'인선 마모',w:2},{t:'날 수 부족',w:1}],
-    fix:['Fz 감소','날 수 많은 커터로 변경','인서트 교체'] },
-
-  { cat:'vib', name:'채터 진동 (저주파)',
-    desc:'저주파 진동. 공작물 표면에 파형 자국. 시스템 강성·공진이 주원인.',
-    causes:[{t:'시스템 강성 부족',w:3},{t:'공진 주파수 일치',w:3},{t:'이송 과소 (문지름)',w:2},{t:'절입 과다',w:2},{t:'홀더 오버행 과다',w:2}],
-    fix:['이송 f 상향: 0.06 → 0.08~0.12 mm/rev','Vc 하향: 100~150 m/min','RPM ±10% 변경 (공진 회피)','절입 감소','오버행 최소화, 댐핑 홀더 사용','스테디레스트 추가 (장축 공작물)'] },
-
-  { cat:'vib', name:'고주파 소음',
-    desc:'"끼이익" 소리. 인선 국부 진동 또는 마찰.',
-    causes:[{t:'인선 마모',w:2},{t:'BUE 발생',w:2},{t:'Vc 부적합',w:2}],
-    fix:['인서트 교체','Vc 조정 (±20%)','쿨런트 강화'] },
-
-  { cat:'vib', name:'스핀들 부하 과다',
-    desc:'부하계 이상 상승. 알람 / 정지 발생.',
-    causes:[{t:'절입·이송 과다',w:3},{t:'인선 마모',w:2},{t:'공작물 경도 높음',w:2}],
-    fix:['ap · f 감소','인서트 교체','프로그램 분할 가공','쿨런트 강화로 절삭저항 저감'] },
-
-  { cat:'vib', name:'세레이션 진동',
-    desc:'톱니 모양 진동 패턴. 절입 주기와 공진이 맞물려 발생.',
-    causes:[{t:'절입 주기 = 공진 주파수',w:3},{t:'시스템 강성 부족',w:2},{t:'회전수 부적합',w:2}],
-    fix:['RPM 5~15% 변경','절입 주기 변경 (날 수, 이송)','댐핑 홀더, 스테디 사용'] },
-
-  { cat:'chipEvac', name:'칩 엉킴 (Bird nest)',
-    desc:'칩이 실처럼 길게 엉켜 공작물·공구 감쌈. 가장 흔한 문제.',
-    causes:[{t:'이송 과소 (칩 얇음)',w:3},{t:'브레이커 부적합',w:3},{t:'절입 깊이 부족',w:2}],
-    fix:['이송 상향 (칩 두께 확보)','3D 브레이커로 변경','절입 깊이 상향','쿨런트 고압 분사'] },
-
-  { cat:'chipEvac', name:'칩 분쇄 불량',
-    desc:'칩이 짧게 안 끊기고 길게 나옴.',
-    causes:[{t:'이송 부족',w:3},{t:'절입 부족',w:2},{t:'Vc 저속',w:2}],
-    fix:['이송 상향 (주 대책)','절입 상향','Vc 상향','브레이커 재선정'] },
-
-  { cat:'chipEvac', name:'칩 끼임 (Chip packing)',
-    desc:'홈 / 내경 가공에서 칩이 빠져나오지 못하고 쌓임.',
-    causes:[{t:'홈 폭 협소',w:3},{t:'칩 배출 경로 부족',w:2},{t:'이송 부족',w:2}],
-    fix:['펙(Peck) 가공 (G74/G75)','고압 쿨런트 (내부 분사)','이송 상향','칩 브레이커 재선정'] },
-
-  { cat:'chipEvac', name:'칩 색 이상 (Chip Color)',
-    desc:'칩 색으로 절삭온도 판정. 은백색 → 황금 → 청색 → 흑색 순으로 온도 상승.',
-    causes:[{t:'Vc 과다 (청색·흑색)',w:3},{t:'냉각 부족',w:2},{t:'이송 과소 (얇은 칩, 열 축적)',w:2}],
-    fix:['은백색~황금색 목표','Vc 감소 또는 이송 상향','쿨런트 압력·방향 점검','코팅 변경 (내열성 우선)'] },
-
-  { cat:'chipEvac', name:'드릴 칩 배출 불량 (심공)',
-    desc:'심공에서 칩이 빠지지 않아 드릴 파손.',
-    causes:[{t:'펙 부족',w:3},{t:'쿨런트 압력 부족',w:2},{t:'f 과다',w:1}],
-    fix:['G83 펙 사이클, Q=D×1.0~1.5','고압 쿨런트(내부 분사)','f 감소','인서트/솔리드 드릴 종류 재검토'] },
-
-  { cat:'accuracy', name:'치수 드리프트',
-    desc:'가공 중 치수가 점진적으로 변화.',
-    causes:[{t:'인서트 마모 (열팽창)',w:3},{t:'열변위 (기계)',w:2},{t:'공작물 온도 상승',w:2}],
-    fix:['인서트 수명 단축 / 교체 주기 관리','워밍업 충분히, 쿨런트 온도 관리','치수 보정 (Off-set) 자동화'] },
-
-  { cat:'accuracy', name:'테이퍼 (Taper)',
-    desc:'축방향으로 직경이 변화. 원통도 불량.',
-    causes:[{t:'공작물 처짐',w:3},{t:'주축 정렬 불량',w:2},{t:'공구 마모 (Z 진행에 따른)',w:2}],
-    fix:['스테디레스트 또는 심압대 사용','주축 정렬 점검','인서트 교체 주기 관리'] },
-
-  { cat:'accuracy', name:'진원도 불량',
-    desc:'단면이 완전한 원이 아님. 척 클램핑 흔적.',
-    causes:[{t:'척 클램핑력 과다',w:3},{t:'공작물 강성 부족 (얇은 벽)',w:3},{t:'주축 베어링 마모',w:2}],
-    fix:['클램핑 압력 감소','얇은 벽 전용 척 (콜릿, 소프트죠)','주축 베어링 점검'] },
-
-  { cat:'accuracy', name:'백테이퍼 (Back Taper)',
-    desc:'축 방향 끝이 더 가늘어짐. 원통도 반대 방향 불량.',
-    causes:[{t:'심압대 밀기 과다',w:3},{t:'주축 정렬 반대 방향',w:2},{t:'공구 처짐',w:1}],
-    fix:['심압대 압력 감소','주축 정렬 재조정','공구 오버행 최소화'] },
-
-  { cat:'accuracy', name:'나사 정밀도 이상',
-    desc:'나사 유효경·피치 오차 초과. G76 지령 오류 또는 인선 파손.',
-    causes:[{t:'G76 P/Q 지령 오류',w:3},{t:'인서트 파손 / 치수 마모',w:2},{t:'주축 회전 동기 오차',w:2}],
-    fix:['피치표 재확인 (P/Q)','인서트 교체 (60° 인선)','주축 엔코더 점검','G50으로 최고RPM 클램프 재설정'] },
-
-  { cat:'accuracy', name:'홀 위치 어긋남 (MCT)',
-    desc:'지령 좌표와 실제 홀 위치 불일치.',
-    causes:[{t:'G54~G59 오프셋 오류',w:3},{t:'스폿/센터 미실시',w:2},{t:'공작물 클램핑 변형',w:2}],
-    fix:['G54~G59 재측정','스폿 드릴 선행','클램핑력·지그 재점검'] }
-];
+      { cat:'wear', name:'크레이터 마모',
+        desc:'경사면(레이크면)에 오목하게 파이는 마모. 절삭열에 의한 확산 반응.',
+        causes:[{t:'절삭속도 과다',w:3},{t:'코팅 열화 (Al2O3 부족)',w:2},{t:'냉각 부족',w:2},{t:'경사각 과소',w:1}],
+        fix:['Vc 10~20% 감소','이송(f) 감소','CVD 다층코팅 (Al2O3 함유) 사용','경사각(Rake) 큰 브레이커로 변경','내부 쿨런트 또는 고압냉각 적용','코팅 재종 변경 검토'] },
+      { cat:'wear', name:'플랭크 마모',
+        desc:'여유면(플랭크)의 정상적 마모. ISO 3685:1993 기준: 정상 마모 VB=0.3mm(평균), 불규칙 마모 VBmax=0.6mm 도달 시 교체.',
+        causes:[{t:'정상 마모 (공구 수명 도달)',w:3},{t:'절삭속도 과다',w:2},{t:'피삭재 경도 높음',w:2},{t:'내마모성 코팅 부족',w:1}],
+        fix:['Vc 감소','내마모성 우수 재종 (TiAlN, AlTiN) 선택','습식 절삭(Wet) 전환','여유각(Relief angle) 증가','수명 기준 재설정 (ISO 3685)'] },
+      { cat:'wear', name:'노치 마모',
+        desc:'절입 깊이(DOC) 위치에 국부적으로 생기는 V자 마모.',
+        causes:[{t:'피삭재 표피 경화층 (단조/주조)',w:3},{t:'절입 깊이 부적합',w:2},{t:'냉각 부족',w:1}],
+        fix:['절입 깊이 변경 (경화층 회피)','Vc 저감 + 인선 강화 재종','쿨런트 직접 분사','1회 절입으로 경화층 통과'] },
+      { cat:'wear', name:'소성 변형 (Plastic Deformation)',
+        desc:'인선이 고온·고압으로 변형되어 흐물흐물해지는 현상.',
+        causes:[{t:'절삭속도 과다 (고온)',w:3},{t:'내열성 낮은 재종',w:2},{t:'냉각 부족',w:2}],
+        fix:['Vc 대폭 감소','내열성 재종 (CVD 다층, Al2O3)','고압 쿨런트 적용','인선 강화 타입'] },
+      { cat:'wear', name:'급성 마모 / 브레이크다운',
+        desc:'정상 수명 전에 인선이 갑자기 대파괴. 몇 초 안에 발생.',
+        causes:[{t:'절삭속도 과다 (국부 고온)',w:3},{t:'피삭재 내부 결함 (슬래그, 기공)',w:3},{t:'냉각 중단',w:2},{t:'공구 장착 불량',w:2}],
+        fix:['Vc 즉시 20~30% 감소','피삭재 검사 (초음파·육안)','냉각 라인 점검','클램핑·홀더 재장착'] },
+      { cat:'wear', name:'마이크로 브레이크다운',
+        desc:'코팅만 국부 미세 파괴, 기재 노출. 초기엔 조도만 나빠짐.',
+        causes:[{t:'코팅 밀착력 부족',w:2},{t:'국부 응력 집중 (경화층)',w:2},{t:'미세 진동',w:2}],
+        fix:['PVD 밀착 강화 코팅으로 변경','경화층 회피 절입','강성 보강, 미세 진동 제거'] },
+      { cat:'chip', name:'미세 치핑 (Micro-chipping)',
+        desc:'인선에 작은 결손이 연속 발생. 초기엔 육안 식별 어려움.',
+        causes:[{t:'인성 부족 재종',w:3},{t:'절입 과다',w:2},{t:'피삭재 경화층',w:2},{t:'채터 진동',w:2}],
+        fix:['인성계 재종 (PVD) 전환','절입 깊이 감소','코너 호닝(Honing) 증가','홀더 강성 확보'] },
+      { cat:'chip', name:'대형 치핑 / 파손',
+        desc:'인선 일부가 크게 떨어져 나감. 즉시 교체 필요.',
+        causes:[{t:'충격 (단속·절입) 과다',w:3},{t:'인성 매우 부족',w:3},{t:'채터 진동',w:2},{t:'공구 홀더 강성 부족',w:1}],
+        fix:['인성 재종 + 노즈R 크게','절입/이송 감소','Lead angle 증가 (절삭력 분산)','강성 높은 홀더 사용, 오버행 최소화','단속 전용 재종 검토'] },
+      { cat:'chip', name:'열크랙 (Thermal Crack)',
+        desc:'인선에 수직으로 빗살무늬 크랙. 단속가공 열피로.',
+        causes:[{t:'단속가공 + 급격한 온도변화',w:3},{t:'냉각 ON/OFF 반복',w:2},{t:'CVD 두꺼운 코팅',w:2}],
+        fix:['PVD 코팅으로 전환 (얇은 코팅)','냉각 지속 또는 완전 건식','단속 전용 인성 재종'] },
+      { cat:'chip', name:'코팅 박리 (Flaking)',
+        desc:'코팅이 기재에서 떨어져 나가는 현상.',
+        causes:[{t:'기재-코팅 밀착력 부족',w:2},{t:'절삭속도/이송 부적합',w:2},{t:'BUE로 인한 인선 응력',w:2}],
+        fix:['다른 코팅 재종 시도','Vc 상향 (BUE 억제)','쿨런트 강화'] },
+      { cat:'chip', name:'스폴링 (Spalling)',
+        desc:'인선 표층이 조개껍질처럼 박리. 열충격과 압축피로 결합.',
+        causes:[{t:'단속가공 + 급격한 온도변화',w:3},{t:'두꺼운 CVD 코팅',w:2},{t:'과도한 절입 충격',w:2}],
+        fix:['PVD 코팅으로 전환','절입 경사각 조정 (충격 완화)','냉각 지속 또는 완전 건식'] },
+      { cat:'chip', name:'밀링 인선 파손 (엔드밀)',
+        desc:'엔드밀 코너 또는 날 끝이 결손.',
+        causes:[{t:'슬롯(풀) 절삭',w:3},{t:'오버행 과다',w:2},{t:'Fz 과다',w:2}],
+        fix:['풀슬롯 → 트로코이달 또는 램핑','오버행 최소화','Fz 감소, ae/ap 재검토'] },
+      { cat:'surface', name:'Ra 불량 (거칠기 초과)',
+        desc:'이론 조도보다 실제 조도가 나쁨. 가장 흔한 클레임.',
+        causes:[{t:'이송 과다',w:3},{t:'노즈R 과소',w:2},{t:'BUE 발생',w:2},{t:'채터 진동',w:2},{t:'노즈R 마모',w:1}],
+        fix:['이송 f 감소 (Rz ∝ f²/R)','노즈R 큰 인서트 (0.4 → 0.8)','와이퍼 인서트 검토','Vc 상향으로 BUE 억제'] },
+      { cat:'surface', name:'채터마크 (Chatter Mark)',
+        desc:'주기적인 물결무늬. 진동의 흔적.',
+        causes:[{t:'공구 오버행 과다',w:3},{t:'주축/홀더 강성 부족',w:2},{t:'공진 (Natural freq) 일치',w:2}],
+        fix:['오버행 최소화 (직경 × 4 이내)','Vc 또는 RPM ±10% 변경','절입/이송 재검토','댐핑 홀더 사용'] },
+      { cat:'surface', name:'BUE (눌어붙음 / 구성인선)',
+        desc:'피삭재가 인선에 눌어붙어 가공면을 긁음. 저속·점성 재질에서 자주 발생.',
+        causes:[{t:'저속 절삭 (Vc 낮음)',w:3},{t:'이송 과소 (칩 두께 얇음)',w:2},{t:'점성 재질 (STS, Al)',w:2},{t:'냉각 부족',w:2},{t:'네거티브 경사각',w:1}],
+        fix:['Vc 상향 (BUE 회피 영역)','이송(f) 상향 (칩 두께 확보)','쿨런트 강화 또는 오일 미스트','PVD 코팅 (TiAlN, AlCrN) 적용','포지티브 경사각·큰 여유각으로 전환'] },
+      { cat:'surface', name:'스크래치 / 찍힘',
+        desc:'가공면에 선명한 긁힘. 칩 또는 인서트 조각에 의한 2차 손상.',
+        causes:[{t:'칩 배출 불량 (칩 끼임)',w:3},{t:'인서트 결손 파편',w:2},{t:'가이드/척 접촉',w:1}],
+        fix:['칩 브레이커 변경','쿨런트 방향 조정','인서트 결손 즉시 교체','펙 가공으로 칩 배출'] },
+      { cat:'surface', name:'버 (Burr) 과다',
+        desc:'가공 끝단에 버가 크게 남음.',
+        causes:[{t:'인선 예리도 부족 (노즈R 크거나 마모)',w:2},{t:'이송 과소',w:2},{t:'포지티브 경사각 부족',w:1}],
+        fix:['날카로운 포지티브 인서트','이송 상향','가공 끝단 chamfer / 2차 패스'] },
+      { cat:'surface', name:'가공경화 (Work Hardening)',
+        desc:'STS·Ti 가공 시 표면이 더 단단해져 다음 패스에서 인선 파손.',
+        causes:[{t:'이송 과소 (문지름)',w:3},{t:'Vc 과소',w:2},{t:'동일 깊이 반복 절입',w:2}],
+        fix:['이송 상향 (최소 침투 유지)','Vc 상향','절입 깊이를 경화층 이하로','1회 절입으로 경화층 통과'] },
+      { cat:'surface', name:'뜯김 (Tearing)',
+        desc:'점성 재질에서 표면이 뜯겨나감. BUE보다 심한 형태.',
+        causes:[{t:'저속 절삭',w:3},{t:'예리도 낮은 인서트',w:2},{t:'냉각 부족',w:2},{t:'포지티브 경사각 부족',w:1}],
+        fix:['Vc 상향','포지티브·날카로운 인서트','쿨런트 강화 (오일 미스트)','코팅 변경 (AlCrN)'] },
+      { cat:'surface', name:'나선 자국 (Spiral Mark)',
+        desc:'가공면에 일정 피치의 나선 모양 자국.',
+        causes:[{t:'이송 / RPM 조합 문제',w:3},{t:'노즈R 부적합',w:2},{t:'진동 (미세)',w:2}],
+        fix:['이송 미세 조정','노즈R 변경 (0.4 ↔ 0.8)','RPM 미세 조정','바이트 중심 높이 재확인'] },
+      { cat:'surface', name:'밀링 이송자국 (Feed Mark)',
+        desc:'가공면에 일정 간격의 이송 자국이 남음.',
+        causes:[{t:'Fz 과다',w:3},{t:'인선 마모',w:2},{t:'날 수 부족',w:1}],
+        fix:['Fz 감소','날 수 많은 커터로 변경','인서트 교체'] },
+      { cat:'vib', name:'채터 진동 (저주파)',
+        desc:'저주파 진동. 공작물 표면에 파형 자국. 시스템 강성·공진이 주원인.',
+        causes:[{t:'시스템 강성 부족',w:3},{t:'공진 주파수 일치',w:3},{t:'이송 과소 (문지름)',w:2},{t:'절입 과다',w:2},{t:'홀더 오버행 과다',w:2}],
+        fix:['이송 f 상향: 0.06 → 0.08~0.12 mm/rev','Vc 하향: 100~150 m/min','RPM ±10% 변경 (공진 회피)','절입 감소','오버행 최소화, 댐핑 홀더 사용','스테디레스트 추가 (장축 공작물)'] },
+      { cat:'vib', name:'고주파 소음',
+        desc:'"끼이익" 소리. 인선 국부 진동 또는 마찰.',
+        causes:[{t:'인선 마모',w:2},{t:'BUE 발생',w:2},{t:'Vc 부적합',w:2}],
+        fix:['인서트 교체','Vc 조정 (±20%)','쿨런트 강화'] },
+      { cat:'vib', name:'스핀들 부하 과다',
+        desc:'부하계 이상 상승. 알람 / 정지 발생.',
+        causes:[{t:'절입·이송 과다',w:3},{t:'인선 마모',w:2},{t:'공작물 경도 높음',w:2}],
+        fix:['ap · f 감소','인서트 교체','프로그램 분할 가공','쿨런트 강화로 절삭저항 저감'] },
+      { cat:'vib', name:'세레이션 진동',
+        desc:'톱니 모양 진동 패턴. 절입 주기와 공진이 맞물려 발생.',
+        causes:[{t:'절입 주기 = 공진 주파수',w:3},{t:'시스템 강성 부족',w:2},{t:'회전수 부적합',w:2}],
+        fix:['RPM 5~15% 변경','절입 주기 변경 (날 수, 이송)','댐핑 홀더, 스테디 사용'] },
+      { cat:'chipEvac', name:'칩 엉킴 (Bird nest)',
+        desc:'칩이 실처럼 길게 엉켜 공작물·공구 감쌈. 가장 흔한 문제.',
+        causes:[{t:'이송 과소 (칩 얇음)',w:3},{t:'브레이커 부적합',w:3},{t:'절입 깊이 부족',w:2}],
+        fix:['이송 상향 (칩 두께 확보)','3D 브레이커로 변경','절입 깊이 상향','쿨런트 고압 분사'] },
+      { cat:'chipEvac', name:'칩 분쇄 불량',
+        desc:'칩이 짧게 안 끊기고 길게 나옴.',
+        causes:[{t:'이송 부족',w:3},{t:'절입 부족',w:2},{t:'Vc 저속',w:2}],
+        fix:['이송 상향 (주 대책)','절입 상향','Vc 상향','브레이커 재선정'] },
+      { cat:'chipEvac', name:'칩 끼임 (Chip packing)',
+        desc:'홈 / 내경 가공에서 칩이 빠져나오지 못하고 쌓임.',
+        causes:[{t:'홈 폭 협소',w:3},{t:'칩 배출 경로 부족',w:2},{t:'이송 부족',w:2}],
+        fix:['펙(Peck) 가공 (G74/G75)','고압 쿨런트 (내부 분사)','이송 상향','칩 브레이커 재선정'] },
+      { cat:'chipEvac', name:'칩 색 이상 (Chip Color)',
+        desc:'칩 색으로 절삭온도 판정. 은백색 → 황금 → 청색 → 흑색 순으로 온도 상승.',
+        causes:[{t:'Vc 과다 (청색·흑색)',w:3},{t:'냉각 부족',w:2},{t:'이송 과소 (얇은 칩, 열 축적)',w:2}],
+        fix:['은백색~황금색 목표','Vc 감소 또는 이송 상향','쿨런트 압력·방향 점검','코팅 변경 (내열성 우선)'] },
+      { cat:'chipEvac', name:'드릴 칩 배출 불량 (심공)',
+        desc:'심공에서 칩이 빠지지 않아 드릴 파손.',
+        causes:[{t:'펙 부족',w:3},{t:'쿨런트 압력 부족',w:2},{t:'f 과다',w:1}],
+        fix:['G83 펙 사이클, Q=D×1.0~1.5','고압 쿨런트(내부 분사)','f 감소','인서트/솔리드 드릴 종류 재검토'] },
+      { cat:'accuracy', name:'치수 드리프트',
+        desc:'가공 중 치수가 점진적으로 변화.',
+        causes:[{t:'인서트 마모 (열팽창)',w:3},{t:'열변위 (기계)',w:2},{t:'공작물 온도 상승',w:2}],
+        fix:['인서트 수명 단축 / 교체 주기 관리','워밍업 충분히, 쿨런트 온도 관리','치수 보정 (Off-set) 자동화'] },
+      { cat:'accuracy', name:'테이퍼 (Taper)',
+        desc:'축방향으로 직경이 변화. 원통도 불량.',
+        causes:[{t:'공작물 처짐',w:3},{t:'주축 정렬 불량',w:2},{t:'공구 마모 (Z 진행에 따른)',w:2}],
+        fix:['스테디레스트 또는 심압대 사용','주축 정렬 점검','인서트 교체 주기 관리'] },
+      { cat:'accuracy', name:'진원도 불량',
+        desc:'단면이 완전한 원이 아님. 척 클램핑 흔적.',
+        causes:[{t:'척 클램핑력 과다',w:3},{t:'공작물 강성 부족 (얇은 벽)',w:3},{t:'주축 베어링 마모',w:2}],
+        fix:['클램핑 압력 감소','얇은 벽 전용 척 (콜릿, 소프트죠)','주축 베어링 점검'] },
+      { cat:'accuracy', name:'백테이퍼 (Back Taper)',
+        desc:'축 방향 끝이 더 가늘어짐. 원통도 반대 방향 불량.',
+        causes:[{t:'심압대 밀기 과다',w:3},{t:'주축 정렬 반대 방향',w:2},{t:'공구 처짐',w:1}],
+        fix:['심압대 압력 감소','주축 정렬 재조정','공구 오버행 최소화'] },
+      { cat:'accuracy', name:'나사 정밀도 이상',
+        desc:'나사 유효경·피치 오차 초과. G76 지령 오류 또는 인선 파손.',
+        causes:[{t:'G76 P/Q 지령 오류',w:3},{t:'인서트 파손 / 치수 마모',w:2},{t:'주축 회전 동기 오차',w:2}],
+        fix:['피치표 재확인 (P/Q)','인서트 교체 (60° 인선)','주축 엔코더 점검','G50으로 최고RPM 클램프 재설정'] },
+      { cat:'accuracy', name:'홀 위치 어긋남 (MCT)',
+        desc:'지령 좌표와 실제 홀 위치 불일치.',
+        causes:[{t:'G54~G59 오프셋 오류',w:3},{t:'스폿/센터 미실시',w:2},{t:'공작물 클램핑 변형',w:2}],
+        fix:['G54~G59 재측정','스폿 드릴 선행','클램핑력·지그 재점검'] }
+    ];
 
     let troubleFilter = 'all';
     let troubleOpenedId = null;
@@ -4324,7 +4430,6 @@ function installDataTools() {
       if (!conf || !subSel) return;
       const prev = subSel.value;
       subSel.innerHTML = conf.subs.map(s => `<option value="${s.key}">${s.name}</option>`).join('');
-      // 이전 값이 새 목록에 있으면 유지
       if (prev && conf.subs.some(s => s.key === prev)) subSel.value = prev;
       calcDrillCond();
     }
@@ -4541,9 +4646,6 @@ function installDataTools() {
       reportEl.innerText = report;
     }
 
-    /* ================================================================
-       뷰 전환
-       ================================================================ */
     function showViewOnly(name) {
       document.querySelectorAll('.sub-view').forEach(v => v.style.display = 'none');
       document.getElementById('view-main').style.display = 'none';
@@ -4565,6 +4667,7 @@ function installDataTools() {
         renderToolCostUI();
       }, 60);
       if (name === 'troubleshoot') setTimeout(() => { renderTroubleCards(); }, 30);
+      if (name === 'insert-diag') setTimeout(() => { renderInsertDiagnosis(); }, 30);
       if (name === 'roi-calc') setTimeout(() => {
         syncLineConditionsFrom('tool-cost');
         calcRoi();
@@ -4807,7 +4910,7 @@ function installDataTools() {
     }
     function getUnsupportedCodes(line, machine) {
       const supported = machine === 'lathe'
-        ? new Set(['G00','G01','G02','G03','G04','G28','G50','G70','G71','G72','G73','G74','G75','G76','G92','G96','G97','G99'])
+        ? new Set(['G00','G01','G02','G03','G04','G28','G50','G71','G76','G96','G97','G99'])
         : new Set(['G00','G01','G02','G03','G04','G28','G80','G81','G82','G83','G84','G85','G86','G87','G88','G89','G90','G91','G94','G98','G99']);
       const ignored = new Set(['G17','G18','G19','G20','G21','G40','G41','G42','G43','G49','G54','G55','G56','G57','G58','G59']);
       const found = (line.match(/G\d{1,2}/g) || []).map(g => 'G' + String(parseInt(g.slice(1),10)).padStart(2,'0'));
@@ -4818,7 +4921,7 @@ function installDataTools() {
       const reportId = machine === 'lathe' ? 'latheReport' : 'mctReport';
       const box = document.getElementById(reportId);
       let note = `\n\n[주의] ${head} 경로·시간은 참고용 추정치입니다.\n실제 가공 전 제어기 형식, 좌표계, 공구 길이/보정, 원점복귀, 간섭, 회전수 제한을 반드시 확인하세요.`;
-      if (warnings.length) note += `\n미지원 또는 확인 필요 코드: ${warnings.join(', ')}`;
+      if (warnings.length) note += `\n시뮬레이션에 반영되지 않은 코드(참고용): ${warnings.join(', ')}`;
       box.innerText += note;
     }
 
@@ -4875,7 +4978,7 @@ function installDataTools() {
           if (sM) { if (isG96) curVc = parseFloat(sM[1]); else curRpm = parseFloat(sM[1]); }
         }
         const fM = line.match(/F([\d\.]+)/);
-if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.001, parseFloat(fM[1]));
+        if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.001, parseFloat(fM[1]));
 
         const g71a = line.match(/G71\s*U([\-\d\.]+)\s*R([\-\d\.]+)/);
         if (g71a) {
@@ -4915,7 +5018,6 @@ if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.0
             const stockX = maxX + 4;
             const dCut = g71First.U;
             if (dCut > 0) {
-              // FIX: 프로파일 순서(P→Q)를 따라 절삭 방향 결정
               const zStart = profile[0].z;
               const zEnd = profile[profile.length - 1].z;
               const safeR = stockX / 2;
@@ -4926,21 +5028,18 @@ if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.0
                 const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
                 const safeRpm = Math.max(1, activeRpm || 100);
                 const bkt = getBucket(curTool);
-                // (1) 이전 패스 끝 → zStart 급속 복귀
                 if (g71CurZ !== zStart) {
                   const dz = Math.abs(g71CurZ - zStart);
                   const sec = calcMoveTimeSec(dz, 0, true);
                   bkt.rapidTime += sec; bkt.time += sec;
                   latheSegments.push({ z1: g71CurZ, r1: safeR, z2: zStart, r2: safeR, type: 'G00', pts: null, lineIdx: idx });
                 }
-                // (2) X 절입
                 {
                   const dR = Math.abs(safeR - r);
                   const sec = calcMoveTimeSec(dR, 0, true);
                   bkt.rapidTime += sec; bkt.time += sec;
                   latheSegments.push({ z1: zStart, r1: safeR, z2: zStart, r2: r, type: 'G00', pts: null, lineIdx: idx });
                 }
-                // (3) Z 절삭
                 {
                   const distCut = Math.abs(zEnd - zStart);
                   const sec = calcMoveTimeSec(distCut, curFeed * safeRpm, false);
@@ -4948,7 +5047,6 @@ if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.0
                   latheSegments.push({ z1: zStart, r1: r, z2: zEnd, r2: r, type: 'G71-ROUGH', pts: null, lineIdx: idx });
                   g71CurZ = zEnd;
                 }
-                // (4) X 후퇴
                 {
                   const dR = Math.abs(r - safeR);
                   const sec = calcMoveTimeSec(dR, 0, true);
@@ -4989,48 +5087,48 @@ if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.0
           const taperR = g76b[5] ? parseFloat(g76b[5]) : 0;
           const pitch = parseFloat(g76b[6]);
           const startX = tX + 2 * threadHeight;
-const threadLength = Math.abs(curZ - tZ);
-const numPasses = 8;
-const rStart = startX / 2;
-let currentX = startX;
-let depthStep = firstDepth;
-let g76CurZ = curZ;
-for (let pass = 0; pass < numPasses; pass++) {
-  const r = currentX / 2;
-  const avgDia = Math.max(5, currentX);
-  const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
-  const safeRpm = Math.max(1, activeRpm || 100);
-  const bkt = getBucket(curTool);
-  if (g76CurZ !== curZ) {
-    const dz = Math.abs(g76CurZ - curZ);
-    const secRapid = calcMoveTimeSec(dz, 0, true);
-    bkt.rapidTime += secRapid; bkt.time += secRapid;
-    latheSegments.push({ z1: g76CurZ, r1: rStart, z2: curZ, r2: rStart, type: 'G00', pts: null, lineIdx: idx });
-    g76CurZ = curZ;
-  }
-  {
-    const dR = Math.abs(rStart - r);
-    const secRapid = calcMoveTimeSec(dR, 0, true);
-    bkt.rapidTime += secRapid; bkt.time += secRapid;
-    latheSegments.push({ z1: curZ, r1: rStart, z2: curZ, r2: r, type: 'G00', pts: null, lineIdx: idx });
-  }
-  {
-    const feedEff = pitch * safeRpm;
-    const sec = calcMoveTimeSec(threadLength, feedEff, false);
-    bkt.cutTime += sec; bkt.dist += threadLength; bkt.time += sec;
-    latheSegments.push({ z1: curZ, r1: r, z2: tZ, r2: r, type: 'G76-THREAD', pts: null, lineIdx: idx });
-    g76CurZ = tZ;
-  }
-  {
-    const dR = Math.abs(r - rStart);
-    const secRapid = calcMoveTimeSec(dR, 0, true);
-    bkt.rapidTime += secRapid; bkt.time += secRapid;
-    latheSegments.push({ z1: tZ, r1: r, z2: tZ, r2: rStart, type: 'G00', pts: null, lineIdx: idx });
-  }
-  depthStep *= 0.8;
-  currentX -= 2 * depthStep;
-  if (currentX <= tX) break;
-}
+          const threadLength = Math.abs(curZ - tZ);
+          const numPasses = 8;
+          const rStart = startX / 2;
+          let currentX = startX;
+          let depthStep = firstDepth;
+          let g76CurZ = curZ;
+          for (let pass = 0; pass < numPasses; pass++) {
+            const r = currentX / 2;
+            const avgDia = Math.max(5, currentX);
+            const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+            const safeRpm = Math.max(1, activeRpm || 100);
+            const bkt = getBucket(curTool);
+            if (g76CurZ !== curZ) {
+              const dz = Math.abs(g76CurZ - curZ);
+              const secRapid = calcMoveTimeSec(dz, 0, true);
+              bkt.rapidTime += secRapid; bkt.time += secRapid;
+              latheSegments.push({ z1: g76CurZ, r1: rStart, z2: curZ, r2: rStart, type: 'G00', pts: null, lineIdx: idx });
+              g76CurZ = curZ;
+            }
+            {
+              const dR = Math.abs(rStart - r);
+              const secRapid = calcMoveTimeSec(dR, 0, true);
+              bkt.rapidTime += secRapid; bkt.time += secRapid;
+              latheSegments.push({ z1: curZ, r1: rStart, z2: curZ, r2: r, type: 'G00', pts: null, lineIdx: idx });
+            }
+            {
+              const feedEff = pitch * safeRpm;
+              const sec = calcMoveTimeSec(threadLength, feedEff, false);
+              bkt.cutTime += sec; bkt.dist += threadLength; bkt.time += sec;
+              latheSegments.push({ z1: curZ, r1: r, z2: tZ, r2: r, type: 'G76-THREAD', pts: null, lineIdx: idx });
+              g76CurZ = tZ;
+            }
+            {
+              const dR = Math.abs(r - rStart);
+              const secRapid = calcMoveTimeSec(dR, 0, true);
+              bkt.rapidTime += secRapid; bkt.time += secRapid;
+              latheSegments.push({ z1: tZ, r1: r, z2: tZ, r2: rStart, type: 'G00', pts: null, lineIdx: idx });
+            }
+            depthStep *= 0.8;
+            currentX -= 2 * depthStep;
+            if (currentX <= tX) break;
+          }
           curX = tX; curZ = tZ;
           g76First = null;
           continue;
@@ -5179,31 +5277,39 @@ for (let pass = 0; pass < numPasses; pass++) {
       latheScale *= zoomFactor;
       drawLatheScreen();
     }, { passive: false });
-    let lIsDrag = false, lLastMouse = { x: 0, y: 0 };
-    lBox.addEventListener('pointerdown', e => { lIsDrag = true; lLastMouse = { x: e.clientX, y: e.clientY }; });
-    window.addEventListener('pointerup', () => lIsDrag = false);
-    window.addEventListener('pointermove', e => {
-      if (!lIsDrag) return;
-      lathePanX += (e.clientX - lLastMouse.x);
-      lathePanY += (e.clientY - lLastMouse.y);
-      lLastMouse = { x: e.clientX, y: e.clientY };
-      drawLatheScreen();
-    });
-    let lTouchDist = 0;
-    lBox.addEventListener('touchstart', e => {
-      if (e.touches.length === 2) {
-        lTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+
+    // 통합 포인터 이벤트 (선반)
+    const lActivePointers = new Map();
+    let lIsDrag = false, lLastMouse = { x: 0, y: 0 }, lTouchDist = 0;
+
+    lBox.addEventListener('pointerdown', e => {
+      try { lBox.setPointerCapture(e.pointerId); } catch (_) {}
+      lActivePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (lActivePointers.size === 1) {
+        lIsDrag = true;
+        lLastMouse = { x: e.clientX, y: e.clientY };
+      } else if (lActivePointers.size === 2) {
+        lIsDrag = false;
+        const [a, b] = [...lActivePointers.values()];
+        lTouchDist = Math.hypot(a.x - b.x, a.y - b.y);
       }
     });
-    lBox.addEventListener('touchmove', e => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    lBox.addEventListener('pointermove', e => {
+      if (!lActivePointers.has(e.pointerId)) return;
+      lActivePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (lActivePointers.size === 1 && lIsDrag) {
+        lathePanX += (e.clientX - lLastMouse.x);
+        lathePanY += (e.clientY - lLastMouse.y);
+        lLastMouse = { x: e.clientX, y: e.clientY };
+        drawLatheScreen();
+      } else if (lActivePointers.size === 2) {
+        const [a, b] = [...lActivePointers.values()];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
         if (lTouchDist > 0) {
           const factor = dist / lTouchDist;
           const rect = lCanvas.getBoundingClientRect();
-          const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-          const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+          const midX = (a.x + b.x) / 2 - rect.left;
+          const midY = (a.y + b.y) / 2 - rect.top;
           lathePanX = midX - (midX - lathePanX) * factor;
           lathePanY = midY - (midY - lathePanY) * factor;
           latheScale *= factor;
@@ -5211,7 +5317,19 @@ for (let pass = 0; pass < numPasses; pass++) {
         }
         lTouchDist = dist;
       }
-    }, { passive: false });
+    });
+    function lReleasePointer(e) {
+      lActivePointers.delete(e.pointerId);
+      if (lActivePointers.size === 0) { lIsDrag = false; }
+      else if (lActivePointers.size === 1) {
+        const [pt] = [...lActivePointers.values()];
+        lLastMouse = { x: pt.x, y: pt.y };
+        lIsDrag = true;
+        lTouchDist = 0;
+      }
+    }
+    lBox.addEventListener('pointerup', lReleasePointer);
+    lBox.addEventListener('pointercancel', lReleasePointer);
 
     const debouncedSyncLathe = debounce(function(textarea) {
       const pos = textarea.selectionStart;
@@ -5637,32 +5755,52 @@ for (let pass = 0; pass < numPasses; pass++) {
       mScale *= (e.deltaY < 0 ? 1.15 : 0.85);
       drawMctScreen();
     }, { passive: false });
-    let mIsDrag = false, mLastMouse = { x: 0, y: 0 };
-    mBox.addEventListener('pointerdown', e => { mIsDrag = true; mLastMouse = { x: e.clientX, y: e.clientY }; });
-    window.addEventListener('pointerup', () => mIsDrag = false);
-    window.addEventListener('pointermove', e => {
-      if (!mIsDrag) return;
-      mRotZ += (e.clientX - mLastMouse.x) * 0.01;
-      mRotElev = Math.max(0.05, Math.min(Math.PI / 2 - 0.05, mRotElev - (e.clientY - mLastMouse.y) * 0.01));
-      mLastMouse = { x: e.clientX, y: e.clientY };
-      drawMctScreen();
-    });
-    let mTouchDist = 0;
-    mBox.addEventListener('touchstart', e => {
-      if (e.touches.length === 2) {
-        mTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+
+    // 통합 포인터 이벤트 (MCT)
+    const mActivePointers = new Map();
+    let mIsDrag = false, mLastMouse = { x: 0, y: 0 }, mTouchDist = 0;
+
+    mBox.addEventListener('pointerdown', e => {
+      try { mBox.setPointerCapture(e.pointerId); } catch (_) {}
+      mActivePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (mActivePointers.size === 1) {
+        mIsDrag = true;
+        mLastMouse = { x: e.clientX, y: e.clientY };
+      } else if (mActivePointers.size === 2) {
+        mIsDrag = false;
+        const [a, b] = [...mActivePointers.values()];
+        mTouchDist = Math.hypot(a.x - b.x, a.y - b.y);
       }
     });
-    mBox.addEventListener('touchmove', e => {
-      if (e.touches.length === 2) {
-        e.preventDefault();
-        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    mBox.addEventListener('pointermove', e => {
+      if (!mActivePointers.has(e.pointerId)) return;
+      mActivePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (mActivePointers.size === 1 && mIsDrag) {
+        mRotZ += (e.clientX - mLastMouse.x) * 0.01;
+        mRotElev = Math.max(0.05, Math.min(Math.PI / 2 - 0.05,
+          mRotElev - (e.clientY - mLastMouse.y) * 0.01));
+        mLastMouse = { x: e.clientX, y: e.clientY };
+        drawMctScreen();
+      } else if (mActivePointers.size === 2) {
+        const [a, b] = [...mActivePointers.values()];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
         if (mTouchDist > 0) { mScale *= (dist / mTouchDist); drawMctScreen(); }
         mTouchDist = dist;
       }
-    }, { passive: false });
+    });
+    function mReleasePointer(e) {
+      mActivePointers.delete(e.pointerId);
+      if (mActivePointers.size === 0) { mIsDrag = false; }
+      else if (mActivePointers.size === 1) {
+        const [pt] = [...mActivePointers.values()];
+        mLastMouse = { x: pt.x, y: pt.y };
+        mIsDrag = true;
+        mTouchDist = 0;
+      }
+    }
+    mBox.addEventListener('pointerup', mReleasePointer);
+    mBox.addEventListener('pointercancel', mReleasePointer);
 
-    /* 선반 계산기 (N은 기준 입력, Vc는 참고) */
     let latheLastEdited = 'vc';
 
     function calcLathe(mode) {
@@ -5719,7 +5857,6 @@ for (let pass = 0; pass < numPasses; pass++) {
       calcLathe(latheLastEdited === 'rpm' ? 2 : 1);
     }
 
-    /* 밀링 계산기 (N이 기준 입력) */
     function onMctDiaChange() {
       const d = parseFloat(document.getElementById('m_dia').value);
       if (!d || d <= 0) return;
@@ -6053,50 +6190,7 @@ for (let pass = 0; pass < numPasses; pass++) {
       tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">데이터 없음</td></tr>';
     }
 
-    let arcrType = 'outer';
-    function setArcRType(type) {
-      arcrType = type;
-      document.getElementById('arcrOuterBtn').classList.toggle('active', type === 'outer');
-      document.getElementById('arcrInnerBtn').classList.toggle('active', type === 'inner');
-      calcArcR();
-    }
-    function onArcRNoseChange() {
-      document.getElementById('arcrNoseRCustom').value = '';
-      calcArcR();
-    }
-    function calcArcR() {
-      let noseR = parseFloat(document.getElementById('arcrNoseR').value);
-      const custom = parseFloat(document.getElementById('arcrNoseRCustom').value);
-      if (!isNaN(custom) && custom > 0) noseR = custom;
-      const drawingR = parseFloat(document.getElementById('arcrDrawingR').value);
-      const valueEl = document.getElementById('arcrValue');
-      const subEl = document.getElementById('arcrSub');
-      const reportEl = document.getElementById('arcrReport');
-      if (isNaN(noseR) || isNaN(drawingR)) {
-        valueEl.textContent = '-';
-        subEl.textContent = '값을 입력하세요';
-        reportEl.innerText = '노즈R과 도면 R을 입력하세요.';
-        return;
-      }
-      let progR, op;
-      if (arcrType === 'outer') { progR = drawingR + noseR; op = '도면 R + 노즈 R'; }
-      else { progR = drawingR - noseR; op = '도면 R - 노즈 R'; }
-      let warn = '';
-      if (progR <= 0) {
-        warn = '\n\n[경고] 프로그램 R이 0 이하입니다.\n   노즈R이 도면 R보다 큽니다. G41/G42 보정 사용을 권장합니다.';
-      }
-      valueEl.textContent = 'R' + progR.toFixed(3);
-      subEl.textContent = `${arcrType === 'outer' ? '외경' : '내경'}  ·  ${op}`;
-      reportEl.innerText =
-        `[원호 R 계산]\n` +
-        `• 코너 종류  : ${arcrType === 'outer' ? '외경 코너' : '내경 코너'}\n` +
-        `• 노즈 R     : ${noseR.toFixed(2)} mm\n` +
-        `• 도면 R     : ${drawingR.toFixed(2)} mm\n` +
-        `• 계산식     : ${op}\n` +
-        `------------------------------------\n` +
-        `▶ 프로그램 R : R${progR.toFixed(3)}\n` +
-        `   지령 예) G02/G03 ... R${progR.toFixed(3)}${warn}`;
-    }
+   
 </script>
 
 <script>
