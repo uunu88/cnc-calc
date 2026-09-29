@@ -771,19 +771,45 @@
       .home-hero h2 { font-size: 26px; }
     }
     @media (max-width: 480px) {
-      .home-hero-badge { max-width: 46%; min-width: 0; }
-      .home-hero-badge > div { min-width: 0; }
-      .home-hero-badge b, .home-hero-badge small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .home-dashboard { padding-top: 0; }
       .home-hero {
+        display: block;
         min-height: 158px;
         padding: 19px 16px 17px;
         border-radius: 15px;
         margin-bottom: 17px;
       }
-      .home-hero h2 { font-size: 23px; letter-spacing: -1px; }
-      .home-hero p { font-size: 10.5px; max-width: 245px; }
-      .home-hero-badge { padding: 7px 8px; }
+      .home-hero-copy {
+        width: 100%;
+        max-width: none;
+      }
+      .home-hero h2 {
+        font-size: 23px;
+        line-height: 1.12;
+        letter-spacing: -1px;
+        white-space: normal;
+      }
+      .home-hero p {
+        max-width: 56%;
+        margin-top: 8px;
+        font-size: 10.5px;
+        line-height: 1.5;
+      }
+      .home-hero-badge {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        max-width: 44%;
+        min-width: 0;
+        padding: 7px 8px;
+      }
+      .home-hero-badge > div { min-width: 0; }
+      .home-hero-badge b,
+      .home-hero-badge small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
       .home-hero-badge b { font-size: 9px; }
       .home-hero-badge small { font-size: 8px; }
       .primary-tools { gap: 7px; }
@@ -825,8 +851,8 @@
   <section class="home-hero">
     <div class="home-hero-copy">
       <div class="home-eyebrow">DURACARB SUPPORT TOOL</div>
-      <h2>열심히 팔아보아요<br><strong>DURACARB 도우미</strong></h2>
-      <p>G코드 시뮬레이션부터 절삭조건, 공구비, 공식 기술 자료를 보기 쉽게</p>
+      <h2>이쁘게 만들어본<br><strong>DURACARB 도우미</strong></h2>
+      <p>G코드 시뮬레이션부터 절삭조건, 공구비, 공식, 기술자료</p>
     </div>
     <div class="home-hero-badge home-hero-badge-link"
          role="button"
