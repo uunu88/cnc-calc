@@ -62,7 +62,8 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; transition: background 0.2s, color 0.2s; }
-    header { display: none; background: var(--header-bg); padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; gap: 8px; }
+    /* FIX: 중복 display 제거 — JS에서 showViewOnly/goHome 시 flex 제어 */
+    header { display: none; background: var(--header-bg); padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 10px calc(14px + env(safe-area-inset-left)); align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; gap: 8px; }
     header h1 { font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -0.6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
     header h1 span { color: var(--accent); }
     .header-biz-card { background: #ffffff; color: #1e293b; border-radius: 6px; padding: 4px 8px 4px 10px; position: relative; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.35); display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
@@ -486,7 +487,6 @@
 
     /* =========================================================
        V11 PRODUCT UI — 홈 화면 전용 디자인 레이어
-       계산/시뮬레이션 로직은 변경하지 않음
        ========================================================= */
     .home-dashboard {
       padding: 2px 0 18px;
@@ -823,8 +823,6 @@
       .utility-card small { font-size: 8px; }
     }
 
-
-
 </style>
 
 <style id="v12-mobile-final-polish">
@@ -1010,7 +1008,44 @@
       .home-hero h2 { font-size: 20px; }
       .home-hero p { font-size: 9.5px; }
     }
-</style></head>
+</style>
+<style id="v12-1-stability-polish">
+.app-toast {
+  position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom));
+  transform: translate(-50%, 14px); opacity: 0; pointer-events: none; z-index: 1000;
+  max-width: min(92vw, 520px); padding: 10px 14px; border-radius: 9px;
+  background: var(--header-bg); color: var(--text); border: 1px solid var(--border);
+  box-shadow: 0 8px 26px rgba(0,0,0,.22); font-size: 11px; font-weight: 700;
+  transition: opacity .18s ease, transform .18s ease; text-align: center;
+}
+.app-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.app-toast[data-type="success"] { border-color: rgba(34,197,94,.55); }
+.app-toast[data-type="error"] { border-color: rgba(239,68,68,.6); }
+.data-backup-tools {
+  margin: 0 0 12px; padding: 10px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--card-bg);
+}
+.data-backup-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:7px; }
+.data-backup-head > div { display:flex; align-items:center; gap:7px; }
+.data-backup-head b { font-size:11px; }
+.data-backup-head small { color:var(--text-muted); font-size:9px; }
+.data-backup-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.data-backup-actions .btn-sub { margin:0; padding:8px 6px; }
+@media(max-width:480px){
+  .data-backup-head { align-items:flex-start; flex-direction:column; gap:3px; }
+  .data-backup-actions { grid-template-columns:1fr 1fr 1fr; }
+  .data-backup-actions .btn-sub { font-size:10px; }
+}
+</style><style id="data-tools-easter-egg">
+/* 데이터 관리 이스터에그 — 히어로 타이틀 클릭용 */
+.home-hero h2 {
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
+</head>
 <body>
 <div class="ocr-overlay" id="ocrOverlay">
 <div class="ocr-spinner"></div>
@@ -1124,8 +1159,8 @@
 
   <div class="home-footer-note">
     <strong>https://uunu88.github.io/cnc-calc/</strong>
-    <br>   </br>
     <p>삼성 브라우저 · Chrome에서 설치 후 편하게 사용하세요.</p>
+    <p>데이터 저장 · 백업이 필요하시면 상단 Duracarb 도우미 5번 클릭</p>
   </div>
 </div>
 
@@ -2647,8 +2682,11 @@ M30`;
         }
         const area = document.getElementById(targetTextareaId);
         const approved = confirm('OCR 인식 결과입니다.\n\n' + cleaned + '\n\n확인: 입력하고 시뮬레이션 실행\n취소: 입력하지 않고 직접 수정');
+        if (!approved) {
+          area.focus();
+          return;
+        }
         area.value = cleaned;
-        if (!approved) { area.focus(); return; }
         if (targetTextareaId === 'latheGcode') parseAndDrawLathe();
         if (targetTextareaId === 'mctGcode') parseAndDrawMCT();
       } catch (err) {
@@ -2673,8 +2711,12 @@ M30`;
       });
     }
 
+    /* =========================================================
+       FIX: DOMContentLoaded — 동적 select 옵션을 먼저 채운 뒤 상태 복원
+       ========================================================= */
     window.addEventListener('DOMContentLoaded', () => {
-      loadAppState();
+      // 1) UI 및 정적 데이터 준비
+      installDataTools();
       setupDragAndDrop('latheGcode', 'latheGcode');
       setupDragAndDrop('latheBox', 'latheGcode');
       setupDragAndDrop('mctGcode', 'mctGcode');
@@ -2683,20 +2725,75 @@ M30`;
       initDuraFilter();
       reflowDuraKind();
       setupBackGesture();
+
+      // 2) 저장된 폼에서 매트릭스 선택자를 미리 시드 (submat 옵션 생성 위함)
+      let savedForms = null;
+      try {
+        const raw = localStorage.getItem(APP_STATE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && parsed.app === 'Duracarb Workshop Tool' && parsed.forms) {
+            savedForms = parsed.forms;
+          }
+        }
+      } catch (e) { /* ignore */ }
+
+      const drMatSel = document.getElementById('dr_mat');
+      if (savedForms && savedForms.dr_mat && drMatSel) drMatSel.value = savedForms.dr_mat;
+      onDrillMatChange(); // dr_submat 옵션 생성
+
+      const tcMatSel = document.getElementById('tc_mat');
+      if (savedForms && savedForms.tc_mat && tcMatSel) tcMatSel.value = savedForms.tc_mat;
+      onTapMatChange(); // tc_submat 옵션 생성
+
+      // 3) 나머지 동적 select 옵션 채우기
       updateTapDrillSizes();
       updateTapCondSizes();
       renderPitchTable();
+
+      // 4) 공구비 UI 초기 구조 준비 (기본 공정 없으면 추가)
       initToolCostUI();
+
+      // 5) 저장된 상태 복원
+      loadAppState();
+
+      // 6) 복원값 기반 후속 렌더링 재적용
+      filterMaterials();
+      applyTableFilters();
       renderTroubleCards();
       updateTapDrillResult();
+      renderToolCostUI();
+      calcRoi();
       ['life', 'corner', 'ct'].forEach(f => updateRoiFieldUI(f));
 
+      // 7) 테마 (백업 테마가 있으면 그쪽 우선)
       let savedTheme = 'light';
       try { savedTheme = localStorage.getItem('cnc_theme') || 'light'; } catch (e) {}
       applyTheme(savedTheme);
 
       document.addEventListener('input', (e) => {
-        if (e.target.closest('#view-tool-cost, #view-roi-calc')) debouncedSave();
+        const t = e.target;
+        if (!t || !t.matches('input, textarea, select')) return;
+        if (t.type === 'file' || t.id === 'latheGcode' || t.id === 'mctGcode') return;
+        debouncedSave();
+      });
+
+      window.addEventListener('resize', debounce(() => {
+        try {
+          const lathe = document.getElementById('view-lathe-path');
+          const mct = document.getElementById('view-mct-path');
+          if (lathe && lathe.style.display !== 'none' && typeof resizeLathe === 'function') resizeLathe();
+          if (mct && mct.style.display !== 'none' && typeof resizeMCT === 'function') resizeMCT();
+        } catch (e) { console.warn('[Resize]', e); }
+      }, 120));
+
+      window.addEventListener('error', (event) => {
+        console.error('[Runtime error]', event.error || event.message);
+        showToast('일부 기능에서 오류가 발생했습니다. 입력값을 확인하세요.', 'error', 3000);
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('[Unhandled promise]', event.reason);
+        showToast('처리 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.', 'error', 3000);
       });
     });
 
@@ -2800,6 +2897,207 @@ M30`;
       }
     }
 
+    /* =========================================================
+       안정성 / 백업 / 입력 검증 공통 레이어
+       ========================================================= */
+    function showToast(message, type = 'info', duration = 2600) {
+      let toast = document.getElementById('appToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'appToast';
+        toast.className = 'app-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.dataset.type = type;
+      toast.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    function safeNumber(value, min = -Infinity, max = Infinity) {
+      const n = Number(value);
+      return Number.isFinite(n) && n >= min && n <= max ? n : null;
+    }
+
+    function validateCuttingInputs(ids) {
+      const invalid = [];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el || el.value === '') return;
+        const n = Number(el.value);
+        if (!Number.isFinite(n) || n < 0) invalid.push(id);
+      });
+      if (invalid.length) {
+        showToast('입력값을 확인하세요. 음수 또는 숫자가 아닌 값이 있습니다.', 'error');
+        const first = document.getElementById(invalid[0]);
+        if (first) first.focus();
+        return false;
+      }
+      return true;
+    }
+
+    function collectFormState() {
+      const fields = {};
+      document.querySelectorAll('input[id], textarea[id], select[id]').forEach(el => {
+        if (el.type === 'file') return;
+        if (el.id === 'codeSearch') return;
+        fields[el.id] = el.type === 'checkbox' || el.type === 'radio' ? el.checked : el.value;
+      });
+      return fields;
+    }
+
+    function restoreFormState(fields) {
+      if (!fields || typeof fields !== 'object') return;
+      Object.entries(fields).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (!el || el.type === 'file') return;
+        if (el.type === 'checkbox' || el.type === 'radio') el.checked = !!value;
+        else el.value = value ?? '';
+      });
+    }
+
+    /* FIX: toolMonthlyManual도 백업 대상에 포함 */
+    function buildBackupState() {
+      return {
+        app: 'Duracarb Workshop Tool',
+        version: '12.2',
+        savedAt: new Date().toISOString(),
+        theme: document.documentElement.getAttribute('data-theme') || 'light',
+        forms: collectFormState(),
+        processes: Array.isArray(processes) ? processes : [],
+        opCounter: typeof opCounter === 'number' ? opCounter : 0,
+        activeProcessId: activeProcessId ?? null,
+        toolMonthlyManual: typeof toolMonthlyManual === 'boolean' ? toolMonthlyManual : false
+      };
+    }
+
+    function downloadTextFile(filename, text, mime = 'application/json') {
+      const blob = new Blob([text], { type: mime + ';charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    function exportAppBackup() {
+      try {
+        const stamp = new Date().toISOString().replace(/[T:]/g, '-').slice(0,19);
+        downloadTextFile('duracarb-workshop-backup-' + stamp + '.json', JSON.stringify(buildBackupState(), null, 2));
+        showToast('백업 파일을 저장했습니다.', 'success');
+      } catch (e) {
+        console.error('[Backup]', e);
+        showToast('백업 저장에 실패했습니다.', 'error');
+      }
+    }
+
+    function restoreAppBackup(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const state = JSON.parse(reader.result);
+          if (!state || state.app !== 'Duracarb Workshop Tool' || !state.forms) throw new Error('지원하지 않는 백업 파일');
+          if (!confirm('현재 입력값을 백업 데이터로 교체합니다. 계속할까요?')) return;
+          restoreFormState(state.forms);
+          if (Array.isArray(state.processes)) {
+            processes = state.processes;
+            opCounter = Number.isFinite(state.opCounter) ? state.opCounter : 0;
+            activeProcessId = state.activeProcessId || (processes[0] && processes[0].id);
+          }
+if (typeof state.toolMonthlyManual === 'boolean') {
+  toolMonthlyManual = state.toolMonthlyManual;
+  const wrap = document.getElementById('toolReverseWrap');
+  const hint = document.getElementById('toolMonthlyHint');
+  if (wrap && hint) {
+    if (toolMonthlyManual) {
+      wrap.classList.add('locked');
+      hint.classList.add('manual');
+    } else {
+      wrap.classList.remove('locked');
+      hint.classList.remove('manual');
+    }
+  }
+}
+          if (state.theme) {
+            applyTheme(state.theme);
+            try { localStorage.setItem('cnc_theme', state.theme); } catch (e) {}
+          }
+          saveAppState();
+          // FIX: 복원 후 필터 재적용
+          if (typeof initToolCostUI === 'function') initToolCostUI();
+          if (typeof updateTapDrillResult === 'function') updateTapDrillResult();
+          if (typeof updateTapDrillSizes === 'function') updateTapDrillSizes();
+          if (typeof updateTapCondSizes === 'function') updateTapCondSizes();
+          if (typeof renderPitchTable === 'function') renderPitchTable();
+          if (typeof updateMctChipRate === 'function') updateMctChipRate();
+          if (typeof filterMaterials === 'function') filterMaterials();
+          if (typeof applyTableFilters === 'function') applyTableFilters();
+          if (typeof renderTroubleCards === 'function') renderTroubleCards();
+          if (typeof renderToolCostUI === 'function') renderToolCostUI();
+          if (typeof calcRoi === 'function') calcRoi();
+          showToast('백업 데이터를 복원했습니다.', 'success', 3200);
+        } catch (e) {
+          console.error('[Restore]', e);
+          showToast('백업 파일이 올바르지 않습니다.', 'error', 3200);
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.onerror = () => {
+        event.target.value = '';
+        showToast('백업 파일을 읽지 못했습니다.', 'error');
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAppData() {
+      if (!confirm('저장된 입력값과 작업 데이터를 모두 초기화할까요?')) return;
+      try { localStorage.removeItem(APP_STATE_KEY); } catch (e) { console.warn('[Reset]', e); }
+      location.reload();
+    }
+
+function installDataTools() {
+  if (document.getElementById('dataBackupTools')) return;
+  const home = document.getElementById('view-main');
+  const footer = home && home.querySelector('.home-footer-note');
+  if (!home || !footer) return;
+  const box = document.createElement('section');
+  box.id = 'dataBackupTools';
+  box.className = 'data-backup-tools';
+  box.style.display = 'none';  // 기본 숨김
+  box.innerHTML = `
+    <div class="data-backup-head"><div><span class="section-kicker">DATA</span><b>작업 데이터</b></div><small>브라우저 변경 전 백업 권장</small></div>
+    <div class="data-backup-actions">
+      <button type="button" class="btn-sub" onclick="exportAppBackup()">JSON 백업</button>
+      <button type="button" class="btn-sub" onclick="document.getElementById('appBackupInput').click()">JSON 복원</button>
+      <button type="button" class="btn-sub btn-clear" onclick="resetAppData()">전체 초기화</button>
+      <input id="appBackupInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreAppBackup(event)">
+    </div>`;
+  home.insertBefore(box, footer);
+
+  // 히어로 타이틀 5회 탭 → 토글
+  const trigger = home.querySelector('.home-hero h2');
+  if (trigger) {
+    let tapCount = 0, tapTimer = null;
+    trigger.addEventListener('click', () => {
+      tapCount++;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+      if (tapCount >= 5) {
+        tapCount = 0;
+        box.style.display = (box.style.display === 'none') ? 'block' : 'none';
+        showToast(box.style.display === 'none' ? '데이터 관리 숨김' : '데이터 관리 열림', 'info');
+      }
+    });
+  }
+}
+
     /* ================================================================
        localStorage 저장/복원
        ================================================================ */
@@ -2808,59 +3106,37 @@ M30`;
 
     function saveAppState() {
       try {
-        const state = {
-          processes, opCounter, activeProcessId,
-          roi: {
-            a_price: document.getElementById('roi_a_price').value,
-            a_life: document.getElementById('roi_a_life').value,
-            a_corner: document.getElementById('roi_a_corner').value,
-            a_ct: document.getElementById('roi_a_ct').value,
-            b_price: document.getElementById('roi_b_price').value,
-            b_life: document.getElementById('roi_b_life').value,
-            b_corner: document.getElementById('roi_b_corner').value,
-            b_ct: document.getElementById('roi_b_ct').value,
-            lines: document.getElementById('roi_lines').value,
-            hours: document.getElementById('roi_hours').value,
-            days: document.getElementById('roi_days').value,
-            rate: document.getElementById('roi_rate').value
-          },
-          toolCost: {
-            ct: document.getElementById('toolCT').value,
-            lines: document.getElementById('toolLines').value,
-            hours: document.getElementById('toolDailyHours').value,
-            days: document.getElementById('toolWorkDays').value,
-            rate: document.getElementById('toolWorkRate').value,
-            monthlyQty: document.getElementById('toolMonthlyQty').value
-          }
-        };
+        const state = buildBackupState();
         localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
-      } catch (e) {}
+      } catch (e) {
+        console.warn('[State save failed]', e);
+        showToast('자동 저장에 실패했습니다. JSON 백업을 권장합니다.', 'error', 3200);
+      }
     }
 
+    /* FIX: applyTheme은 여기서 호출하지 않음 (중복 방지) — toolMonthlyManual도 복원 */
     function loadAppState() {
       try {
         const raw = localStorage.getItem(APP_STATE_KEY);
-        if (!raw) return;
+        if (!raw) return null;
         const state = JSON.parse(raw);
+        if (!state || state.app !== 'Duracarb Workshop Tool') return null;
+        restoreFormState(state.forms);
         if (Array.isArray(state.processes)) {
           processes = state.processes;
-          opCounter = state.opCounter || 0;
+          opCounter = Number.isFinite(state.opCounter) ? state.opCounter : 0;
           activeProcessId = state.activeProcessId || (processes[0] && processes[0].id);
         }
-        if (state.roi) {
-          Object.entries(state.roi).forEach(([k, v]) => {
-            const el = document.getElementById('roi_' + k);
-            if (el && v != null) el.value = v;
-          });
+        if (typeof state.toolMonthlyManual === 'boolean') {
+          toolMonthlyManual = state.toolMonthlyManual;
         }
-        if (state.toolCost) {
-          const map = { ct:'toolCT', lines:'toolLines', hours:'toolDailyHours', days:'toolWorkDays', rate:'toolWorkRate', monthlyQty:'toolMonthlyQty' };
-          Object.entries(state.toolCost).forEach(([k, v]) => {
-            const el = document.getElementById(map[k]);
-            if (el && v != null) el.value = v;
-          });
-        }
-      } catch (e) {}
+        // 테마는 여기서 복원하지 않음 — DOMContentLoaded의 localStorage 기반 적용만 사용
+        return state;
+      } catch (e) {
+        console.warn('[State load failed]', e);
+        showToast('저장 데이터가 손상되어 기본 상태로 시작합니다.', 'error', 3200);
+        return null;
+      }
     }
 
     /* ================================================================
@@ -4016,7 +4292,10 @@ M30`;
       const subSel = document.getElementById('dr_submat');
       const conf = DRILL_MAT_PARAM[mat];
       if (!conf || !subSel) return;
+      const prev = subSel.value;
       subSel.innerHTML = conf.subs.map(s => `<option value="${s.key}">${s.name}</option>`).join('');
+      // 이전 값이 새 목록에 있으면 유지
+      if (prev && conf.subs.some(s => s.key === prev)) subSel.value = prev;
       calcDrillCond();
     }
 
@@ -4025,7 +4304,9 @@ M30`;
       const subSel = document.getElementById('tc_submat');
       const conf = TAP_MAT_PARAM[mat];
       if (!conf || !subSel) return;
+      const prev = subSel.value;
       subSel.innerHTML = conf.subs.map(s => `<option value="${s.key}">${s.name}</option>`).join('');
+      if (prev && conf.subs.some(s => s.key === prev)) subSel.value = prev;
       calcTapCond();
     }
 
@@ -4145,6 +4426,7 @@ M30`;
       const type = document.getElementById('tc_type').value;
       const sel = document.getElementById('tc_size');
       if (!sel) return;
+      const prev = sel.value;
       sel.innerHTML = '';
       TAP_DRILL_DATA[type].forEach(item => {
         const opt = document.createElement('option');
@@ -4152,6 +4434,7 @@ M30`;
         opt.textContent = item.size;
         sel.appendChild(opt);
       });
+      if (prev && TAP_DRILL_DATA[type].some(i => i.size === prev)) sel.value = prev;
       calcTapCond();
     }
 
@@ -4330,7 +4613,8 @@ M30`;
     }
     function applyTableFilters() {
       if (!rowCache) buildRowCache();
-      const query = document.getElementById('codeSearch').value.toLowerCase();
+      const queryEl = document.getElementById('codeSearch');
+      const query = queryEl ? queryEl.value.toLowerCase() : '';
       for (const item of rowCache) {
         let matchesCat = false;
         if (currentCategory === 'all') matchesCat = true;
@@ -4601,46 +4885,47 @@ if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.0
             const stockX = maxX + 4;
             const dCut = g71First.U;
             if (dCut > 0) {
-  const zStart = Math.min(...profile.map(p => p.z));
-  const zEnd = Math.max(...profile.map(p => p.z));
-  const safeR = stockX / 2;
-  let g71CurZ = zStart;
-  for (let x = stockX - dCut * 2; x > minX + dCut * 2; x -= dCut * 2) {
-    const r = x / 2;
-    const avgDia = Math.max(5, x);
-    const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
-    const safeRpm = Math.max(1, activeRpm || 100);
-    const bkt = getBucket(curTool);
-    // (1) 이전 패스 끝 → zStart 급속 복귀 (safeR 유지)
-    if (g71CurZ !== zStart) {
-      const dz = Math.abs(g71CurZ - zStart);
-      const sec = calcMoveTimeSec(dz, 0, true);
-      bkt.rapidTime += sec; bkt.time += sec;
-      latheSegments.push({ z1: g71CurZ, r1: safeR, z2: zStart, r2: safeR, type: 'G00', pts: null, lineIdx: idx });
-    }
-    // (2) X 절입 (급속, zStart 위치)
-    {
-      const dR = Math.abs(safeR - r);
-      const sec = calcMoveTimeSec(dR, 0, true);
-      bkt.rapidTime += sec; bkt.time += sec;
-      latheSegments.push({ z1: zStart, r1: safeR, z2: zStart, r2: r, type: 'G00', pts: null, lineIdx: idx });
-    }
-    // (3) Z 절삭
-    {
-      const distCut = Math.abs(zEnd - zStart);
-      const sec = calcMoveTimeSec(distCut, curFeed * safeRpm, false);
-      bkt.cutTime += sec; bkt.dist += distCut; bkt.time += sec;
-      latheSegments.push({ z1: zStart, r1: r, z2: zEnd, r2: r, type: 'G71-ROUGH', pts: null, lineIdx: idx });
-      g71CurZ = zEnd;
-    }
-    // (4) X 후퇴 (급속, zEnd 위치에서 safeR로)
-    {
-      const dR = Math.abs(r - safeR);
-      const sec = calcMoveTimeSec(dR, 0, true);
-      bkt.rapidTime += sec; bkt.time += sec;
-      latheSegments.push({ z1: zEnd, r1: r, z2: zEnd, r2: safeR, type: 'G00', pts: null, lineIdx: idx });
-    }
-  }
+              // FIX: 프로파일 순서(P→Q)를 따라 절삭 방향 결정
+              const zStart = profile[0].z;
+              const zEnd = profile[profile.length - 1].z;
+              const safeR = stockX / 2;
+              let g71CurZ = zStart;
+              for (let x = stockX - dCut * 2; x > minX + dCut * 2; x -= dCut * 2) {
+                const r = x / 2;
+                const avgDia = Math.max(5, x);
+                const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
+                const safeRpm = Math.max(1, activeRpm || 100);
+                const bkt = getBucket(curTool);
+                // (1) 이전 패스 끝 → zStart 급속 복귀
+                if (g71CurZ !== zStart) {
+                  const dz = Math.abs(g71CurZ - zStart);
+                  const sec = calcMoveTimeSec(dz, 0, true);
+                  bkt.rapidTime += sec; bkt.time += sec;
+                  latheSegments.push({ z1: g71CurZ, r1: safeR, z2: zStart, r2: safeR, type: 'G00', pts: null, lineIdx: idx });
+                }
+                // (2) X 절입
+                {
+                  const dR = Math.abs(safeR - r);
+                  const sec = calcMoveTimeSec(dR, 0, true);
+                  bkt.rapidTime += sec; bkt.time += sec;
+                  latheSegments.push({ z1: zStart, r1: safeR, z2: zStart, r2: r, type: 'G00', pts: null, lineIdx: idx });
+                }
+                // (3) Z 절삭
+                {
+                  const distCut = Math.abs(zEnd - zStart);
+                  const sec = calcMoveTimeSec(distCut, curFeed * safeRpm, false);
+                  bkt.cutTime += sec; bkt.dist += distCut; bkt.time += sec;
+                  latheSegments.push({ z1: zStart, r1: r, z2: zEnd, r2: r, type: 'G71-ROUGH', pts: null, lineIdx: idx });
+                  g71CurZ = zEnd;
+                }
+                // (4) X 후퇴
+                {
+                  const dR = Math.abs(r - safeR);
+                  const sec = calcMoveTimeSec(dR, 0, true);
+                  bkt.rapidTime += sec; bkt.time += sec;
+                  latheSegments.push({ z1: zEnd, r1: r, z2: zEnd, r2: safeR, type: 'G00', pts: null, lineIdx: idx });
+                }
+              }
               for (let p = 0; p < profile.length - 1; p++) {
                 const a = profile[p], b = profile[p + 1];
                 const r1 = a.x / 2, r2 = b.x / 2;
@@ -4676,7 +4961,7 @@ if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.0
           const startX = tX + 2 * threadHeight;
 const threadLength = Math.abs(curZ - tZ);
 const numPasses = 8;
-const rStart = startX / 2;  // 각 패스 후 X 후퇴 반경
+const rStart = startX / 2;
 let currentX = startX;
 let depthStep = firstDepth;
 let g76CurZ = curZ;
@@ -4686,7 +4971,6 @@ for (let pass = 0; pass < numPasses; pass++) {
   const activeRpm = isG96 ? Math.min(maxRpm, (1000 * curVc) / (Math.PI * avgDia)) : curRpm;
   const safeRpm = Math.max(1, activeRpm || 100);
   const bkt = getBucket(curTool);
-  // (1) 이전 패스 끝 → 나사 시작 Z로 급속 복귀
   if (g76CurZ !== curZ) {
     const dz = Math.abs(g76CurZ - curZ);
     const secRapid = calcMoveTimeSec(dz, 0, true);
@@ -4694,14 +4978,12 @@ for (let pass = 0; pass < numPasses; pass++) {
     latheSegments.push({ z1: g76CurZ, r1: rStart, z2: curZ, r2: rStart, type: 'G00', pts: null, lineIdx: idx });
     g76CurZ = curZ;
   }
-  // (2) X 절입 (급속)
   {
     const dR = Math.abs(rStart - r);
     const secRapid = calcMoveTimeSec(dR, 0, true);
     bkt.rapidTime += secRapid; bkt.time += secRapid;
     latheSegments.push({ z1: curZ, r1: rStart, z2: curZ, r2: r, type: 'G00', pts: null, lineIdx: idx });
   }
-  // (3) 나사 절삭
   {
     const feedEff = pitch * safeRpm;
     const sec = calcMoveTimeSec(threadLength, feedEff, false);
@@ -4709,7 +4991,6 @@ for (let pass = 0; pass < numPasses; pass++) {
     latheSegments.push({ z1: curZ, r1: r, z2: tZ, r2: r, type: 'G76-THREAD', pts: null, lineIdx: idx });
     g76CurZ = tZ;
   }
-  // (4) X 후퇴 (급속)
   {
     const dR = Math.abs(r - rStart);
     const secRapid = calcMoveTimeSec(dR, 0, true);
@@ -5355,6 +5636,7 @@ for (let pass = 0; pass < numPasses; pass++) {
     let latheLastEdited = 'vc';
 
     function calcLathe(mode) {
+      if (!validateCuttingInputs(['l_dia','l_vc','l_rpm','l_feed','l_nr'])) return;
       const d = parseFloat(document.getElementById('l_dia').value);
       const vcIn = document.getElementById('l_vc');
       const rpmIn = document.getElementById('l_rpm');
@@ -5423,6 +5705,7 @@ for (let pass = 0; pass < numPasses; pass++) {
       else if (fzIn.value) calcMctFeed(1);
     }
     function calcMctParam(mode) {
+      if (!validateCuttingInputs(['m_dia','m_teeth','m_vc','m_rpm','m_fz','m_feed'])) return;
       const d = parseFloat(document.getElementById('m_dia').value);
       const z = parseFloat(document.getElementById('m_teeth').value);
       const vcIn = document.getElementById('m_vc');
@@ -5445,7 +5728,6 @@ for (let pass = 0; pass < numPasses; pass++) {
         }
       }
 
-      /* Fz 우선 — Fz가 있으면 F 재계산 */
       if (currentRpm > 0 && z && z > 0) {
         if (fzIn.value !== '') {
           const fz = parseFloat(fzIn.value);
@@ -5458,6 +5740,7 @@ for (let pass = 0; pass < numPasses; pass++) {
       updateMctChipRate();
     }
     function calcMctFeed(mode) {
+      if (!validateCuttingInputs(['m_teeth','m_rpm','m_fz','m_feed'])) return;
       const z = parseFloat(document.getElementById('m_teeth').value);
       const rpm = parseFloat(document.getElementById('m_rpm').value);
       const fzIn = document.getElementById('m_fz');
@@ -5537,7 +5820,6 @@ for (let pass = 0; pass < numPasses; pass++) {
       }).join('');
       document.getElementById('materialCount').textContent = `표시 ${rows.length} / 전체 ${materialData.length}개`;
     }
-    filterMaterials();
 
     function getLeadAngleKr() {
       const customInput = document.getElementById('m_leadAngleCustom');
@@ -5670,6 +5952,7 @@ for (let pass = 0; pass < numPasses; pass++) {
       const type = document.getElementById('tapDrillType').value;
       const sel = document.getElementById('tapDrillSize');
       if (!sel) return;
+      const prev = sel.value;
       sel.innerHTML = '';
       TAP_DRILL_DATA[type].forEach(item => {
         const opt = document.createElement('option');
@@ -5677,6 +5960,7 @@ for (let pass = 0; pass < numPasses; pass++) {
         opt.textContent = item.size;
         sel.appendChild(opt);
       });
+      if (prev && TAP_DRILL_DATA[type].some(i => i.size === prev)) sel.value = prev;
       updateTapDrillResult();
     }
 
@@ -5787,8 +6071,13 @@ for (let pass = 0; pass < numPasses; pass++) {
 
 <script>
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    window.addEventListener('load', async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        console.info('[PWA] service worker ready:', reg.scope);
+      } catch (e) {
+        console.warn('[PWA] service worker unavailable:', e);
+      }
     });
   }
 </script>
