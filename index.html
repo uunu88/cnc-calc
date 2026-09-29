@@ -828,15 +828,15 @@
 </style>
 
 <style id="v12-mobile-final-polish">
-/* Compact hero: light background, one-line message */
+/* Compact hero: 테마 변수 기반으로 변경 */
 .home-hero {
   min-height: 0;
   height: auto;
   padding: 13px 18px;
   margin-bottom: 16px;
   align-items: center;
-  background: linear-gradient(135deg, #ffffff, #f1f5f9);
-  border: 1px solid #cbd5e1;
+  background: linear-gradient(135deg, var(--card-bg), var(--surface));
+  border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(15,23,42,.06);
 }
@@ -848,14 +848,14 @@
 .home-eyebrow { display: none; }
 .home-hero h2 {
   margin: 0;
-  color: #0f172a;
+  color: var(--text);
   font-size: 15px;
   line-height: 1.35;
   font-weight: 700;
   letter-spacing: -.25px;
   white-space: nowrap;
 }
-.home-hero h2 strong { color: #0369a1; }
+.home-hero h2 strong { color: var(--accent); }
 .home-hero p { display: none; }
 
 /* Duracarb 카탈로그 바로가기 — 테마 대응 칩 */
