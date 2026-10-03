@@ -5539,7 +5539,7 @@ let latheSegments = [];
 let latheScale = 2.5, lathePanX = 0, lathePanY = 0;
 const lCanvas = document.getElementById('latheCanvas');
 const lCtx = lCanvas.getContext('2d');
-let lathePlayIdx = 0, latheIsPlaying = false;
+let lathePlayIdx = 0, latheIsPlaying = false, lathePlayAcc = 0;
 let latheSelectedLineIdx = -1;
 let latheAnimReq = null, latheLastTime = 0;
 
@@ -5922,8 +5922,22 @@ function parseAndDrawLathe() {
   showSimulationSafetyNotice('lathe', [...warnings]);
 }
 
+let __rootStyleCache = {}, __rootStyleStamp = 0;
+function getCachedRootStyle() {
+  const now = performance.now();
+  if (now - __rootStyleStamp > 400) { __rootStyleCache = {}; __rootStyleStamp = now; }
+  return {
+    getPropertyValue(name) {
+      if (!(name in __rootStyleCache)) {
+        __rootStyleCache[name] = getComputedStyle(document.documentElement).getPropertyValue(name);
+      }
+      return __rootStyleCache[name];
+    }
+  };
+}
+
 function drawLatheScreen() {
-  const cs = getComputedStyle(document.documentElement);
+  const cs = getCachedRootStyle();
   const canvasTop = cs.getPropertyValue('--canvas-top').trim() || '#2b4491';
   const canvasBottom = cs.getPropertyValue('--canvas-bottom').trim() || '#4361b5';
   const axisLine = cs.getPropertyValue('--axis-line').trim() || 'rgba(255,255,255,0.4)';
@@ -5941,27 +5955,50 @@ function drawLatheScreen() {
   lCtx.beginPath(); lCtx.moveTo(lathePanX, 0); lCtx.lineTo(lathePanX, lCanvas.height); lCtx.stroke();
   lCtx.setLineDash([]);
   const count = Math.min(lathePlayIdx, latheSegments.length);
-  for (let i = 0; i < count; i++) {
-    const s = latheSegments[i];
-    lCtx.beginPath();
-    if (s.lineIdx === latheSelectedLineIdx) { lCtx.strokeStyle = '#00ffff'; lCtx.lineWidth = 3; }
-    else if (s.type === 'G71-PROFILE') { lCtx.strokeStyle = '#22c55e'; lCtx.lineWidth = 2; }
-    else if (s.type === 'G71-ROUGH') { lCtx.strokeStyle = 'rgba(34,197,94,0.55)'; lCtx.lineWidth = 1.2; }
-    else if (s.type === 'G76-THREAD') { lCtx.strokeStyle = '#a78bfa'; lCtx.lineWidth = 1.6; }
-    else { lCtx.strokeStyle = (s.type === 'G00') ? rapidLine : cutLine; lCtx.lineWidth = (s.type === 'G00') ? 1.2 : 1.7; }
+  const lStyles = {
+    rapid:   { c: rapidLine, w: 1.2 },
+    cut:     { c: cutLine, w: 1.7 },
+    rough:   { c: 'rgba(34,197,94,0.55)', w: 1.2 },
+    profile: { c: '#22c55e', w: 2 },
+    thread:  { c: '#a78bfa', w: 1.6 },
+    sel:     { c: '#00ffff', w: 3 }
+  };
+  const lPaths = {};
+  for (const k in lStyles) lPaths[k] = new Path2D();
+  const lStyleOf = s => s.lineIdx === latheSelectedLineIdx ? 'sel'
+    : s.type === 'G71-PROFILE' ? 'profile'
+    : s.type === 'G71-ROUGH' ? 'rough'
+    : s.type === 'G76-THREAD' ? 'thread'
+    : s.type === 'G00' ? 'rapid' : 'cut';
+  const lX = z => lathePanX + z * latheScale;
+  const lY = r => lathePanY - r * latheScale;
+  const addLatheSeg = (s, frac) => {
+    const path = lPaths[lStyleOf(s)];
     if (s.pts && s.pts.length > 0) {
-      const startPt = s.pts[0];
-      lCtx.moveTo(lathePanX + startPt.z * latheScale, lathePanY - startPt.r * latheScale);
-      for (let p = 1; p < s.pts.length; p++) {
-        lCtx.lineTo(lathePanX + s.pts[p].z * latheScale, lathePanY - s.pts[p].r * latheScale);
+      const pts = s.pts, n = pts.length;
+      let upto = n - 1, t = 0;
+      if (frac < 1) { const pos = frac * (n - 1); upto = Math.floor(pos); t = pos - upto; }
+      path.moveTo(lX(pts[0].z), lY(pts[0].r));
+      for (let q = 1; q <= upto; q++) path.lineTo(lX(pts[q].z), lY(pts[q].r));
+      if (frac < 1 && upto < n - 1) {
+        const a = pts[upto], b = pts[upto + 1];
+        path.lineTo(lX(a.z + (b.z - a.z) * t), lY(a.r + (b.r - a.r) * t));
       }
     } else {
-      const sx1 = lathePanX + s.z1 * latheScale, sy1 = lathePanY - s.r1 * latheScale;
-      const sx2 = lathePanX + s.z2 * latheScale, sy2 = lathePanY - s.r2 * latheScale;
-      lCtx.moveTo(sx1, sy1);
-      lCtx.lineTo(sx2, sy2);
+      path.moveTo(lX(s.z1), lY(s.r1));
+      path.lineTo(lX(s.z1 + (s.z2 - s.z1) * frac), lY(s.r1 + (s.r2 - s.r1) * frac));
     }
-    lCtx.stroke();
+  };
+  for (let i = 0; i < count; i++) addLatheSeg(latheSegments[i], 1);
+  if (count < latheSegments.length && lathePlayAcc > 0) {
+    const s = latheSegments[count];
+    const st = Math.max(s.duration || 0.03, 0.01);
+    addLatheSeg(s, Math.min(lathePlayAcc / st, 1));
+  }
+  for (const k of ['rapid', 'cut', 'rough', 'profile', 'thread', 'sel']) {
+    lCtx.strokeStyle = lStyles[k].c;
+    lCtx.lineWidth = lStyles[k].w;
+    lCtx.stroke(lPaths[k]);
   }
 }
 
@@ -6042,7 +6079,7 @@ function toggleLathePlay() {
   if (latheIsPlaying) pauseLathePlay(); else startLathePlay();
 }
 function startLathePlay() {
-  if (lathePlayIdx >= latheSegments.length) lathePlayIdx = 0;
+  if (lathePlayIdx >= latheSegments.length) { lathePlayIdx = 0; lathePlayAcc = 0; }
   latheIsPlaying = true;
   document.getElementById('btnLathePlay').innerText = '일시정지';
   latheLastTime = performance.now();
@@ -6052,13 +6089,13 @@ function startLathePlay() {
 function latheAnimLoop(timestamp) {
   if (!latheIsPlaying) return;
   const speedVal = parseFloat(document.getElementById('latheSpeed').value) || 2;
-  const dt = (timestamp - latheLastTime) / 1000;
-  let elapsed = dt * speedVal;
-  while (elapsed > 0 && lathePlayIdx < latheSegments.length) {
+  const dt = Math.min((timestamp - latheLastTime) / 1000, 0.1);
+  lathePlayAcc += dt * speedVal;
+  while (lathePlayIdx < latheSegments.length) {
     const seg = latheSegments[lathePlayIdx];
     const segTime = Math.max(seg.duration || 0.03, 0.01);
-    if (elapsed >= segTime) {
-      elapsed -= segTime;
+    if (lathePlayAcc >= segTime) {
+      lathePlayAcc -= segTime;
       lathePlayIdx++;
     } else {
       break;
@@ -6078,12 +6115,14 @@ function pauseLathePlay() {
 }
 function stopLathePlay() {
   pauseLathePlay();
+  lathePlayAcc = 0;
   lathePlayIdx = latheSegments.length;
   document.getElementById('latheSeek').value = 100;
   drawLatheScreen();
 }
 function onLatheSeek(val) {
   pauseLathePlay();
+  lathePlayAcc = 0;
   lathePlayIdx = Math.round((val / 100) * latheSegments.length);
   drawLatheScreen();
 }
@@ -6097,7 +6136,7 @@ let mctMoves = [];
 let mRotZ = -30 * Math.PI / 180;
 let mRotElev = 30 * Math.PI / 180;
 let mScale = 1.8, mPanX = 0, mPanY = 0;
-let mctPlayIdx = 0, mctIsPlaying = false;
+let mctPlayIdx = 0, mctIsPlaying = false, mctPlayAcc = 0;
 let mctSelectedLineIdx = -1;
 let mctAnimReq = null, mctLastTime = 0;
 
@@ -6352,7 +6391,7 @@ function parseAndDrawMCT() {
 }
 
 function drawMctScreen() {
-  const cs = getComputedStyle(document.documentElement);
+  const cs = getCachedRootStyle();
   const canvasTop = cs.getPropertyValue('--canvas-top').trim() || '#2b4491';
   const canvasBottom = cs.getPropertyValue('--canvas-bottom').trim() || '#4361b5';
   const cutLine = cs.getPropertyValue('--cut-line').trim() || '#ffffff';
@@ -6375,29 +6414,45 @@ function drawMctScreen() {
   drawAxis(zA, '#38bdf8', 'Z');
   const count = Math.min(mctPlayIdx, mctMoves.length);
   let lastP = null;
-  for (let i = 0; i < count; i++) {
-    const m = mctMoves[i];
-    mCtx.beginPath();
-    if (m.lineIdx === mctSelectedLineIdx) { mCtx.strokeStyle = '#00ffff'; mCtx.lineWidth = 3.5; }
-    else { mCtx.strokeStyle = (m.type === 'G00') ? rapidLine : cutLine; mCtx.lineWidth = (m.type === 'G00') ? 1.3 : 1.7; }
+  const _cz = Math.cos(mRotZ), _sz = Math.sin(mRotZ);
+  const _ce = Math.cos(mRotElev), _se = Math.sin(mRotElev);
+  const PX = (x, y) => mPanX + (x * _cz - y * _sz) * mScale;
+  const PY = (x, y, z) => mPanY - ((x * _sz + y * _cz) * _se + z * _ce) * mScale;
+  const pRapid = new Path2D(), pCut = new Path2D(), pSel = new Path2D();
+  const addMctDrawMove = (m, frac) => {
+    const path = m.lineIdx === mctSelectedLineIdx ? pSel : (m.type === 'G00' ? pRapid : pCut);
+    let ex, ey, ez;
     if (m.points && m.points.length > 1) {
-      const first = project3D(m.points[0].x, m.points[0].y, m.points[0].z);
-      mCtx.moveTo(first.px, first.py);
-      for (let q = 1; q < m.points.length; q++) {
-        const pp = project3D(m.points[q].x, m.points[q].y, m.points[q].z);
-        mCtx.lineTo(pp.px, pp.py);
+      const pts = m.points, n = pts.length;
+      let upto = n - 1, t = 0;
+      if (frac < 1) { const pos = frac * (n - 1); upto = Math.floor(pos); t = pos - upto; }
+      path.moveTo(PX(pts[0].x, pts[0].y), PY(pts[0].x, pts[0].y, pts[0].z));
+      for (let q = 1; q <= upto; q++) path.lineTo(PX(pts[q].x, pts[q].y), PY(pts[q].x, pts[q].y, pts[q].z));
+      ex = pts[upto].x; ey = pts[upto].y; ez = pts[upto].z;
+      if (frac < 1 && upto < n - 1) {
+        const a = pts[upto], b = pts[upto + 1];
+        ex = a.x + (b.x - a.x) * t; ey = a.y + (b.y - a.y) * t; ez = a.z + (b.z - a.z) * t;
+        path.lineTo(PX(ex, ey), PY(ex, ey, ez));
       }
-      lastP = project3D(m.points[m.points.length - 1].x, m.points[m.points.length - 1].y, m.points[m.points.length - 1].z);
     } else {
-      const p1 = project3D(m.x1, m.y1, m.z1);
-      const p2 = project3D(m.x2, m.y2, m.z2);
-      mCtx.moveTo(p1.px, p1.py);
-      mCtx.lineTo(p2.px, p2.py);
-      lastP = p2;
+      path.moveTo(PX(m.x1, m.y1), PY(m.x1, m.y1, m.z1));
+      ex = m.x1 + (m.x2 - m.x1) * frac;
+      ey = m.y1 + (m.y2 - m.y1) * frac;
+      ez = m.z1 + (m.z2 - m.z1) * frac;
+      path.lineTo(PX(ex, ey), PY(ex, ey, ez));
     }
-    mCtx.stroke();
+    lastP = { px: PX(ex, ey), py: PY(ex, ey, ez) };
+  };
+  for (let i = 0; i < count; i++) addMctDrawMove(mctMoves[i], 1);
+  if (count < mctMoves.length && mctPlayAcc > 0) {
+    const m = mctMoves[count];
+    const st = Math.max(m.duration || 0.03, 0.01);
+    addMctDrawMove(m, Math.min(mctPlayAcc / st, 1));
   }
-  if (lastP && mctPlayIdx > 0 && mctPlayIdx <= mctMoves.length) {
+  mCtx.strokeStyle = rapidLine; mCtx.lineWidth = 1.3; mCtx.stroke(pRapid);
+  mCtx.strokeStyle = cutLine;   mCtx.lineWidth = 1.7; mCtx.stroke(pCut);
+  mCtx.strokeStyle = '#00ffff'; mCtx.lineWidth = 3.5; mCtx.stroke(pSel);
+  if (lastP && (mctPlayIdx > 0 || mctPlayAcc > 0) && mctPlayIdx <= mctMoves.length) {
     mCtx.fillStyle = '#ef4444';
     mCtx.strokeStyle = '#ffffff';
     mCtx.lineWidth = 1;
@@ -6423,7 +6478,7 @@ function toggleMctPlay() {
   if (mctIsPlaying) pauseMctPlay(); else startMctPlay();
 }
 function startMctPlay() {
-  if (mctPlayIdx >= mctMoves.length) mctPlayIdx = 0;
+  if (mctPlayIdx >= mctMoves.length) { mctPlayIdx = 0; mctPlayAcc = 0; }
   mctIsPlaying = true;
   document.getElementById('btnMctPlay').innerText = '일시정지';
   mctLastTime = performance.now();
@@ -6433,13 +6488,13 @@ function startMctPlay() {
 function mctAnimLoop(timestamp) {
   if (!mctIsPlaying) return;
   const speedVal = parseFloat(document.getElementById('mctSpeed').value) || 2;
-  const dt = (timestamp - mctLastTime) / 1000;
-  let elapsed = dt * speedVal;
-  while (elapsed > 0 && mctPlayIdx < mctMoves.length) {
+  const dt = Math.min((timestamp - mctLastTime) / 1000, 0.1);
+  mctPlayAcc += dt * speedVal;
+  while (mctPlayIdx < mctMoves.length) {
     const mv = mctMoves[mctPlayIdx];
     const segTime = Math.max(mv.duration || 0.03, 0.01);
-    if (elapsed >= segTime) {
-      elapsed -= segTime;
+    if (mctPlayAcc >= segTime) {
+      mctPlayAcc -= segTime;
       mctPlayIdx++;
     } else {
       break;
@@ -6459,12 +6514,14 @@ function pauseMctPlay() {
 }
 function stopMctPlay() {
   pauseMctPlay();
+  mctPlayAcc = 0;
   mctPlayIdx = mctMoves.length;
   document.getElementById('mctSeek').value = 100;
   drawMctScreen();
 }
 function onMctSeek(val) {
   pauseMctPlay();
+  mctPlayAcc = 0;
   mctPlayIdx = Math.round((val / 100) * mctMoves.length);
   drawMctScreen();
 }
