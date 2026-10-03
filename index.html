@@ -444,43 +444,6 @@
       background: rgba(56,189,248,.08); border-left: 3px solid var(--accent);
       padding: 7px 10px; border-radius: 6px; line-height: 1.45;
     }
-    .insert-tree-item {
-      border: 1px solid var(--border); border-radius: 8px;
-      margin-bottom: 6px; background: var(--surface);
-      overflow: hidden;
-    }
-    .insert-tree-item summary {
-      padding: 9px 12px; cursor: pointer; font-size: 11.5px;
-      font-weight: 700; color: var(--text); list-style: none;
-      display: flex; align-items: center; gap: 8px;
-      transition: background 0.15s;
-    }
-    .insert-tree-item summary::-webkit-details-marker { display: none; }
-    .insert-tree-item summary::before {
-      content: "Q"; flex-shrink: 0;
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 20px; height: 20px; border-radius: 50%;
-      background: var(--accent); color: #fff;
-      font-size: 10px; font-weight: 900;
-    }
-    .insert-tree-item summary:hover { background: var(--btn-sub-bg); }
-    .insert-tree-item[open] summary {
-      border-bottom: 1px solid var(--border); background: var(--card-bg);
-    }
-    .insert-tree-body {
-      padding: 10px 12px; font-size: 11px; line-height: 1.55;
-      color: var(--text);
-    }
-    .insert-tree-body .row {
-      display: flex; gap: 8px; margin: 5px 0; align-items: flex-start;
-    }
-    .insert-tree-body .row .tag {
-      flex-shrink: 0; font-weight: 800; font-size: 10px;
-      padding: 2px 7px; border-radius: 4px; margin-top: 1px;
-    }
-    .insert-tree-body .tag.yes { background: rgba(34,197,94,.15); color: #22c55e; }
-    .insert-tree-body .tag.no  { background: rgba(148,163,184,.15); color: var(--text-muted); }
-    .insert-tree-body b { color: var(--accent); }
     .insert-damage-card {
       border: 1px solid var(--border); border-radius: 10px;
       margin-bottom: 8px; background: var(--input-bg);
@@ -593,7 +556,12 @@
     .insert-compare-table .pick { color: var(--accent); font-weight: 700; }
     @media (max-width: 480px) {
       .insert-obs-grid { grid-template-columns: 1fr; }
-      .insert-damage-head { flex-direction: column; gap: 9px; }
+      .insert-damage-head {
+        flex-direction: column;
+        gap: 9px;
+        align-items: center;
+      }
+      .insert-damage-info { width: 100%; text-align: left; }
       .insert-svg { width: 84px; height: 84px; }
     }
 
@@ -808,10 +776,58 @@
       .utility-card b { font-size: 10px; }
       .utility-card small { font-size: 8px; }
     }
+
+    /* ===== 선반 / 밀링 조건 비교 ===== */
+    .lathe-cmp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .lathe-cond {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px;
+      background: var(--surface);
+      min-width: 0;
+    }
+    .lathe-cond-title {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 6px;
+      text-align: center;
+      padding: 3px;
+      background: rgba(56, 189, 248, .1);
+      border-radius: 4px;
+      letter-spacing: .05em;
+    }
+    .lathe-cond label { font-size: 10px; margin-bottom: 2px; }
+    .lathe-cond input, .lathe-cond select {
+      padding: 6px;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .lathe-cond input[readonly] {
+      background: rgba(56, 189, 248, .08);
+      color: var(--accent);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      cursor: default;
+    }
+    .lathe-cond input[readonly]:focus { box-shadow: none; border-color: var(--border); }
+    .lathe-lead-row {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 4px;
+    }
+    .lathe-lead-row select, .lathe-lead-row input { margin-bottom: 4px; }
+    @media (max-width: 360px) {
+      .lathe-cond { padding: 6px; }
+      .lathe-cond input, .lathe-cond select { padding: 5px; font-size: 11px; }
+    }
 </style>
 
 <style id="v12-consolidated">
-/* ===== 카탈로그 바로가기 버튼 ===== */
 .catalog-shortcut {
   appearance: none; -webkit-appearance: none;
   display: inline-flex; align-items: center; gap: 5px;
@@ -830,8 +846,6 @@
 .catalog-shortcut:hover { color: var(--accent); border-color: var(--accent); background: var(--card-bg); }
 .catalog-shortcut:active { transform: scale(.97); }
 .catalog-shortcut:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-
-/* ===== 토스트 ===== */
 .app-toast {
   position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom));
   transform: translate(-50%, 14px); opacity: 0; pointer-events: none; z-index: 1000;
@@ -843,8 +857,6 @@
 .app-toast.show { opacity: 1; transform: translate(-50%, 0); }
 .app-toast[data-type="success"] { border-color: rgba(34,197,94,.55); }
 .app-toast[data-type="error"] { border-color: rgba(239,68,68,.6); }
-
-/* ===== 데이터 백업 ===== */
 .data-backup-tools {
   margin: 0 0 12px; padding: 10px; border: 1px solid var(--border);
   border-radius: 10px; background: var(--card-bg);
@@ -855,7 +867,6 @@
 .data-backup-head small { color:var(--text-muted); font-size:9px; }
 .data-backup-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
 .data-backup-actions .btn-sub { margin:0; padding:8px 6px; }
-
 @media (max-width: 760px) {
   .catalog-shortcut { padding: 5px 8px 5px 7px; font-size: 10px; gap: 4px; }
   .catalog-shortcut svg { width: 12px; height: 12px; flex-basis: 12px; }
@@ -921,13 +932,13 @@
       <button class="tool-card" onclick="openView('lathe-calc')">
         <span class="tool-icon">01</span>
         <span class="tool-card-title">선반 절삭조건</span>
-        <span class="tool-card-desc">Vc · RPM · 이송 · 조도</span>
+        <span class="tool-card-desc">조건 비교 · Vc · 조도 · 칩두께</span>
         <span class="tool-card-arrow">→</span>
       </button>
       <button class="tool-card" onclick="openView('mct-calc')">
         <span class="tool-icon">02</span>
         <span class="tool-card-title">밀링 절삭조건</span>
-        <span class="tool-card-desc">Vc · Fz · 공출량 · 칩 두께</span>
+        <span class="tool-card-desc">조건 비교 · Fz · 공출량 · 칩두께</span>
         <span class="tool-card-arrow">→</span>
       </button>
     </div>
@@ -1088,65 +1099,145 @@
 <div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
 </div>
 
-<!-- CNC 선반 계산기 -->
+<!-- CNC 선반 계산기 (조건 비교) -->
 <div class="sub-view" id="view-lathe-calc">
 <div class="card">
-<label>가공 직경 Φ (mm)</label>
-<input id="l_dia" oninput="onLatheDiaChange()" placeholder="예: 86.95" type="number"/>
-<label>절삭속도 Vc (m/min)</label>
-<input id="l_vc" oninput="onLatheVcInput()" placeholder="예: 250" type="number"/>
-<label>주축 회전수 N (RPM)</label>
-<input id="l_rpm" oninput="onLatheRpmInput()" placeholder="예: 915" type="number"/>
-<label>회전당 이송 f (mm/rev)</label>
-<input id="l_feed" oninput="calcLathe(0)" placeholder="예: 0.35" step="0.01" type="number"/>
-<label>인서트 노즈 R (mm)</label>
-<input id="l_nr" oninput="calcLathe(0)" placeholder="예: 0.8" step="0.4" type="number"/>
+<div class="lathe-cmp-grid">
+  <div class="lathe-cond">
+    <div class="lathe-cond-title">조건 1</div>
+    <label>가공 직경 Φ (mm)</label>
+    <input id="l_dia1" oninput="onLatheDiaChange(1)" placeholder="86.95" type="number"/>
+    <label>절삭속도 Vc (m/min)</label>
+    <input id="l_vc1" oninput="onLatheVcInput(1)" placeholder="250" type="number"/>
+    <label>주축 회전수 N (RPM)</label>
+    <input id="l_rpm1" oninput="onLatheRpmInput(1)" placeholder="915" type="number"/>
+    <label>회전당 이송 f (mm/rev)</label>
+    <input id="l_feed1" oninput="calcLatheBoth()" placeholder="0.35" step="0.01" type="number"/>
+    <label>인서트 노즈 R (mm)</label>
+    <input id="l_nr1" oninput="calcLatheBoth()" placeholder="0.8" step="0.4" type="number"/>
+    <label>절입각 (°)</label>
+    <div class="lathe-lead-row">
+      <select id="l_lead1" onchange="calcLatheBoth()">
+        <option value="45">45° · SNMG/SCMT</option>
+        <option value="75">75° · SNMG/SCMT</option>
+        <option value="90">90° · 그루빙</option>
+        <option value="91">91° · TNMG/TCMT</option>
+        <option value="93">93° · DNMG/VNMG</option>
+        <option value="95" selected>95° · CNMG/WNMG</option>
+        <option value="105">105° · TNMG</option>
+        <option value="107.5">107.5° · DNMG/VNMG</option>
+      </select>
+      <input id="l_lead_custom1" min="1" max="179" oninput="calcLatheBoth()" placeholder="직접" step="0.5" type="number"/>
+    </div>
+    <label>이론 조도 Rz/Ra</label>
+    <input id="l_rz1" placeholder="-" readonly type="text"/>
+    <label>칩 두께</label>
+    <input id="l_chip1" placeholder="-" readonly type="text"/>
+  </div>
+    <div class="lathe-cond">
+    <div class="lathe-cond-title">조건 2</div>
+    <label>가공 직경 Φ (mm)</label>
+    <input id="l_dia2" oninput="onLatheDiaChange(2)" type="number"/>
+    <label>절삭속도 Vc (m/min)</label>
+    <input id="l_vc2" oninput="onLatheVcInput(2)" type="number"/>
+    <label>주축 회전수 N (RPM)</label>
+    <input id="l_rpm2" oninput="onLatheRpmInput(2)" type="number"/>
+    <label>회전당 이송 f (mm/rev)</label>
+    <input id="l_feed2" oninput="calcLatheBoth()" step="0.01" type="number"/>
+    <label>인서트 노즈 R (mm)</label>
+    <input id="l_nr2" oninput="calcLatheBoth()" step="0.4" type="number"/>
+    <label>절입각 (°)</label>
+    <div class="lathe-lead-row">
+      <select id="l_lead2" onchange="calcLatheBoth()">
+        <option value="45">45° · SNMG/SCMT</option>
+        <option value="75">75° · SNMG/SCMT</option>
+        <option value="90">90° · 그루빙</option>
+        <option value="91">91° · TNMG/TCMT</option>
+        <option value="93">93° · DNMG/VNMG</option>
+        <option value="95" selected>95° · CNMG/WNMG</option>
+        <option value="105">105° · TNMG</option>
+        <option value="107.5">107.5° · DNMG/VNMG</option>
+      </select>
+      <input id="l_lead_custom2" min="1" max="179" oninput="calcLatheBoth()" step="0.5" type="number"/>
+    </div>
+    <label>이론 조도 Rz</label>
+    <input id="l_rz2" placeholder="-" readonly type="text"/>
+    <label>칩 두께</label>
+    <input id="l_chip2" placeholder="-" readonly type="text"/>
+  </div>
 </div>
-<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyLatheCalc" onclick="copyReport('latheCalcReport','copyLatheCalc')">복사</button></div>
-<div class="info-box" id="latheCalcReport">입력하면 실시간 상호 산출됩니다.</div>
+</div>
+<div class="info-box-head"><span>계산 결과 · 조건 비교</span><button class="btn-copy" id="copyLatheCalc" onclick="copyReport('latheCalcReport','copyLatheCalc')">복사</button></div>
+<div class="info-box" id="latheCalcReport">좌우 조건을 입력하면 실시간으로 비교됩니다.</div>
 </div>
 
-<!-- 밀링 계산기 -->
+<!-- 밀링 계산기 (조건 비교 - 상하) -->
 <div class="sub-view" id="view-mct-calc">
 <div class="card">
-<div class="input-grid-2">
-<div><label>직경 Φ (mm)</label><input id="m_dia" oninput="onMctDiaChange()" placeholder="예: 10" type="number"/></div>
-<div><label>날 수 (Z)</label><input id="m_teeth" oninput="onMctTeethChange()" placeholder="예: 4" type="number"/></div>
+  <div class="lathe-cond" style="margin-bottom:10px;">
+    <div class="lathe-cond-title">조건 1</div>
+    <div class="input-grid-2">
+      <div><label>직경 Φ (mm)</label><input id="m_dia1" oninput="onMctCondDiaChange(1)" placeholder="10" type="number"/></div>
+      <div><label>날 수 (Z)</label><input id="m_teeth1" oninput="onMctCondTeethChange(1)" placeholder="4" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>주축 회전수 N (RPM)</label><input id="m_rpm1" oninput="onMctCondRpmInput(1)" placeholder="3820" type="number"/></div>
+      <div><label>절삭속도 Vc (m/min)</label><input id="m_vc1" oninput="onMctCondVcInput(1)" placeholder="120" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>이송 FEED (mm/min)</label><input id="m_feed1" oninput="onMctCondFeedInput(1)" placeholder="764" type="number"/></div>
+      <div><label>날당 이송 Fz (mm/t)</label><input id="m_fz1" oninput="onMctCondFzInput(1)" placeholder="0.05" step="0.005" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>절삭 폭 ae (mm)</label><input id="m_ae1" oninput="calcMctCompare()" placeholder="5" type="number"/></div>
+      <div><label>절삭 깊이 ap (mm)</label><input id="m_ap1" oninput="calcMctCompare()" placeholder="2" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>커터 리드각</label>
+        <select id="m_leadAngle1" onchange="calcMctCompare()">
+          <option value="90">90°</option>
+          <option value="75">75°</option>
+          <option value="45">45°</option>
+          <option value="15">하이피드</option>
+        </select>
+      </div>
+      <div><label>리드각 직접입력 (°)</label><input id="m_leadAngleCustom1" min="1" max="90" oninput="calcMctCompare()" placeholder="예:10" step="1" type="number"/></div>
+    </div>
+  </div>
+
+    <div class="lathe-cond">
+    <div class="lathe-cond-title">조건 2</div>
+    <div class="input-grid-2">
+      <div><label>직경 Φ (mm)</label><input id="m_dia2" oninput="onMctCondDiaChange(2)" type="number"/></div>
+      <div><label>날 수 (Z)</label><input id="m_teeth2" oninput="onMctCondTeethChange(2)" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>주축 회전수 N (RPM)</label><input id="m_rpm2" oninput="onMctCondRpmInput(2)" type="number"/></div>
+      <div><label>절삭속도 Vc (m/min)</label><input id="m_vc2" oninput="onMctCondVcInput(2)" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>이송 FEED (mm/min)</label><input id="m_feed2" oninput="onMctCondFeedInput(2)" type="number"/></div>
+      <div><label>날당 이송 Fz (mm/t)</label><input id="m_fz2" oninput="onMctCondFzInput(2)" step="0.005" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>절삭 폭 ae (mm)</label><input id="m_ae2" oninput="calcMctCompare()" type="number"/></div>
+      <div><label>절삭 깊이 ap (mm)</label><input id="m_ap2" oninput="calcMctCompare()" type="number"/></div>
+    </div>
+    <div class="input-grid-2">
+      <div><label>커터 리드각</label>
+        <select id="m_leadAngle2" onchange="calcMctCompare()">
+          <option value="90">90°</option>
+          <option value="75">75°</option>
+          <option value="45">45°</option>
+          <option value="15">하이피드</option>
+        </select>
+      </div>
+      <div><label>리드각 직접입력 (°)</label><input id="m_leadAngleCustom2" min="1" max="90" oninput="calcMctCompare()" step="1" type="number"/></div>
+    </div>
+  </div>
 </div>
-<div class="input-grid-2">
-<div><label>주축 회전수 N (RPM)</label><input id="m_rpm" oninput="calcMctParam(2)" placeholder="예: 3820" type="number"/></div>
-<div><label>절삭속도 Vc (m/min)</label><input id="m_vc" oninput="calcMctParam(1)" placeholder="예: 120" type="number"/></div>
-</div>
-<div class="input-grid-2">
-<div><label>이송 FEED (F mm/min)</label><input id="m_feed" oninput="calcMctFeed(2)" placeholder="예: 764" type="number"/></div>
-<div><label>날당 이송 Fz (mm/t)</label><input id="m_fz" oninput="calcMctFeed(1)" placeholder="예: 0.05" step="0.005" type="number"/></div>
-</div>
-<div class="input-grid-2">
-<div><label>절삭 폭 ae (mm)</label><input id="m_ae" oninput="updateMctChipRate()" placeholder="예: 5" type="number"/></div>
-<div><label>절삭 깊이 ap (mm)</label><input id="m_ap" oninput="updateMctChipRate()" placeholder="예: 2" type="number"/></div>
-</div>
-<div style="margin-top:8px; padding-top:8px; border-top:1px dashed var(--border);">
-<div style="font-size:11px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">칩 두께 계산</div>
-<div class="input-grid-2">
-<div>
-<label>커터 리드각 (κr)</label>
-<select id="m_leadAngle" onchange="updateMctChipRate()">
-<option value="90">90°</option>
-<option value="75">75°</option>
-<option value="45">45°</option>
-<option value="15">15°</option>
-</select>
-</div>
-<div>
-<label>리드각 직접 입력 (°)</label>
-<input id="m_leadAngleCustom" min="1" max="90" oninput="updateMctChipRate()" placeholder="예: 10" step="1" type="number"/>
-</div>
-</div>
-<div style="font-size:10px; color:var(--text-muted); margin-top:4px;">* 직접 입력 시 드롭다운보다 우선 적용됩니다.</div>
-</div>
-</div>
-<div class="info-box-head"><span>계산 결과</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">복사</button></div>
-<div class="info-box" id="mctCalcReport">입력 시 절삭조건 및 공출량(Q)이 실시간 양방향 연동됩니다.</div>
+<div class="info-box-head"><span>계산 결과 · 조건 비교</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">복사</button></div>
+<div class="info-box" id="mctCalcReport">조건 1 / 2를 입력하면 실시간으로 비교됩니다.</div>
 </div>
 
 <!-- Duracarb 2026 재종표 -->
@@ -1627,13 +1718,8 @@
       </div>
     </div>
     <div class="insert-tip">
-      <b>측광(비스듬히 조명) </b>휴대폰 카메라 확대로 찍어서 보는 것도 좋습니다. 
+      <b>측광(비스듬히 조명) </b>휴대폰 카메라 확대로 찍어서 보는 것도 좋습니다.
     </div>
-  </div>
-
-  <div class="card">
-    <div class="insert-section-title">판별 결정 트리</div>
-    <div id="insertTreeWrap"></div>
   </div>
 
   <div class="card">
@@ -2586,6 +2672,9 @@ M30`;
       calcRoi();
       ['life', 'corner', 'ct'].forEach(f => updateRoiFieldUI(f));
 
+      calcLatheBoth();
+      calcMctCompare();
+
       let savedTheme = 'light';
       try { savedTheme = localStorage.getItem('cnc_theme') || 'light'; } catch (e) {}
       applyTheme(savedTheme);
@@ -2770,7 +2859,7 @@ M30`;
     function buildBackupState() {
       return {
         app: 'Duracarb Workshop Tool',
-        version: '12.3',
+        version: '13.0',
         savedAt: new Date().toISOString(),
         theme: document.documentElement.getAttribute('data-theme') || 'light',
         forms: collectFormState(),
@@ -2843,12 +2932,13 @@ M30`;
           if (typeof updateTapDrillSizes === 'function') updateTapDrillSizes();
           if (typeof updateTapCondSizes === 'function') updateTapCondSizes();
           if (typeof renderPitchTable === 'function') renderPitchTable();
-          if (typeof updateMctChipRate === 'function') updateMctChipRate();
           if (typeof filterMaterials === 'function') filterMaterials();
           if (typeof applyTableFilters === 'function') applyTableFilters();
           if (typeof renderTroubleCards === 'function') renderTroubleCards();
           if (typeof renderToolCostUI === 'function') renderToolCostUI();
           if (typeof calcRoi === 'function') calcRoi();
+          if (typeof calcLatheBoth === 'function') calcLatheBoth();
+          if (typeof calcMctCompare === 'function') calcMctCompare();
           showToast('백업 데이터를 복원했습니다.', 'success', 3200);
         } catch (e) {
           console.error('[Restore]', e);
@@ -3749,252 +3839,216 @@ M30`;
     }
 
     /* ================================================================
-       인서트 손상 판별 — 비스듬한 측면뷰 (인선=전면좌측, 중앙홀 노출)
+       인서트 손상 판별
        ================================================================ */
- const INSERT_DAMAGES = [
-  /* 1. 크레이터 - 엣지 안쪽 4.5mm, 엣지와 평행 */
-  {
-    id:'crater', name:'크레이터 마모', sub:'CRATER WEAR', cat:'wear',
-    desc:'경사면(레이크면)에 오목하게 파이는 마모. 절삭열에 의한 확산 반응.',
-    key:'코너 뒤쪽 경사면이 움푹 파임',
-    look:[
-      '위치: 코너 인선 바로 안쪽, 경사면(윗면)',
-      '모양: 숟가락으로 퍼낸 듯 오목하게 움푹',
-      '초기: 인선 윤곽이 흐려짐',
-      '진행: 검은 산화물 덩어리가 인선 뒤쪽에 붙음'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <ellipse cx="59" cy="64" rx="8" ry="4" transform="rotate(-41 59 64)" class="svg-damage-area"/>
-    </svg>`
-  },
- /* 2. 플랭크 - 코너에서 멀어질수록 좁아지는 불균일 띠 */
-  {
-    id:'flank', name:'플랭크 마모', sub:'FLANK WEAR', cat:'wear',
-    desc:'여유면이 균일하게 닳아나는 정상 마모. ISO 3685 VB=0.3mm 도달 시 교체.',
-    key:'코너에서 오른쪽 여유면에 띠가 인선을 따라 생김',
-    look:[
-      '위치: 코너 S-E 여유면',
-      '모양: 코너에서 멀어질수록 좁아지는 불균일 띠',
-      '초기: 코너 쪽 반짝이는 얇은 라인',
-      '진행: 띠 폭이 넓어짐'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <path d="M 50,78 L 76.3,55.5 L 76.8,56.4 L 50,80.5 Z" class="svg-damage-area"/>
-    </svg>`
-  },
-   /* 3. 노치 - 엣지 위 t=0.5 지점 V자 */
-  {
-    id:'notch', name:'노치 마모', sub:'NOTCH WEAR', cat:'wear',
-    desc:'절입 깊이(DOC) 라인에 국부적으로 파이는 V자 마모. 경화층·산화 스케일 원인.',
-    key:'코너에서 DOC 거리 지점 인선에만 V자 홈이 파임',
-    look:[
-      '위치: 코너에서 일정 거리 떨어진 인선',
-      '모양: V자 홈이 여유면으로 파고듦',
-      '플랭크와 달리 국부적 (한 지점만)',
-      '피삭재 표피 경화층(단조/주조)에서 흔함'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <path d="M 64,66 L 66.5,71.5 L 69.3,61.5" stroke="#ef4444" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-    </svg>`
-  },
-  /* 4. 미세 치핑 - 엣지 위 t=0.1, 0.2, 0.3 */
-  {
-    id:'microchip', name:'미세 치핑', sub:'MICRO-CHIPPING', cat:'chip',
-    desc:'코너 인선에 작은 결손이 여러 개 생기는 현상. 초기엔 확대경 필요.',
-    key:'코너 오른쪽 인선에 이빨 빠진 자국이 있음',
-    look:[
-      '위치: 코너 S-E 인선',
-      '모양: 이빨 빠진 것처럼 작은 결손 여러 개',
-      '초기: 손끝으로 쓸면 걸림 (확대경 필요)',
-      '진행: 육안으로도 보임'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <polygon points="53.5,75.5 54.5,74.5 55.5,75.8" class="svg-damage"/>
-      <polygon points="57,72.5 58,71.5 59,72.8" class="svg-damage"/>
-      <polygon points="60.5,69.5 61.5,68.5 62.5,69.8" class="svg-damage"/>
-    </svg>`
-  },
-  /* 5. 대형 치핑 - 코너 통째 오른쪽 편향 */
-  {
-    id:'macrochip', name:'대형 치핑 / 파손', sub:'MACRO-CHIPPING', cat:'chip',
-    desc:'코너 일부가 큰 조각으로 떨어져 나감. 즉시 교체 필요.',
-    key:'코너가 통째로 사라져 있음',
-    look:[
-      '위치: 절삭 코너 자체 (S)',
-      '모양: 큰 조각이 툭 떨어져 나감',
-      '육안으로 즉시 식별 가능',
-      '단속·절입 충격 또는 인성 부족이 원인'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <path d="M 58,68.5 L 50,72 L 50,78 L 62,72 Z" class="svg-damage"/>
-    </svg>`
-  },
-  /* 6. 열크랙 - 엣지 위 t=0.11, 0.21, 0.29 수직선 */
-  {
-    id:'thermal', name:'열크랙', sub:'THERMAL CRACK', cat:'chip',
-    desc:'인선에 수직 방향으로 빗살무늬 크랙. 단속가공 열피로.',
-    key:'코너 오른쪽 인선에 수직으로 뻗는 평행한 금',
-    look:[
-      '위치: 코너 S-E 인선에 수직 방향',
-      '모양: 빗살(comb) 무늬 — 평행한 크랙 여러 개',
-      '초기: 코너 근처만',
-      '진행: 인선에 수직으로 파고들어 파손'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <line x1="53.8" y1="74.7" x2="50.5" y2="70.9" class="svg-damage" stroke-width="1.3"/>
-      <line x1="56.8" y1="72.1" x2="53.5" y2="68.3" class="svg-damage" stroke-width="1.3"/>
-      <line x1="59.9" y1="69.5" x2="56.6" y2="65.7" class="svg-damage" stroke-width="1.3"/>
-    </svg>`
-  },
-  /* 7. 코팅 박리 - 레이크면 국부 박리 (면적 표현) */
-  {
-    id:'flaking', name:'코팅 박리', sub:'FLAKING', cat:'chip',
-    desc:'코팅이 기재에서 국부적으로 떨어져 나감. 인선 색이 변함.',
-    key:'코팅이 사라지고 기재(은색)가 넓게 노출',
-    look:[
-      '위치: 코너 인선 안쪽 레이크면',
-      '모양: 불규칙한 면적으로 넓게 벗겨짐',
-      '기재(은색)가 대비되어 확실히 보임',
-      '밀착력 부족 또는 BUE 응력이 원인'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <path d="M 56,68 Q 60,62 66,60 Q 70,62 68,68 Q 64,73 58,72 Q 54,70 56,68 Z" class="svg-secondary" opacity="0.5"/>
-      <path d="M 58,68 Q 62,64 66,63 Q 68,65 66,69 Q 63,71 60,70 Q 57,69 58,68 Z" class="svg-damage-area"/>
-    </svg>`
-  },
-  /* 8. BUE - 코너 위 레이크면에 축적 덩어리 */
-  {
-    id:'bue', name:'BUE (구성인선)', sub:'BUILT-UP EDGE', cat:'surface',
-    desc:'피삭재가 인선에 눌어붙어 있는 상태. 저속·점성 재질에서 자주 발생.',
-    key:'피삭재 색 덩어리가 코너 인선 위에 축적되어 있음',
-    look:[
-      '위치: 절삭 코너(S) 인선 위 레이크면',
-      '모양: 피삭재 색(스테인리스=흰색, 알루미늄=은색) 융기',
-      '손톱으로 살짝 긁으면 떨어짐 (코팅이 아님)',
-      'Vc 낮을 때, 점성 재질에서 잘 생김'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <ellipse cx="55" cy="73" rx="7" ry="5" transform="rotate(-41 55 73)" class="svg-secondary"/>
-      <text x="55" y="75" text-anchor="middle" font-size="4.5" class="svg-text-label">BUE</text>
-    </svg>`
-  },
-  /* 9. 소성 변형 - 코너 오른쪽 편향 (엣지 방향) */
-  {
-    id:'plastic', name:'소성 변형', sub:'PLASTIC DEFORMATION', cat:'wear',
-    desc:'인선이 고온·고압으로 변형되어 흐물흐물해지는 현상.',
-    key:'코너가 오른쪽으로 눌리거나 뭉개짐',
-    look:[
-      '위치: 절삭 코너 (S)',
-      '모양: 코너가 눌리거나 오른쪽으로 휘어짐',
-      '원래 각도와 비교하면 명확',
-      '"고온에서 성형된" 느낌'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <ellipse cx="55" cy="76" rx="7" ry="5" transform="rotate(-41 55 76)" class="svg-damage-area"/>
-    </svg>`
-  },
-  /* 10. 마이크로 BD - 엣지 위 점 (t=0.1, 0.2, 0.3) */
-  {
-    id:'microbd', name:'마이크로 브레이크다운', sub:'MICRO BREAKDOWN', cat:'chip',
-    desc:'코팅만 국부적으로 미세 파괴되어 기재가 노출. 초기엔 조도만 나빠짐.',
-    key:'코너 인선에 코팅이 점처럼 깨짐',
-    look:[
-      '위치: 코너 S-E 인선',
-      '모양: 코팅이 깨져서 기재가 점처럼 노출',
-      '코팅 박리보다 국부적·미세함',
-      '초기엔 조도만 나빠지고 인선은 멀쩡해 보임'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <circle cx="53.5" cy="75" r="1.4" class="svg-damage"/>
-      <circle cx="57" cy="72" r="1.3" class="svg-damage"/>
-      <circle cx="60.5" cy="69" r="1.3" class="svg-damage"/>
-    </svg>`
-  },
-  /* 11. 스폴링 - 조개껍질 파임 (깊이 6mm) */
-  {
-    id:'spalling', name:'스폴링', sub:'SPALLING', cat:'chip',
-    desc:'인선 표층이 조개껍질처럼 얇게 박리. 열충격과 압축피로 결합.',
-    key:'인선 표층이 조개껍질처럼 곡면으로 벗겨져 나감',
-    look:[
-      '위치: 코너 인선 바로 안쪽 (레이크면)',
-      '모양: 조개껍질을 파낸 듯 곡면으로 움푹',
-      '코팅 박리보다는 좁고, 파임은 더 깊음',
-      '두꺼운 CVD 코팅 + 단속가공에서 흔함'
-    ],
-    svg:`<svg viewBox="0 0 100 100" class="insert-svg">
-      <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
-      <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
-      <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
-      <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
-      <path d="M 52,74 Q 57,70 61,64 Q 62,60 58,61 Q 54,64 52,68 Q 50,72 50,74 Q 51,75 52,74 Z" class="svg-damage-area"/>
-    </svg>`
-  }
-];
-    const INSERT_TREE = [
-      { q:'코팅이 벗겨져 기재(은색)가 보이나?',
-        yes:'코팅 박리 또는 마이크로 브레이크다운',
-        no:'다음 질문으로' },
-      { q:'피삭재 색 금속이 인선에 붙어 있나? (손톱으로 긁어보기)',
-        yes:'BUE (구성인선)',
-        no:'다음 질문으로' },
-      { q:'큰 조각이 툭 떨어져 나갔나?',
-        yes:'대형 치핑 / 파손',
-        no:'다음 질문으로' },
-      { q:'인선에 작은 이빨 빠진 자국이 여러 개 있나?',
-        yes:'미세 치핑',
-        no:'다음 질문으로' },
-      { q:'인선에 수직인 빗살무늬 크랙이 있나?',
-        yes:'열크랙 (Thermal Crack)',
-        no:'다음 질문으로' },
-      { q:'인선이 굽거나 옆으로 뭉개졌나?',
-        yes:'소성 변형',
-        no:'다음 질문으로' },
-      { q:'경사면(윗면)이 오목하게 파였나?',
-        yes:'크레이터 마모',
-        no:'다음 질문으로' },
-      { q:'여유면(측면)에 평평한 마모 띠가 있나?',
-        yes:'플랭크 마모',
-        no:'노치 마모 또는 정상' }
+    const INSERT_DAMAGES = [
+      {
+        id:'crater', name:'크레이터 마모', sub:'CRATER WEAR', cat:'wear',
+        desc:'경사면(레이크면)에 오목하게 파이는 마모. 절삭열에 의한 확산 반응.',
+        key:'코너 뒤쪽 경사면이 움푹 파임',
+        look:[
+          '위치: 코너 인선 바로 안쪽, 경사면(윗면)',
+          '모양: 숟가락으로 퍼낸 듯 오목하게 움푹',
+          '초기: 인선 윤곽이 흐려짐',
+          '진행: 검은 산화물 덩어리가 인선 뒤쪽에 붙음'
+        ],
+      svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+  <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+  <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+  <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+  <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+  <ellipse cx="50" cy="68" rx="7" ry="2.8" class="svg-damage-area"/>
+</svg>`
+      },
+      {
+        id:'flank', name:'플랭크 마모', sub:'FLANK WEAR', cat:'wear',
+        desc:'여유면이 균일하게 닳아나는 정상 마모. ISO 3685 VB=0.3mm 도달 시 교체.',
+        key:'코너 인선에 V자 마모가 아래쪽으로 파임',
+        look:[
+          '위치: 코너 S 아래쪽 여유면',
+          '모양: 코너에 붙은 짧은 V자',
+          '초기: 코너 쪽 반짝이는 얇은 라인',
+          '진행: 띠 폭이 넓어짐'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <path d="M 44,72 L 50,77 L 56,72" stroke="#ef4444" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`
+      },
+      {
+        id:'notch', name:'노치 마모', sub:'NOTCH WEAR', cat:'wear',
+        desc:'절입 깊이(DOC) 라인에 국부적으로 파이는 V자 마모. 경화층·산화 스케일 원인.',
+        key:'코너에서 DOC 거리 지점 인선에만 V자 홈이 파임',
+        look:[
+          '위치: 코너에서 일정 거리 떨어진 인선',
+          '모양: V자 홈이 여유면으로 파고듦',
+          '플랭크와 달리 국부적 (한 지점만)',
+          '피삭재 표피 경화층(단조/주조)에서 흔함'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <path d="M 55,73.7 L 57.5,77 L 60,69.4" stroke="#ef4444" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        id:'microchip', name:'미세 치핑', sub:'MICRO-CHIPPING', cat:'chip',
+        desc:'코너 인선에 작은 결손이 여러 개 생기는 현상. 초기엔 확대경 필요.',
+        key:'코너 오른쪽 인선에 이빨 빠진 자국이 있음',
+        look:[
+          '위치: 코너 S-E 인선',
+          '모양: 이빨 빠진 것처럼 작은 결손 여러 개',
+          '초기: 손끝으로 쓸면 걸림 (확대경 필요)',
+          '진행: 육안으로도 보임'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <polygon points="53.5,75.5 54.5,74.5 55.5,75.8" class="svg-damage"/>
+          <polygon points="57,72.5 58,71.5 59,72.8" class="svg-damage"/>
+          <polygon points="60.5,69.5 61.5,68.5 62.5,69.8" class="svg-damage"/>
+        </svg>`
+      },
+      {
+        id:'macrochip', name:'대형 치핑 / 파손', sub:'MACRO-CHIPPING', cat:'chip',
+        desc:'코너 일부가 큰 조각으로 떨어져 나감. 즉시 교체 필요.',
+        key:'코너가 통째로 사라져 있음',
+        look:[
+          '위치: 절삭 코너 자체 (S)',
+          '모양: 큰 조각이 툭 떨어져 나감',
+          '육안으로 즉시 식별 가능',
+          '단속·절입 충격 또는 인성 부족이 원인'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <path d="M 58,68.5 L 50,72 L 50,78 L 62,72 Z" class="svg-damage"/>
+        </svg>`
+      },
+      {
+        id:'thermal', name:'열크랙', sub:'THERMAL CRACK', cat:'chip',
+        desc:'인선에 수직 방향으로 빗살무늬 크랙. 단속가공 열피로.',
+        key:'코너 오른쪽 인선에 수직으로 뻗는 평행한 금',
+        look:[
+          '위치: 코너 S-E 인선에 수직 방향',
+          '모양: 빗살(comb) 무늬 — 평행한 크랙 여러 개',
+          '초기: 코너 근처만',
+          '진행: 인선에 수직으로 파고들어 파손'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <line x1="53.8" y1="74.7" x2="50.5" y2="70.9" class="svg-damage" stroke-width="1.3"/>
+          <line x1="56.8" y1="72.1" x2="53.5" y2="68.3" class="svg-damage" stroke-width="1.3"/>
+          <line x1="59.9" y1="69.5" x2="56.6" y2="65.7" class="svg-damage" stroke-width="1.3"/>
+        </svg>`
+      },
+     {
+  id:'flaking', name:'코팅 박리', sub:'FLAKING', cat:'chip',
+  desc:'코팅이 기재에서 국부적으로 떨어져 나감. 인선 주변에 불규칙한 박리 자국이 생기고 기재(은색)가 드러남.',
+  key:'코너 인선 주변에 불규칙한 면으로 코팅이 벗겨지고 기재가 노출',
+  look:[
+    '위치: 코너 인선 근처 레이크면(윗면)',
+    '모양: 지도처럼 불규칙한 경계의 벗겨진 자국',
+    '코팅 색과 기재 색 대비가 뚜렷 (금/흑 → 은색)',
+    '밀착력 부족 또는 BUE 응력이 원인'
+  ],
+svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+  <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+  <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+  <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+  <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+  <path d="M 45,71 Q 47,68 50,69 Q 51,66 54,67 Q 56,65 58,67 Q 60,68 58,70 Q 60,71 58,73 Q 56,74 54,72 Q 52,74 50,72 Q 48,73 46,71 Q 44,72 45,71 Z" class="svg-damage-area"/>
+  <circle cx="55" cy="70" r="1.1" class="svg-damage"/>
+  <circle cx="48" cy="73" r="0.9" class="svg-damage"/>
+</svg>`
+},
+      {
+        id:'bue', name:'BUE (구성인선)', sub:'BUILT-UP EDGE', cat:'surface',
+        desc:'피삭재가 인선에 눌어붙어 있는 상태. 저속·점성 재질에서 자주 발생.',
+        key:'피삭재 색 덩어리가 코너 인선 위에 축적되어 있음',
+        look:[
+          '위치: 절삭 코너(S) 인선 위 레이크면',
+          '모양: 피삭재 색(스테인리스=흰색, 알루미늄=은색) 융기',
+          '손톱으로 살짝 긁으면 떨어짐 (코팅이 아님)',
+          'Vc 낮을 때, 점성 재질에서 잘 생김'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <ellipse cx="55" cy="73" rx="7" ry="5" transform="rotate(-41 55 73)" class="svg-secondary"/>
+          <text x="55" y="75" text-anchor="middle" font-size="4.5" class="svg-text-label">BUE</text>
+        </svg>`
+      },
+      {
+        id:'plastic', name:'소성 변형', sub:'PLASTIC DEFORMATION', cat:'wear',
+        desc:'인선이 고온·고압으로 변형되어 흐물흐물해지는 현상.',
+        key:'코너가 오른쪽으로 눌리거나 뭉개짐',
+        look:[
+          '위치: 절삭 코너 (S)',
+          '모양: 코너가 눌리거나 오른쪽으로 휘어짐',
+          '원래 각도와 비교하면 명확',
+          '"고온에서 성형된" 느낌'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <ellipse cx="55" cy="76" rx="7" ry="5" transform="rotate(-41 55 76)" class="svg-damage-area"/>
+        </svg>`
+      },
+      {
+        id:'microbd', name:'마이크로 브레이크다운', sub:'MICRO BREAKDOWN', cat:'chip',
+        desc:'코팅만 국부적으로 미세 파괴되어 기재가 노출. 초기엔 조도만 나빠짐.',
+        key:'코너 인선에 코팅이 점처럼 깨짐',
+        look:[
+          '위치: 코너 S-E 인선',
+          '모양: 코팅이 깨져서 기재가 점처럼 노출',
+          '코팅 박리보다 국부적·미세함',
+          '초기엔 조도만 나빠지고 인선은 멀쩡해 보임'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <circle cx="53.5" cy="75" r="1.4" class="svg-damage"/>
+          <circle cx="57" cy="72" r="1.3" class="svg-damage"/>
+          <circle cx="60.5" cy="69" r="1.3" class="svg-damage"/>
+        </svg>`
+      },
+      {
+        id:'spalling', name:'스폴링', sub:'SPALLING', cat:'chip',
+        desc:'인선 표층이 조개껍질처럼 얇게 박리. 열충격과 압축피로 결합.',
+        key:'인선 표층이 조개껍질처럼 곡면으로 벗겨져 나감',
+        look:[
+          '위치: 코너 인선 바로 안쪽 (레이크면)',
+          '모양: 조개껍질을 파낸 듯 곡면으로 움푹',
+          '코팅 박리보다는 좁고, 파임은 더 깊음',
+          '두꺼운 CVD 코팅 + 단속가공에서 흔함'
+        ],
+        svg:`<svg viewBox="0 0 100 100" class="insert-svg">
+          <path d="M 15,48 L 50,78 L 50,88 L 15,58 Z" class="svg-side-face"/>
+          <path d="M 50,78 L 85,48 L 85,58 L 50,88 Z" class="svg-side-face-dim"/>
+          <path d="M 50,18 L 85,48 L 50,78 L 15,48 Z" class="svg-body"/>
+          <ellipse cx="50" cy="48" rx="10" ry="8" class="svg-hole"/>
+          <path d="M 52,74 Q 57,70 61,64 Q 62,60 58,61 Q 54,64 52,68 Q 50,72 50,74 Q 51,75 52,74 Z" class="svg-damage-area"/>
+        </svg>`
+      }
     ];
 
     const INSERT_COMPARE = [
@@ -4013,19 +4067,6 @@ M30`;
     ];
 
     function renderInsertDiagnosis() {
-      const treeWrap = document.getElementById('insertTreeWrap');
-      if (treeWrap && treeWrap.innerHTML.trim() === '') {
-        treeWrap.innerHTML = INSERT_TREE.map((item, i) =>
-          '<details class="insert-tree-item">' +
-            '<summary>' + (i + 1) + '. ' + item.q + '</summary>' +
-            '<div class="insert-tree-body">' +
-              '<div class="row"><span class="tag yes">YES</span><span>→ <b>' + item.yes + '</b></span></div>' +
-              '<div class="row"><span class="tag no">NO</span><span>' + item.no + '</span></div>' +
-            '</div>' +
-          '</details>'
-        ).join('');
-      }
-
       const list = document.getElementById('insertDamageList');
       if (list && list.innerHTML.trim() === '') {
         list.innerHTML = INSERT_DAMAGES.map(d =>
@@ -5278,7 +5319,6 @@ M30`;
       drawLatheScreen();
     }, { passive: false });
 
-    // 통합 포인터 이벤트 (선반)
     const lActivePointers = new Map();
     let lIsDrag = false, lLastMouse = { x: 0, y: 0 }, lTouchDist = 0;
 
@@ -5756,7 +5796,6 @@ M30`;
       drawMctScreen();
     }, { passive: false });
 
-    // 통합 포인터 이벤트 (MCT)
     const mActivePointers = new Map();
     let mIsDrag = false, mLastMouse = { x: 0, y: 0 }, mTouchDist = 0;
 
@@ -5801,127 +5840,321 @@ M30`;
     mBox.addEventListener('pointerup', mReleasePointer);
     mBox.addEventListener('pointercancel', mReleasePointer);
 
-    let latheLastEdited = 'vc';
+    /* ===== 선반 계산기 (조건 1 / 2 비교) ===== */
+    const latheCondLastEdited = { 1: 'vc', 2: 'vc' };
 
-    function calcLathe(mode) {
-      if (!validateCuttingInputs(['l_dia','l_vc','l_rpm','l_feed','l_nr'])) return;
-      const d = parseFloat(document.getElementById('l_dia').value);
-      const vcIn = document.getElementById('l_vc');
-      const rpmIn = document.getElementById('l_rpm');
-      const fRaw = document.getElementById('l_feed').value;
-      const nrRaw = document.getElementById('l_nr').value;
-      const f = fRaw === '' ? null : parseFloat(fRaw);
-      const nr = nrRaw === '' ? null : parseFloat(nrRaw);
+    function getLatheLeadAngle(cond) {
+      const custom = parseFloat(document.getElementById('l_lead_custom' + cond).value);
+      if (isFinite(custom) && custom > 0 && custom < 180) return custom;
+      return parseFloat(document.getElementById('l_lead' + cond).value) || 95;
+    }
 
-      let vc = null, rpm = null;
+    function onLatheVcInput(cond) {
+      latheCondLastEdited[cond] = 'vc';
+      calcLatheCondition(cond, 1);
+      calcLatheCompare();
+    }
+    function onLatheRpmInput(cond) {
+      latheCondLastEdited[cond] = 'rpm';
+      calcLatheCondition(cond, 2);
+      calcLatheCompare();
+    }
+    function onLatheDiaChange(cond) {
+      let mode = latheCondLastEdited[cond] === 'rpm' ? 2 : 1;
+      const vcVal = document.getElementById('l_vc' + cond).value;
+      const rpmVal = document.getElementById('l_rpm' + cond).value;
+      if (mode === 1 && !vcVal && rpmVal) mode = 2;
+      else if (mode === 2 && !rpmVal && vcVal) mode = 1;
+      calcLatheCondition(cond, mode);
+      calcLatheCompare();
+    }
+    function calcLatheBoth() {
+      calcLatheCondition(1, 0);
+      calcLatheCondition(2, 0);
+      calcLatheCompare();
+    }
 
-      if (mode === 1 && vcIn.value && d > 0) {
-        vc = parseFloat(vcIn.value);
-        rpm = Math.round((1000 * vc) / (Math.PI * d));
-        rpmIn.value = rpm;
-      } else if (mode === 2 && rpmIn.value && d > 0) {
-        rpm = parseFloat(rpmIn.value);
-        vc = parseFloat(((Math.PI * d * rpm) / 1000).toFixed(1));
-        vcIn.value = vc;
-      } else {
-        if (vcIn.value) vc = parseFloat(vcIn.value);
-        if (rpmIn.value) rpm = parseFloat(rpmIn.value);
+    function calcLatheCondition(cond, mode) {
+      const dEl = document.getElementById('l_dia' + cond);
+      const vcEl = document.getElementById('l_vc' + cond);
+      const rpmEl = document.getElementById('l_rpm' + cond);
+      const fEl = document.getElementById('l_feed' + cond);
+      const nrEl = document.getElementById('l_nr' + cond);
+      const rzEl = document.getElementById('l_rz' + cond);
+      const chipEl = document.getElementById('l_chip' + cond);
+      if (!dEl || !vcEl || !rpmEl) return;
+
+      const d = parseFloat(dEl.value);
+      let vc = parseFloat(vcEl.value);
+      let rpm = parseFloat(rpmEl.value);
+
+      if (mode === 1 && isFinite(d) && d > 0 && isFinite(vc) && vc > 0) {
+        rpm = Math.round(1000 * vc / (Math.PI * d));
+        rpmEl.value = rpm;
+      } else if (mode === 2 && isFinite(d) && d > 0 && isFinite(rpm) && rpm > 0) {
+        vc = +(Math.PI * d * rpm / 1000).toFixed(1);
+        vcEl.value = vc;
       }
 
-      const feedRate = (rpm && rpm > 0 && f !== null) ? (rpm * f).toFixed(1) + ' mm/min' : '-';
-      let rzLine;
-      if (f !== null && f > 0 && nr !== null && nr > 0) {
-        const rz = ((f * f) / (8 * nr)) * 1000;
-        rzLine = `• 이론 조도 Rz   : ${rz.toFixed(1)} ㎛ (Ra 약 ${(rz/4).toFixed(2)} ㎛)`;
+      const f = parseFloat(fEl.value);
+      const nr = parseFloat(nrEl.value);
+      const kr = getLatheLeadAngle(cond);
+
+      if (isFinite(f) && f > 0 && isFinite(nr) && nr > 0) {
+        const rz = (f * f) / (8 * nr) * 1000;
+        rzEl.value = rz.toFixed(1) + ' ㎛ (Ra≈' + (rz / 4).toFixed(2) + ')';
       } else {
-        rzLine = `• 이론 조도 Rz   : - (이송 f, 노즈R 미입력)`;
+        rzEl.value = '';
       }
-
-      document.getElementById('latheCalcReport').innerText =
-        `[계산 결과]\n` +
-        `• 주축 속도 (N)  : ${rpm !== null ? rpm + ' RPM' : '-'}\n` +
-        `• 절삭 속도 (Vc) : ${vc !== null ? vc + ' m/min' : '-'}\n` +
-        `• 분당 피드      : ${feedRate}\n` +
-        rzLine;
+      if (isFinite(f) && f > 0 && isFinite(kr) && kr > 0) {
+        const hm = f * Math.sin(kr * Math.PI / 180);
+        chipEl.value = hm.toFixed(3) + ' mm (κr ' + kr + '°)';
+      } else {
+        chipEl.value = '';
+      }
     }
 
-    function onLatheVcInput() {
-      latheLastEdited = 'vc';
-      calcLathe(1);
-    }
-    function onLatheRpmInput() {
-      latheLastEdited = 'rpm';
-      calcLathe(2);
-    }
-    function onLatheDiaChange() {
-      calcLathe(latheLastEdited === 'rpm' ? 2 : 1);
+    function getLatheCondData(cond) {
+      const d = parseFloat(document.getElementById('l_dia' + cond).value);
+      const vc = parseFloat(document.getElementById('l_vc' + cond).value);
+      const rpm = parseFloat(document.getElementById('l_rpm' + cond).value);
+      const f = parseFloat(document.getElementById('l_feed' + cond).value);
+      const nr = parseFloat(document.getElementById('l_nr' + cond).value);
+      const kr = getLatheLeadAngle(cond);
+      const feedRate = (isFinite(rpm) && isFinite(f) && rpm > 0 && f > 0) ? rpm * f : NaN;
+      const rz = (isFinite(f) && isFinite(nr) && f > 0 && nr > 0) ? (f * f) / (8 * nr) * 1000 : NaN;
+      const chip = (isFinite(f) && f > 0 && isFinite(kr) && kr > 0) ? f * Math.sin(kr * Math.PI / 180) : NaN;
+      return { d, vc, rpm, f, nr, kr, feedRate, rz, chip };
     }
 
-    function onMctDiaChange() {
-      const d = parseFloat(document.getElementById('m_dia').value);
-      if (!d || d <= 0) return;
-      if (document.getElementById('m_rpm').value) calcMctParam(2);
-      else if (document.getElementById('m_vc').value) calcMctParam(1);
+    function fmtNum(n, digits = 2) {
+      if (!isFinite(n)) return '-';
+      const s = n.toFixed(digits);
+      if (!s.includes('.')) return s;
+      return s.replace(/\.?0+$/, '') || '0';
     }
-    function onMctTeethChange() {
-      const z = parseFloat(document.getElementById('m_teeth').value);
-      const feedIn = document.getElementById('m_feed');
-      const fzIn = document.getElementById('m_fz');
-      if (!z || z <= 0) return;
-      if (feedIn.value) calcMctFeed(2);
-      else if (fzIn.value) calcMctFeed(1);
+    function fmtDelta(cur, base, unit, digits = 1) {
+      if (!isFinite(cur) || !isFinite(base) || base === 0) return '-';
+      const diff = cur - base;
+      const pct = (diff / base) * 100;
+      const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '=';
+      const sign = diff > 0 ? '+' : '';
+      return `${arrow} ${sign}${diff.toFixed(digits)}${unit} (${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%)`;
     }
-    function calcMctParam(mode) {
-      if (!validateCuttingInputs(['m_dia','m_teeth','m_vc','m_rpm','m_fz','m_feed'])) return;
-      const d = parseFloat(document.getElementById('m_dia').value);
-      const z = parseFloat(document.getElementById('m_teeth').value);
-      const vcIn = document.getElementById('m_vc');
-      const rpmIn = document.getElementById('m_rpm');
-      const fzIn = document.getElementById('m_fz');
-      const feedIn = document.getElementById('m_feed');
-      let currentRpm = 0;
+
+    function calcLatheCompare() {
+      const c1 = getLatheCondData(1);
+      const c2 = getLatheCondData(2);
+      const reportEl = document.getElementById('latheCalcReport');
+      if (!reportEl) return;
+
+      const hasC1 = isFinite(c1.d) && isFinite(c1.vc) && isFinite(c1.rpm);
+      const hasC2 = isFinite(c2.d) && isFinite(c2.vc) && isFinite(c2.rpm);
+
+      let txt = '[조건 1]\n';
+      txt += `  Φ${fmtNum(c1.d)} mm · Vc ${fmtNum(c1.vc)} m/min · N ${fmtNum(c1.rpm, 0)} RPM\n`;
+      txt += `  f ${fmtNum(c1.f, 3)} mm/rev · 노즈R ${fmtNum(c1.nr, 2)} · 절입각 ${c1.kr}°\n`;
+      txt += `  분당이송 ${fmtNum(c1.feedRate, 1)} mm/min\n`;
+      txt += `  이론조도 Rz ${isFinite(c1.rz) ? c1.rz.toFixed(1) : '-'} ㎛ (Ra≈${isFinite(c1.rz) ? (c1.rz/4).toFixed(2) : '-'})\n`;
+      txt += `  칩 두께 ${isFinite(c1.chip) ? c1.chip.toFixed(3) : '-'} mm\n`;
+
+      txt += '\n[조건 2]\n';
+      txt += `  Φ${fmtNum(c2.d)} mm · Vc ${fmtNum(c2.vc)} m/min · N ${fmtNum(c2.rpm, 0)} RPM\n`;
+      txt += `  f ${fmtNum(c2.f, 3)} mm/rev · 노즈R ${fmtNum(c2.nr, 2)} · 절입각 ${c2.kr}°\n`;
+      txt += `  분당이송 ${fmtNum(c2.feedRate, 1)} mm/min\n`;
+      txt += `  이론조도 Rz ${isFinite(c2.rz) ? c2.rz.toFixed(1) : '-'} ㎛ (Ra≈${isFinite(c2.rz) ? (c2.rz/4).toFixed(2) : '-'})\n`;
+      txt += `  칩 두께 ${isFinite(c2.chip) ? c2.chip.toFixed(3) : '-'} mm\n`;
+
+      if (hasC1 && hasC2) {
+        txt += '\n[조건 2 − 조건 1 비교]\n';
+        txt += `  Vc       : ${fmtDelta(c2.vc, c1.vc, ' m/min')}\n`;
+        txt += `  N        : ${fmtDelta(c2.rpm, c1.rpm, ' RPM', 0)}\n`;
+        txt += `  f        : ${fmtDelta(c2.f, c1.f, ' mm/rev', 3)}\n`;
+        if (isFinite(c1.feedRate) && isFinite(c2.feedRate)) {
+          txt += `  분당이송 : ${fmtDelta(c2.feedRate, c1.feedRate, ' mm/min')}\n`;
+          const ctRatio = c1.feedRate / c2.feedRate;
+          const ctChange = (ctRatio - 1) * 100;
+          const arrow = ctChange < 0 ? '▼' : ctChange > 0 ? '▲' : '=';
+          txt += `  예상 C/T : 조건1=100 → 조건2=${(ctRatio * 100).toFixed(1)} (${arrow} ${Math.abs(ctChange).toFixed(1)}%)\n`;
+          txt += `             ※ 동일 가공 길이 · 분당이송 비로 추정\n`;
+        }
+        if (isFinite(c1.rz) && isFinite(c2.rz)) {
+          txt += `  이론조도 : ${fmtDelta(c2.rz, c1.rz, ' ㎛', 1)}\n`;
+        }
+        if (isFinite(c1.chip) && isFinite(c2.chip)) {
+          txt += `  칩 두께  : ${fmtDelta(c2.chip, c1.chip, ' mm', 3)}\n`;
+        }
+           } else if (hasC1 && !hasC2) {
+        txt += '\n(조건 2를 입력하면 차이가 표시됩니다.)';
+      } else if (!hasC1 && hasC2) {
+        txt += '\n(조건 1을 입력하면 차이가 표시됩니다.)';
+      } else {
+        txt += '\n(조건 1 · 2를 입력하면 차이가 표시됩니다.)';
+      }
+      reportEl.innerText = txt;
+    }
+
+    /* ===== 밀링 계산기 (조건 1 / 2 비교, 상하배치) ===== */
+    const mctCondLastEdited = { 1: 'vc', 2: 'vc' };
+
+    function getMctLeadAngle(cond) {
+      const custom = parseFloat(document.getElementById('m_leadAngleCustom' + cond).value);
+      if (isFinite(custom) && custom > 0 && custom <= 90) return custom;
+      return parseFloat(document.getElementById('m_leadAngle' + cond).value) || 90;
+    }
+
+    function onMctCondVcInput(cond) {
+      mctCondLastEdited[cond] = 'vc';
+      calcMctCondition(cond, 1);
+      calcMctCompare();
+    }
+    function onMctCondRpmInput(cond) {
+      mctCondLastEdited[cond] = 'rpm';
+      calcMctCondition(cond, 2);
+      calcMctCompare();
+    }
+    function onMctCondDiaChange(cond) {
+      let mode = mctCondLastEdited[cond] === 'rpm' ? 2 : 1;
+      const vcVal = document.getElementById('m_vc' + cond).value;
+      const rpmVal = document.getElementById('m_rpm' + cond).value;
+      if (mode === 1 && !vcVal && rpmVal) mode = 2;
+      else if (mode === 2 && !rpmVal && vcVal) mode = 1;
+      calcMctCondition(cond, mode);
+      calcMctCompare();
+    }
+    function onMctCondTeethChange(cond) {
+      calcMctCondition(cond, 0);
+      calcMctCompare();
+    }
+    function onMctCondFeedInput(cond) {
+      const z = parseFloat(document.getElementById('m_teeth' + cond).value) || 0;
+      const rpm = parseFloat(document.getElementById('m_rpm' + cond).value) || 0;
+      const feedEl = document.getElementById('m_feed' + cond);
+      const fzEl = document.getElementById('m_fz' + cond);
+      if (z > 0 && rpm > 0 && feedEl.value !== '') {
+        const f = parseFloat(feedEl.value);
+        if (!isNaN(f)) fzEl.value = parseFloat((f / (z * rpm)).toFixed(4));
+      }
+      calcMctCompare();
+    }
+    function onMctCondFzInput(cond) {
+      const z = parseFloat(document.getElementById('m_teeth' + cond).value) || 0;
+      const rpm = parseFloat(document.getElementById('m_rpm' + cond).value) || 0;
+      const feedEl = document.getElementById('m_feed' + cond);
+      const fzEl = document.getElementById('m_fz' + cond);
+      if (z > 0 && rpm > 0 && fzEl.value !== '') {
+        const fz = parseFloat(fzEl.value);
+        if (!isNaN(fz)) feedEl.value = Math.round(fz * z * rpm);
+      }
+      calcMctCompare();
+    }
+
+    function calcMctCondition(cond, mode) {
+      const d = parseFloat(document.getElementById('m_dia' + cond).value) || 0;
+      const z = parseFloat(document.getElementById('m_teeth' + cond).value) || 0;
+      const vcEl = document.getElementById('m_vc' + cond);
+      const rpmEl = document.getElementById('m_rpm' + cond);
+      const fzEl = document.getElementById('m_fz' + cond);
+      const feedEl = document.getElementById('m_feed' + cond);
+      let currentRpm = parseFloat(rpmEl.value) || 0;
 
       if (mode === 1 && d > 0) {
-        const vc = parseFloat(vcIn.value);
+        const vc = parseFloat(vcEl.value);
         if (!isNaN(vc)) {
           currentRpm = Math.round((1000 * vc) / (Math.PI * d));
-          rpmIn.value = currentRpm;
+          rpmEl.value = currentRpm;
         }
       } else if (mode === 2 && d > 0) {
-        const rpm = parseFloat(rpmIn.value);
+        const rpm = parseFloat(rpmEl.value);
         if (!isNaN(rpm)) {
           currentRpm = rpm;
-          vcIn.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
+          vcEl.value = ((Math.PI * d * rpm) / 1000).toFixed(1);
         }
+      }
+      // F(이송) 고정 → Fz 재계산 (RPM 변경 시 이송이 튀지 않음)
+      if (currentRpm > 0 && z > 0 && feedEl.value !== '') {
+        const f = parseFloat(feedEl.value);
+        if (!isNaN(f)) fzEl.value = parseFloat((f / (z * currentRpm)).toFixed(4));
+      }
+    }
+
+    function getMctCondData(cond) {
+      const d = parseFloat(document.getElementById('m_dia' + cond).value) || 0;
+      const z = parseFloat(document.getElementById('m_teeth' + cond).value) || 0;
+      const rpm = parseFloat(document.getElementById('m_rpm' + cond).value) || 0;
+      const vc = parseFloat(document.getElementById('m_vc' + cond).value) || 0;
+      const f = parseFloat(document.getElementById('m_feed' + cond).value) || 0;
+      const fz = parseFloat(document.getElementById('m_fz' + cond).value) || 0;
+      const ae = parseFloat(document.getElementById('m_ae' + cond).value) || 0;
+      const ap = parseFloat(document.getElementById('m_ap' + cond).value) || 0;
+      const kr = getMctLeadAngle(cond);
+      const krRad = kr * Math.PI / 180;
+      const Q = (ae * ap * f) / 1000;
+      let hm = NaN, hex = NaN;
+      if (fz > 0 && kr > 0) hex = fz * Math.sin(krRad);
+      if (fz > 0 && ae > 0 && d > 0 && ae <= d) {
+        const phiRad = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * ae / d)));
+        hm = phiRad > 0 ? fz * Math.sin(krRad) * (1 - Math.cos(phiRad)) / phiRad : 0;
+      }
+      return { d, z, rpm, vc, f, fz, ae, ap, kr, hm, hex, Q };
+    }
+
+       function calcMctCompare() {
+      const c1 = getMctCondData(1);
+      const c2 = getMctCondData(2);
+      const reportEl = document.getElementById('mctCalcReport');
+      if (!reportEl) return;
+
+      const hasC1 = c1.d > 0 && c1.rpm > 0;
+      const hasC2 = c2.d > 0 && c2.rpm > 0;
+
+      function block(label, c) {
+        let s = `[${label}]\n`;
+        s += `  Φ${fmtNum(c.d)} mm · Z${fmtNum(c.z, 0)} · Vc ${fmtNum(c.vc)} m/min · N ${fmtNum(c.rpm, 0)} RPM\n`;
+        s += `  F ${fmtNum(c.f, 0)} mm/min · Fz ${fmtNum(c.fz, 4)} mm/t\n`;
+        s += `  ae ${fmtNum(c.ae)} · ap ${fmtNum(c.ap)} · 리드각 ${c.kr}°\n`;
+        if (isFinite(c.hm)) {
+          s += `  칩 두께 hm ${c.hm.toFixed(4)} mm (hex ${c.hex.toFixed(4)})\n`;
+        } else if (c.d > 0 && c.ae > 0 && c.ae > c.d) {
+          s += `  칩 두께 hm - ⚠ ae(${fmtNum(c.ae)}) > Φ(${fmtNum(c.d)}) — 계산 불가\n`;
+        } else {
+          s += `  칩 두께 hm - (Fz/ae/Φ 입력 필요)\n`;
+        }
+        s += `  공출량 Q ${c.Q.toFixed(2)} cc/min\n`;
+        return s;
       }
 
-      if (currentRpm > 0 && z && z > 0) {
-        if (fzIn.value !== '') {
-          const fz = parseFloat(fzIn.value);
-          if (!isNaN(fz)) feedIn.value = Math.round(fz * z * currentRpm);
-        } else if (feedIn.value !== '') {
-          const f = parseFloat(feedIn.value);
-          if (!isNaN(f)) fzIn.value = parseFloat((f / (z * currentRpm)).toFixed(4));
+      let txt = block('조건 1', c1) + '\n' + block('조건 2', c2);
+
+      if (hasC1 && hasC2) {
+        txt += '\n[조건 2 − 조건 1 비교]\n';
+        txt += `  Vc    : ${fmtDelta(c2.vc, c1.vc, ' m/min')}\n`;
+        txt += `  N     : ${fmtDelta(c2.rpm, c1.rpm, ' RPM', 0)}\n`;
+        txt += `  Fz    : ${fmtDelta(c2.fz, c1.fz, ' mm/t', 4)}\n`;
+        txt += `  F     : ${fmtDelta(c2.f, c1.f, ' mm/min', 0)}\n`;
+        if (isFinite(c1.hm) && isFinite(c2.hm)) {
+          txt += `  칩두께: ${fmtDelta(c2.hm, c1.hm, ' mm', 4)}\n`;
         }
+        txt += `  공출량: ${fmtDelta(c2.Q, c1.Q, ' cc/min')}\n`;
+        if (c1.f > 0 && c2.f > 0) {
+          const ctRatio = c1.f / c2.f;
+          const ctChange = (ctRatio - 1) * 100;
+          const arrow = ctChange < 0 ? '▼' : ctChange > 0 ? '▲' : '=';
+          txt += `  예상 C/T : 조건1=100 → 조건2=${(ctRatio * 100).toFixed(1)} (${arrow} ${Math.abs(ctChange).toFixed(1)}%)\n`;
+          txt += `             ※ 동일 경로 길이 · 이송비로 추정\n`;
+        }
+      } else if (hasC1 && !hasC2) {
+        txt += '\n(조건 2를 입력하면 차이가 표시됩니다.)';
+      } else if (!hasC1 && hasC2) {
+        txt += '\n(조건 1을 입력하면 차이가 표시됩니다.)';
+      } else {
+        txt += '\n(조건 1 · 2를 입력하면 차이가 표시됩니다.)';
       }
-      updateMctChipRate();
+      reportEl.innerText = txt;
     }
-    function calcMctFeed(mode) {
-      if (!validateCuttingInputs(['m_teeth','m_rpm','m_fz','m_feed'])) return;
-      const z = parseFloat(document.getElementById('m_teeth').value);
-      const rpm = parseFloat(document.getElementById('m_rpm').value);
-      const fzIn = document.getElementById('m_fz');
-      const feedIn = document.getElementById('m_feed');
-      if (!z || !rpm || z <= 0 || rpm <= 0) { updateMctChipRate(); return; }
-      if (mode === 1) {
-        const fz = parseFloat(fzIn.value);
-        if (!isNaN(fz)) feedIn.value = Math.round(fz * z * rpm);
-      } else if (mode === 2) {
-        const f = parseFloat(feedIn.value);
-        if (!isNaN(f)) fzIn.value = parseFloat((f / (z * rpm)).toFixed(4));
-      }
-      updateMctChipRate();
-    }
+
+    /* 기존 호환: 남아있는 호출이 있어도 동작하도록 */
+    function updateMctChipRate() { calcMctCompare(); }
 
     const materialData = [
       ['P 탄소강/합금강','S10C','1010','C10','A29','저탄소강'],
@@ -5986,69 +6219,6 @@ M30`;
           '<td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + r[4] + '</td><td>' + r[5] + '</td></tr>';
       }).join('');
       document.getElementById('materialCount').textContent = `표시 ${rows.length} / 전체 ${materialData.length}개`;
-    }
-
-    function getLeadAngleKr() {
-      const customInput = document.getElementById('m_leadAngleCustom');
-      const select = document.getElementById('m_leadAngle');
-      const custom = parseFloat(customInput.value);
-      const useCustom = !isNaN(custom) && custom > 0 && custom <= 90;
-      select.style.opacity = useCustom ? '0.35' : '1';
-      select.style.pointerEvents = useCustom ? 'none' : 'auto';
-      if (useCustom) return custom;
-      return parseFloat(select.value) || 90;
-    }
-
-    function updateMctChipRate() {
-      const d = parseFloat(document.getElementById('m_dia').value) || 0;
-      const z = parseFloat(document.getElementById('m_teeth').value) || 0;
-      const rpm = parseFloat(document.getElementById('m_rpm').value) || 0;
-      const vcIn = document.getElementById('m_vc').value;
-      const feedIn = document.getElementById('m_feed').value;
-      const fzIn = document.getElementById('m_fz').value;
-      const ae = parseFloat(document.getElementById('m_ae').value) || 0;
-      const ap = parseFloat(document.getElementById('m_ap').value) || 0;
-      const f = parseFloat(feedIn) || 0;
-      const fz = parseFloat(fzIn) || 0;
-      const vc = vcIn ? parseFloat(vcIn) : (d > 0 && rpm > 0 ? ((Math.PI * d * rpm) / 1000).toFixed(1) : '-');
-      const qVal = ((ae * ap * f) / 1000).toFixed(2);
-      const krDeg = getLeadAngleKr();
-      const kr = krDeg * Math.PI / 180;
-
-      let hm = 0, hex = fz * Math.sin(kr);
-      let hmLine = '';
-      if (fz > 0 && ae > 0 && d > 0) {
-        if (ae > d) {
-          hmLine = `\n\n[⚠ 입력 오류] ae(${ae}) > D(${d}) — 절삭 폭이 공구 직경을 초과`;
-        } else {
-          const phiRad = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * ae / d)));
-          const phiDeg = phiRad * 180 / Math.PI;
-          hm = phiRad > 0 ? fz * Math.sin(kr) * (1 - Math.cos(phiRad)) / phiRad : 0;
-          let minHm, maxHm, mode;
-          if (krDeg >= 60) { minHm = 0.05; maxHm = 0.15; mode = '일반 밀링'; }
-          else if (krDeg >= 30) { minHm = 0.03; maxHm = 0.12; mode = '중간 리드각'; }
-          else { minHm = 0.01; maxHm = 0.08; mode = '하이피드'; }
-          let status;
-          if (hm < minHm) status = `너무 얇음 → 마모 촉진 (Fz ↑) [기준 ${minHm}~${maxHm}mm]`;
-          else if (hm > maxHm) status = `너무 두꺼움 → 치핑 위험 (Fz ↓) [기준 ${minHm}~${maxHm}mm]`;
-          else status = `적정 범위 [기준 ${minHm}~${maxHm}mm]`;
-          hmLine = `\n\n[칩 두께 · 리드각 ${krDeg}° · ${mode}]\n` +
-            `• 평균 칩 두께 (hm)  = ${hm.toFixed(4)} mm (접촉각 ${phiDeg.toFixed(1)}°)\n` +
-            `• 최대 칩 두께 (hex) = ${hex.toFixed(4)} mm\n` +
-            `• 판정: ${status}`;
-        }
-      } else {
-        hmLine = `\n\n[칩 두께 · 리드각 ${krDeg}°]\n• fz, ae, 직경 모두 입력 시 산출`;
-      }
-
-      document.getElementById('mctCalcReport').innerText =
-        `=== 밀링 절삭조건 ===\n` +
-        `• 주축 회전수 (N) : ${rpm ? rpm + ' RPM' : '-'} | Vc: ${vc} m/min\n` +
-        `• 날당 이송 (Fz) : ${fz ? fz + ' mm/tooth' : '-'} | 회전당: ${(fz * z).toFixed(3)} mm/rev\n` +
-        `• 테이블 이송 (F) : ${f ? f + ' mm/min' : '-'}\n` +
-        `------------------------------------\n` +
-        `[공출량 (칩 배출량 Q)]\n• Q = ${qVal} cm³/min (cc/min)\n  (조건: ae ${ae}mm × ap ${ap}mm × F ${f}mm/min)` +
-        hmLine;
     }
 
     const TAP_DRILL_DATA = {
@@ -6189,8 +6359,6 @@ M30`;
       }
       tbody.innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">데이터 없음</td></tr>';
     }
-
-   
 </script>
 
 <script>
