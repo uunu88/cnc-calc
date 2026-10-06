@@ -893,6 +893,10 @@
       .lathe-cond { padding: 6px; }
       .lathe-cond input, .lathe-cond select { padding: 5px; font-size: 11px; }
     }
+    .len-ct-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; align-items: end; }
+    .len-ct-row > div { min-width: 0; }
+    .len-ct-row .cond-label-row { flex-wrap: wrap; row-gap: 2px; }
+    .len-ct-row input[readonly] { font-weight: 800; color: var(--accent); }
     .cond-label-row {
       display: flex;
       justify-content: space-between;
@@ -1006,6 +1010,32 @@
       width: 100%; padding: 12px; border: 0; border-radius: 10px; cursor: pointer;
       background: var(--primary); color: #fff; font-size: 14px; font-weight: 800;
     }
+    /* ===== 칩 브레이커 대응표 ===== */
+    .home-section-head.has-shortcut { flex-wrap: wrap; }
+    .home-section-head.has-shortcut .catalog-shortcuts { margin-left: auto; }
+    .catalog-shortcuts { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
+    /* ===== 재종 대응표 ===== */
+    .brk-switch { margin: 0 0 8px; }
+    .grd-sec-title { font-size: 13px; font-weight: 900; color: var(--text); margin: 14px 2px 0; }
+    .grd-badge { display: inline-block; min-width: 18px; padding: 1px 5px; margin-right: 4px; border-radius: 4px; color: #fff; font-size: 10px; font-weight: 900; text-align: center; }
+    .grd-P { background: #3b82f6; } .grd-M { background: #ca8a04; } .grd-K { background: #ef4444; }
+    .grd-S { background: #f97316; } .grd-H { background: #8b5cf6; }
+    .grd-hit { background: rgba(250, 204, 21, 0.38); border-radius: 3px; padding: 0 2px; }
+    .brk-intro { font-size: 11px; font-weight: 700; color: var(--text-muted); line-height: 1.5; margin-bottom: 4px; }
+    .brk-label { font-size: 10px; font-weight: 800; color: var(--text-muted); margin: 8px 0 2px; }
+    #brkSearch { margin-top: 6px; }
+    .brk-wrap { width: 100%; overflow-x: auto; box-sizing: border-box; margin-top: 8px; border: 1px solid var(--border); border-radius: 10px; }
+    .brk-table { border-collapse: collapse; width: 100%; font-size: 11px; }
+    .brk-table th, .brk-table td { padding: 7px 6px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: center; min-width: 62px; line-height: 1.35; }
+    .brk-table th { background: var(--thead-bg); color: var(--thead-text); font-weight: 800; white-space: nowrap; }
+    .brk-table th:first-child, .brk-table td.brk-d { position: sticky; left: 0; z-index: 2; min-width: 70px; }
+    .brk-table td.brk-d { background: var(--card-bg); font-weight: 900; color: var(--accent); }
+    .brk-table td.brk-d small { display: block; font-size: 8.5px; font-weight: 700; color: var(--text-muted); }
+    .brk-table tr.brk-group td { background: var(--row-even); color: var(--text); font-weight: 800; text-align: left; font-size: 10.5px; position: static; }
+    .brk-table tr:last-child td { border-bottom: none; }
+    .brk-hit { background: rgba(250, 204, 21, 0.3); font-weight: 800; }
+    .brk-empty { color: var(--text-muted); opacity: .5; }
+    .brk-note { font-size: 10px; color: var(--text-muted); line-height: 1.55; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -1095,22 +1125,24 @@
   </section>
 
   <section class="home-section">
-   <div class="home-section-head compact">
+   <div class="home-section-head compact has-shortcut">
   <div>
     <span class="section-kicker">TOOLS & DATA</span>
     <h3>제품 · 기술자료</h3>
   </div>
+  <div class="catalog-shortcuts">
   <button class="catalog-shortcut" type="button"
-    title="Duracarb 재종표 열기"
-    onclick="openView('duracarb-2026')">
+    title="Duracarb 경쟁사 브레이커 · 재종 대응표 열기"
+    onclick="openView('breaker-compare')">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="2"/>
       <line x1="3" y1="9" x2="21" y2="9"/>
       <line x1="3" y1="15" x2="21" y2="15"/>
       <line x1="9" y1="3" x2="9" y2="21"/>
     </svg>
-    Duracarb 재종표 바로가기
+    Duracarb 경쟁사 브레이커&amp;재종 대응표 바로가기
   </button>
+  </div>
 </div>
 
     <div class="secondary-tools">
@@ -1274,8 +1306,16 @@
     <input id="l_rpm1" oninput="onLatheRpmInput(1)" type="number"/>
     <label>회전당 이송 f (mm/rev)</label>
     <input id="l_feed1" oninput="calcLatheBoth()" step="0.01" type="number"/>
-    <label>절삭 길이 L (mm)</label>
-    <input id="l_len1" oninput="calcLatheBoth()" step="0.1" type="number"/>
+    <div class="len-ct-row">
+      <div>
+        <label>절삭 길이 (mm)</label>
+        <input id="l_len1" oninput="calcLatheBoth()" step="0.1" type="number"/>
+      </div>
+      <div>
+        <label>예상 C/T</label>
+        <input id="l_ct1" placeholder="-" readonly type="text"/>
+      </div>
+    </div>
     <label>인서트 노즈 R (mm)</label>
     <input id="l_nr1" oninput="calcLatheBoth()" step="0.4" type="number"/>
     <label>절입각 (°)</label>
@@ -1296,8 +1336,6 @@
     <input id="l_rz1" placeholder="-" readonly type="text"/>
     <label>칩 두께</label>
     <input id="l_chip1" placeholder="-" readonly type="text"/>
-    <label>예상 C/T (절삭 길이 기준)</label>
-    <input id="l_ct1" placeholder="-" readonly type="text"/>
   </div>
   <div class="lathe-cond">
     <div class="lathe-cond-title">조건 2</div>
@@ -1321,11 +1359,19 @@
       <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_feed','lathe')">조건1 복사</button>
     </div>
     <input id="l_feed2" oninput="calcLatheBoth()" step="0.01" type="number"/>
-    <div class="cond-label-row">
-      <label>절삭 길이 L (mm)</label>
-      <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_len','lathe')">조건1 복사</button>
+    <div class="len-ct-row">
+      <div>
+        <div class="cond-label-row">
+          <label>절삭 길이 (mm)</label>
+          <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_len','lathe')">조건1 복사</button>
+        </div>
+        <input id="l_len2" oninput="calcLatheBoth()" step="0.1" type="number"/>
+      </div>
+      <div>
+        <label>예상 C/T</label>
+        <input id="l_ct2" placeholder="-" readonly type="text"/>
+      </div>
     </div>
-    <input id="l_len2" oninput="calcLatheBoth()" step="0.1" type="number"/>
     <div class="cond-label-row">
       <label>인서트 노즈 R (mm)</label>
       <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_nr','lathe')">조건1 복사</button>
@@ -1352,8 +1398,6 @@
     <input id="l_rz2" placeholder="-" readonly type="text"/>
     <label>칩 두께</label>
     <input id="l_chip2" placeholder="-" readonly type="text"/>
-    <label>예상 C/T (절삭 길이 기준)</label>
-    <input id="l_ct2" placeholder="-" readonly type="text"/>
   </div>
 </div>
 </div>
@@ -1406,7 +1450,7 @@
         <input id="m_ap1" oninput="calcMctCompare()" type="number"/>
       </div>
     </div>
-    <div class="input-grid-2">
+    <div class="len-ct-row">
       <div>
         <label>절삭 길이 L (mm)</label>
         <input id="m_len1" oninput="calcMctCompare()" step="0.1" type="number"/>
@@ -1499,7 +1543,7 @@
         <input id="m_ap2" oninput="calcMctCompare()" type="number"/>
       </div>
     </div>
-    <div class="input-grid-2">
+    <div class="len-ct-row">
       <div>
         <div class="cond-label-row">
           <label>절삭 길이 L (mm)</label>
@@ -1537,6 +1581,50 @@
 </div>
 <div class="info-box-head"><span>계산 결과 · 조건 비교</span><button class="btn-copy" id="copyMctCalc" onclick="copyReport('mctCalcReport','copyMctCalc')">복사</button></div>
 <div class="info-box" id="mctCalcReport">조건 1 / 2를 입력하면 실시간으로 비교됩니다.</div>
+</div>
+
+<!-- 재종 대응표 -->
+<div class="sub-view" id="view-grade-compare">
+<div class="card">
+<div class="dura-filter-tabs brk-switch">
+<button class="dura-filter-btn" onclick="swapCompareView('breaker-compare')">칩 브레이커 대응표</button>
+<button class="dura-filter-btn active" onclick="swapCompareView('grade-compare')">재종 대응표</button>
+</div>
+<div class="brk-intro">듀라카브 재종 기준 · 경쟁사 대응 (터닝 · 밀링 · 컷그립 · 서멧)</div>
+<div class="dura-filter-tabs" id="grdTabs">
+<button class="dura-filter-btn active" onclick="setGrdTab('all', this)">전체</button>
+<button class="dura-filter-btn" onclick="setGrdTab('turn', this)">터닝</button>
+<button class="dura-filter-btn" onclick="setGrdTab('mill', this)">밀링</button>
+<button class="dura-filter-btn" onclick="setGrdTab('cut', this)">컷그립 · 드릴링</button>
+<button class="dura-filter-btn" onclick="setGrdTab('cermet', this)">서멧</button>
+</div>
+<input id="grdSearch" type="search" placeholder="재종 검색 (예: DP5320, NC3010, CA5515)" oninput="renderGradeTable()" autocomplete="off"/>
+<div class="brk-label">표시할 업체</div>
+<div class="dura-filter-tabs" id="grdChips"></div>
+<div id="grdBody"></div>
+<div class="brk-note">출처: Duracarb 카탈로그 2026, p.215(터닝) · p.216(밀링 · 드릴링 · 서멧). 용도가 비슷한 재종을 비교한 참고용이며 동일 성능을 보증하지 않습니다. 빈칸(–)은 카탈로그에 대응 재종이 없는 항목입니다. 서멧 표는 카탈로그에 NTK, 세람텍 열이 따로 있고 발터, 이스카 열은 없습니다. 코드를 검색하면 일치하는 업체 칸이 자동으로 함께 표시됩니다.</div>
+</div>
+</div>
+
+<!-- 칩 브레이커 대응표 -->
+<div class="sub-view" id="view-breaker-compare">
+<div class="card">
+<div class="dura-filter-tabs brk-switch">
+<button class="dura-filter-btn active" onclick="swapCompareView('breaker-compare')">칩 브레이커 대응표</button>
+<button class="dura-filter-btn" onclick="swapCompareView('grade-compare')">재종 대응표</button>
+</div>
+<div class="brk-intro">듀라카브 브레이커 기준 · 경쟁사 대응 (선반 인서트)</div>
+<div class="dura-filter-tabs" id="brkTabs">
+<button class="dura-filter-btn active" onclick="setBrkTab('all', this)">전체</button>
+<button class="dura-filter-btn" onclick="setBrkTab('N', this)">네가티브</button>
+<button class="dura-filter-btn" onclick="setBrkTab('P', this)">포지티브 · 알루미늄</button>
+</div>
+<input id="brkSearch" type="search" placeholder="브레이커 검색 (예: 41, FG, HQ, VF)" oninput="renderBreakerTable()" autocomplete="off"/>
+<div class="brk-label">표시할 업체</div>
+<div class="dura-filter-tabs" id="brkChips"></div>
+<div class="brk-wrap"><table class="brk-table"><thead id="brkHead"></thead><tbody id="brkBody"></tbody></table></div>
+<div class="brk-note">출처: Duracarb 카탈로그 2026, p.217 칩 브레이커 비교표. 용도가 비슷한 브레이커를 비교한 참고용이며 동일 성능을 보증하지 않습니다. 빈칸(–)은 카탈로그에 대응 코드가 없는 항목입니다. 검색하면 일치하는 업체 칸이 자동으로 함께 표시됩니다.</div>
+</div>
 </div>
 
 <!-- Duracarb 2026 재종표 -->
@@ -2726,7 +2814,7 @@
 </div>
 
 <div class="cbn-info-box cbn-grade-section">
-<h3>8. 침브레이커 타입별 추천</h3>
+<h3>8. 칩 브레이커 타입별 추천</h3>
 <div class="cbn-grade-group-title">DDM (Multi) / DSM (Single)</div>
 <ul class="cbn-list" style="margin-bottom:12px;">
 <li>고경도 피삭재 절삭 가공 시 <b>최우선</b> 적용</li>
@@ -2796,7 +2884,9 @@
 <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=cut', '_blank')">절단 및 홈 가공<span>Grooving · 공식 사이트</span></div>
 <div class="menu-btn" onclick="window.open('https://www.duracarb.co.kr/page/techInfomations.aspx?ID=drill', '_blank')">드릴링<span>Drilling · 공식 사이트</span></div>
 <div class="menu-btn" onclick="window.open('dura-flex-head-drill-ko.pdf', '_blank')">헤드 드릴<span>Dura FLEX HEAD DRILL</span></div>
+<div class="menu-btn" onclick="openView('duracarb-2026')">Duracarb 재종표<span>재종 · ISO · 어플리케이션</span></div>
 <div class="menu-btn" onclick="window.open('duracarb-catalog-2026.pdf', '_blank')">전체 카탈로그<span>Duracarb 2026 카탈로그</span></div>
+<div class="menu-btn menu-btn-soon">추가 업데이트 예정<span>Coming Soon</span></div>
 </div>
 </div>
 </div>
@@ -2859,15 +2949,233 @@ function showAuthGate() {
   }, 120);
 }
 
+/* ===== 칩 브레이커 대응표 (Duracarb 카탈로그 2026 p.217) =====
+   v 배열 순서 = BRK_COMPANIES 순서. 빈 문자열은 대응 코드 없음. */
+const BRK_COMPANIES = ['대구텍','미쯔비시','스미토모','교세라','탕가로이','한국야금','샌드빅','케나메탈','세코','발터','이스카'];
+const BRK_DEFAULT_ON = ['대구텍','교세라','한국야금'];
+const BRK_GROUPS = [
+  { g: 'N-steel', t: '네가티브 · 강용 (양면)', k: 'N' },
+  { g: 'N-stain', t: '네가티브 · 스테인리스강용 (양면)', k: 'N' },
+  { g: 'N-iron',  t: '네가티브 · 주철용 (양면)', k: 'N' },
+  { g: 'P-steel', t: '포지티브 · 강용', k: 'P' },
+  { g: 'P-alu',   t: '포지티브 · 알루미늄용', k: 'P' }
+];
+const BRK_ROWS = [
+  { g:'N-steel', d:'31', v:['FLP','SH','SP, SU, FE','','TS, AS, TSF, TQ','VF','QF','MP-K, LF, FN','MF2','NF3, NF4','NF, F3P'] },
+  { g:'N-steel', d:'41', v:['FG','SY','SU','HQ','TSF','VF','QF','FP','MF2','NF3','NF'] },
+  { g:'N-steel', d:'41', v:['FC','SH','LU','','TF','GF','PF','FN','','',''] },
+  { g:'N-steel', d:'43', v:['FC','SA','GE','CQ','TSF','VC','PF','FN','MF3','NS6','TF'] },
+  { g:'N-steel', d:'43', v:['PC','SH','','PS','TM','','','','','',''] },
+  { g:'N-steel', d:'86', v:['MM','MA','GU','PS','TM','HS, GS','PM, QM','P','MF5, M3','NM4','TF'] },
+  { g:'N-steel', d:'46', v:['MT','','UX, GX','HS','','HM, GM','HM, XMR','MP','','NM6','GN'] },
+  { g:'N-steel', d:'53', v:['-MG','MG-','UZ','C','MG-','B25','','MG','','MG',''] },
+  { g:'N-stain', d:'42', v:['ML','MS','EX','MU, MS','SS','HS','MM','UP','MF4','NMS','TMN'] },
+  { g:'N-stain', d:'45', v:['EM','MA','GU','HU','SM','GS','MR','RP','MF5','NR4',''] },
+  { g:'N-iron',  d:'53', v:['-MG','MG-','UZ','C','MG-','B25','','MG','','MG',''] },
+  { g:'P-steel', d:'31', note:'Cermet 전용', v:['FA','FV','LU','GK, GP, DP','01, PSF','VL, FP','PF, UF','UF, 11, GM','FF1','PF4, FP4','PF'] },
+  { g:'P-steel', d:'32', note:'Cermet 전용', v:['FG','LP, SV','LB, SU','GK','','HMP','UM','LF','','PS5','SM'] },
+  { g:'P-steel', d:'41', v:['FG','SQ','LU','GP','PF','HPF','PF','FP, LF','F1','PS4','SM'] },
+  { g:'P-steel', d:'51', v:['MT','MT','SU','GK','PS','HMP','PM','MP','','PF2','17'] },
+  { g:'P-steel', d:'52', v:['FM','SV','MU','HQ','PM','C25','UM','MF','F2','PM5','19'] },
+  { g:'P-alu',   d:'AU', v:['FL','AZ','AG','AH','AL','AR','AL','HP','AL','PM2','AF, AS'] }
+];
+let brkTab = 'all';
+const brkOn = new Set(BRK_DEFAULT_ON);
+
+function setBrkTab(tab, btn) {
+  brkTab = tab;
+  document.querySelectorAll('#brkTabs .dura-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+  renderBreakerTable();
+}
+function toggleBrkCompany(name) {
+  if (brkOn.has(name)) { if (brkOn.size > 1) brkOn.delete(name); } else brkOn.add(name);
+  renderBreakerTable();
+}
+function brkTokenHit(text, q) {
+  if (!q) return false;
+  return String(text).split(',').some(tk => tk.trim().toLowerCase().includes(q));
+}
+function renderBreakerTable() {
+  const headEl = document.getElementById('brkHead');
+  const bodyEl = document.getElementById('brkBody');
+  const chipEl = document.getElementById('brkChips');
+  const qEl = document.getElementById('brkSearch');
+  if (!headEl || !bodyEl || !chipEl) return;
+  const q = (qEl ? qEl.value : '').trim().toLowerCase();
+
+  chipEl.innerHTML = BRK_COMPANIES.map(c =>
+    '<button class="dura-filter-btn' + (brkOn.has(c) ? ' active' : '') + '" onclick="toggleBrkCompany(\'' + c + '\')">' + c + '</button>'
+  ).join('');
+
+  const groupKind = {};
+  BRK_GROUPS.forEach(g => groupKind[g.g] = g.k);
+  const rows = BRK_ROWS.filter(r => {
+    if (brkTab !== 'all' && groupKind[r.g] !== brkTab) return false;
+    if (!q) return true;
+    return brkTokenHit(r.d, q) || r.v.some(x => brkTokenHit(x, q));
+  });
+
+  const hitCompanies = new Set();
+  if (q) rows.forEach(r => r.v.forEach((x, i) => { if (brkTokenHit(x, q)) hitCompanies.add(BRK_COMPANIES[i]); }));
+  const cols = BRK_COMPANIES.map((c, i) => ({ c, i })).filter(o => brkOn.has(o.c) || hitCompanies.has(o.c));
+
+  headEl.innerHTML = '<tr><th>듀라카브</th>' + cols.map(o => '<th>' + o.c + '</th>').join('') + '</tr>';
+
+  let html = '';
+  BRK_GROUPS.forEach(g => {
+    const list = rows.filter(r => r.g === g.g);
+    if (!list.length) return;
+    html += '<tr class="brk-group"><td colspan="' + (cols.length + 1) + '">' + g.t + '</td></tr>';
+    list.forEach(r => {
+      html += '<tr><td class="brk-d' + (brkTokenHit(r.d, q) ? ' brk-hit' : '') + '">' + r.d + (r.note ? '<small>' + r.note + '</small>' : '') + '</td>';
+      cols.forEach(o => {
+        const x = r.v[o.i];
+        html += x
+          ? '<td class="' + (brkTokenHit(x, q) ? 'brk-hit' : '') + '">' + x + '</td>'
+          : '<td><span class="brk-empty">–</span></td>';
+      });
+      html += '</tr>';
+    });
+  });
+  if (!html) html = '<tr><td colspan="' + (cols.length + 1) + '" style="padding:18px;color:var(--text-muted);">일치하는 브레이커가 없습니다.</td></tr>';
+  bodyEl.innerHTML = html;
+}
+renderBreakerTable();
+
+/* ===== 재종 대응표 (Duracarb 카탈로그 2026 p.215~216) =====
+   행 문자열: '듀라카브 | 업체1 | 업체2 | ...' (칸 구분 ' | ', 코드 구분 공백, 빈칸은 -) */
+const GRD_STD = ['한국야금','미쯔비시','스미토모','교세라','탕가로이','세코','발터','케나메탈','샌드빅','대구텍','이스카'];
+const GRD_CERMET = ['한국야금','미쯔비시','스미토모','교세라','탕가로이','세코','NTK','케나메탈','샌드빅','대구텍','세람텍'];
+const GRD_UNIVERSE = GRD_STD.concat(['NTK','세람텍']);
+const GRD_DEFAULT_ON = ['한국야금','교세라','대구텍'];
+const GRD_SECTIONS = [
+  { k:'turn', t:'터닝 재종', cols:GRD_STD, groups:[
+    { iso:['P'], t:'강', rows:[
+      'DC9005 | - | UE6105 UE6005 | AC810P | CA510 CA5505 | T9205 T9105 T9005 | TP0501 TP0500 | WKP01G WPP05S WPP05 | KCP05 | GC4305 GC4205 | TT8105 | -',
+      'DC9015 | NC3010 NC3015 | MC6015 UE6110 UE6010 | AC1000 AC700G | CA515 CA5515 | T9115 T9015 | TP1501 TP1500 TP1000 | WPP10S WPP10 | KCP10 KCP10B KC9110 | GC4315 GC4215 | TT8115 | IC8150 IC9150',
+      'DC9025 DC8035 | NC3220 NC3120 NC3020 | MC6025 UE6020 | AC820P AC2000 ACZ310 | CA525 CA5525 | T9125 T9025 | TP2501 TP2500 TP2000 | WPP20S WMP20S | KCP25 KCP25B KC9125 | GC4325 GC4225 | TT8125 TT5100 | IC8250 IC9250' ] },
+    { iso:['M'], t:'스테인리스강', rows:[
+      'DC8035 | NC9125 | MC7025 | AC6030M | CA6525 | T6130 | CP500 | WMP20S | KCM25 | GC2025 | TT5100 | IC6025',
+      'DP5010 | PC8105 | MP9005 | AC510U | PR1305 | AH8005 | TH1000 | WSM10 | KC5510 | GC1105 | TT5030 | IC807' ] },
+    { iso:['K'], t:'주철', rows:[
+      'DC820 | NC6210 NC6110 | MC5015 UC5115 | AC415K AC500G | CA4515 CA4115 CA4120 | T5115 T5020 | TK2001 TK2000 | WKK20S WAK20 | KCK15 KCK15B KC9325 | GC3210 GC3015 | TT7015 TT7310 | IC5005' ] },
+    { iso:['S','H'], t:'내열합금 · 고경도강', rows:[
+      'DP5010 | PC8110 | MP9005 MP9015 VP05RT VP10RT | AC510U EH510Z EH10Z | PR1005 PR930 | AH110 | TH1000 TH1500 TS2000 TS2500 CP200 | WSM10 | KCU10 KC5510 KC5010 | GCS05F GC1105 GC1115 | TT5080 | IC807 IC907',
+      'DP5320 | PC5300 PC9530 PC5400 | VP15TF VP20RT | AC520U EH20Z | PR1025 PR1125 PR1225 PR1425 | AH120 | CP500 | WSM21 WSM20 WSM30 | KCU25 KC5525 KC5025 | GC15 GC1125 GC1025 GC1515 GC1525 | TT9080 | IC808 IC908' ] }
+  ]},
+  { k:'mill', t:'밀링 재종', cols:GRD_STD, groups:[
+    { iso:['P'], t:'강', rows:[
+      'DP9320 DC7070 DC9300 | - | - | ACP100 | - | T3130 AH330 | MP1500 MP2500 T250M T25M | WKP25 WAM10 WAM20 | - | GC4220 GC4230 | TT7080 TT7030 | IC950',
+      'DP5320 DC9800 | PC3500 PC5300 | VP15TF VP20RT UP20M | ACP200 | PR830 PR1225 PR1230 PR9925 | AH725 AH730 GH330 AH120 | F25M F30M MP3000 | WAM30 | KC522M KC635M | GC1030 GC4240 | TT9080 TT9030 | IC808 IC908',
+      'DP8330 DC9235 | PC5400 PC3545 | VP30RT FH7020 F7030 | ACP300 ACZ350 | PR1525 | AH140 T3130 AH130 AH3035 AH9030 | F40M T350M | WKP35 WXP45 WSP45 | KC725M KC735M KC935M KCPM20 | GC4240 GC1040 | TT8080 TT8020 TT7800 | IC830 IC330 IC928' ] },
+    { iso:['M','S'], t:'스테인리스강 · 내열합금', rows:[
+      'DP5320 DC9800 | PC5300 PC9530 | VP15TF VP20RT UP20M | ACP100 ACP200 ACP300 | PR830 PR1210 PR1025 PR1225 PR905 | T3130 AH725 AH120 AH4035 | MS2050 MP2500 F25M F30M | WAM30 WXM35 | KC635M | GC1030 GC2030 S30T GC1025 | TT9080 TT9030 | IC808 IC908',
+      'DP8330 DC9235 | PC5300 PC5400 | F7030 MP7030 VP30RT MP9130 | ACM100 ACM200 ACM300 | PR1225 PR905 | AH130 AH140 SH730 AH3035 | F40M MS2500 MM4500 | WXM35 WSM35 WSP45 | KC725M | GC2040 S40T | TT8080 TT8020 | IC830 IC330 IC928' ] },
+    { iso:['K'], t:'주철', rows:[
+      'DP7320 | PC6510 PC5300 PC5400 | MP8010 VP15TF VP20RT F5010 | ACK200 ACK300 ACZ310 | PR905 PR1210 PR1510 | T1115 AH110 AH120 | MK2050 | WKP25S WKP35S WKK25S WKK25 | KCK15 KC520M | GC1020 GC4230 GC3040 GC4240 | TT6080 | IC810 IC910' ] },
+    { iso:['H'], t:'고경도강', rows:[
+      'DP5320 | PC210F | MP8010 VP15TF MP9130 | - | - | - | MH1000 F15M MP1500 F30M MP3000 | WHH15 | KC510M KC522M KC635M | GC1010 GC1030 | TT9080 | IC903 IC900' ] }
+  ]},
+  { k:'cut', t:'컷그립 · 드릴링 재종', cols:GRD_STD, groups:[
+    { iso:[], t:'컷그립', rows:[
+      'DC210 | H01 | HTi10 | H1 EH10 | - | G1F TH10 | HX | - | - | H10 H10A | K10 | IC20',
+      'DC154 | PC3500 | - | - | - | - | - | - | - | GC1025 GC4125 | TT7220 | IC350',
+      'DC9235 | PC9030 PC9530 | - | ACZ350 | - | AH140 GH330 | CP600 F40M | WXP43 | KC935M KC722 | GC2145 | TT8020 | IC328',
+      'DC9800 | PC9530 | VP15TF | ACP200 | PR830 PR925 PR1025 | GH330 AH720 | F30M | WAM30 | KC522M KC635M | GC1030 GC2030 | TT9030 | IC808 IC908' ] },
+    { iso:[], t:'드릴링', rows:[
+      'DC9800 DP5030 | PC9530 | VP15TF | ACP200 | PR830 PR925 PR1025 | GH330 | F30M | WAM30 | KC522M KC635M | GC1030 GC2030 | TT9030 | IC808 IC908',
+      'DC154 | PC3500 | - | - | - | - | - | - | - | GC1025 GC4125 | TT7220 | IC350',
+      'DC9235 | PC9030 PC9530 | - | ACZ350 | - | AH140 GH330 | CP600 F40M | WXP43 | KC935M KC722 | GC2145 | TT8020 | IC328' ] }
+  ]},
+  { k:'cermet', t:'서멧 재종', cols:GRD_CERMET, groups:[
+    { iso:[], t:'서멧', rows:[
+      'DC610 | CN1500 CN2000 CC125 | MP3025 UP35N | T1500A T1200A T2000Z | PV7020 PV7025 PV60 TN6010 TN6020 TN60 TN620 | GT730 GT530 NS520 NS720 | TP1030 CMP CM | T15 C30 Q50 | KT5020 KT125 KT150 | CT5005 CT5015 CT525 GC1525 | CT3000 | SC15 SC8015 SC7035 SC40',
+      'DC630 | CN20 CN30 | VP45N NX99 NX3035 | T3000Z T130Z | TN100M TC60M PV90 | NS730 NS530 | TP1020 C15M | N20 Z15 C50 C7X | KT1120 KT175 | CT530 | CT7000 | SC7015 SC60' ] }
+  ]}
+];
+GRD_SECTIONS.forEach(sec => sec.groups.forEach(g => {
+  g.rows = g.rows.map(str => {
+    const cells = str.split(' | ').map(c => c.trim() === '-' ? [] : c.trim().split(/\s+/));
+    return { d: cells[0], v: cells.slice(1) };
+  });
+}));
+let grdTab = 'all';
+const grdOn = new Set(GRD_DEFAULT_ON);
+
+function swapCompareView(name) {
+  showViewOnly(name);
+  try { history.replaceState({ view: name }, ''); } catch (e) {}
+}
+function setGrdTab(tab, btn) {
+  grdTab = tab;
+  document.querySelectorAll('#grdTabs .dura-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+  renderGradeTable();
+}
+function toggleGrdCompany(name) {
+  if (grdOn.has(name)) { if (grdOn.size > 1) grdOn.delete(name); } else grdOn.add(name);
+  renderGradeTable();
+}
+function grdHit(code, q) { return !!q && code.toLowerCase().includes(q); }
+function grdCell(codes, q) {
+  if (!codes.length) return '<span class="brk-empty">–</span>';
+  return codes.map(c => grdHit(c, q) ? '<b class="grd-hit">' + c + '</b>' : c).join('<br>');
+}
+function renderGradeTable() {
+  const bodyEl = document.getElementById('grdBody');
+  const chipEl = document.getElementById('grdChips');
+  const qEl = document.getElementById('grdSearch');
+  if (!bodyEl || !chipEl) return;
+  const q = (qEl ? qEl.value : '').trim().toLowerCase();
+  const secs = GRD_SECTIONS.filter(s => grdTab === 'all' || s.k === grdTab);
+
+  const present = new Set();
+  secs.forEach(s => s.cols.forEach(c => present.add(c)));
+  chipEl.innerHTML = GRD_UNIVERSE.filter(c => present.has(c)).map(c =>
+    '<button class="dura-filter-btn' + (grdOn.has(c) ? ' active' : '') + '" onclick="toggleGrdCompany(\'' + c + '\')">' + c + '</button>'
+  ).join('');
+
+  let html = '';
+  secs.forEach(s => {
+    const groups = s.groups.map(g => ({
+      g,
+      rows: g.rows.filter(r => !q || [r.d].concat(r.v).some(codes => codes.some(c => grdHit(c, q))))
+    })).filter(x => x.rows.length);
+    if (!groups.length) return;
+
+    const hitCols = new Set();
+    if (q) groups.forEach(x => x.rows.forEach(r => r.v.forEach((codes, i) => {
+      if (codes.some(c => grdHit(c, q))) hitCols.add(s.cols[i]);
+    })));
+    const cols = s.cols.map((c, i) => ({ c, i })).filter(o => grdOn.has(o.c) || hitCols.has(o.c));
+
+    html += '<div class="grd-sec-title">' + s.t + '</div>';
+    html += '<div class="brk-wrap"><table class="brk-table"><thead><tr><th>듀라카브</th>' +
+      cols.map(o => '<th>' + o.c + '</th>').join('') + '</tr></thead><tbody>';
+    groups.forEach(({ g, rows }) => {
+      html += '<tr class="brk-group"><td colspan="' + (cols.length + 1) + '">' +
+        g.iso.map(k => '<span class="grd-badge grd-' + k + '">' + k + '</span>').join('') +
+        (g.t ? '<span>' + g.t + '</span>' : '') + '</td></tr>';
+      rows.forEach(r => {
+        html += '<tr><td class="brk-d">' + grdCell(r.d, q) + '</td>' +
+          cols.map(o => '<td>' + grdCell(r.v[o.i], q) + '</td>').join('') + '</tr>';
+      });
+    });
+    html += '</tbody></table></div>';
+  });
+  bodyEl.innerHTML = html || '<div style="padding:18px;color:var(--text-muted);font-size:12px;">일치하는 재종이 없습니다.</div>';
+}
+renderGradeTable();
+
 /* ===== 업데이트 안내 (showCount번 표시 후 자동 종료) =====
    업데이트할 때마다 id/date/items를 바꾸면 다시 showCount번 표시됩니다. */
 const UPDATE_NOTICE = {
-  id: '2026-10-06',
+  id: '2026-10-06d',
   date: '2026.10.06',
   showCount: 3,
   items: [
-    '선반/밀링 절삭조건 길이 입력',
-    '조건, 길이 별 Cycle Time 비교'
+    '선반/밀링 절삭조건 길이 입력 기능',
+    '조건, 길이 별 C/T 비교 기능',
+    '칩 브레이커 대응표 (듀라카브 vs 경쟁사)',
   ]
 };
 const UPDATE_SEEN_KEY = 'cnc_update_views';
@@ -2931,6 +3239,8 @@ const VIEW_TITLES = {
   'lathe-calc': '선반 절삭조건 계산',
   'mct-calc': '밀링 절삭조건 계산',
   'duracarb-2026': 'Duracarb 재종표',
+  'breaker-compare': '칩 브레이커 대응표',
+  'grade-compare': '재종 대응표',
   'ref-tools': '참고 자료',
   'insert-diag': '인서트 손상 판별',
   'mat-calc': '재질별 추천 절삭조건',
@@ -2959,7 +3269,8 @@ const VIEW_PARENT = {
   'discount-calc': 'main',
   'tool-cost': 'main',
   'roi-calc': 'main',
-  'dura-official': 'main'
+  'dura-official': 'main',
+  'duracarb-2026': 'dura-official'
 };
 
 /* ================================================================
@@ -6842,7 +7153,7 @@ function calcLatheCondition(cond, mode) {
   if (ctEl && lenEl) {
     const L = parseFloat(lenEl.value);
     const n = parseFloat(rpmEl.value);
-    ctEl.value = (L > 0 && n > 0 && f > 0) ? fmtSec(L / (n * f) * 60) + ' (L ' + fmtNum(L, 1) + 'mm)' : '';
+    ctEl.value = (L > 0 && n > 0 && f > 0) ? fmtSec(L / (n * f) * 60) : '';
   }
 }
 
@@ -7077,7 +7388,7 @@ function calcMctCompare() {
 
   [[1, c1], [2, c2]].forEach(([n, c]) => {
     const el = document.getElementById('m_ct' + n);
-    if (el) el.value = isFinite(c.ct) ? fmtSec(c.ct) + ' (L ' + fmtNum(c.len, 1) + 'mm)' : '';
+    if (el) el.value = isFinite(c.ct) ? fmtSec(c.ct) : '';
   });
 
   function block(label, c) {
