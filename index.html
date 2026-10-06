@@ -663,7 +663,7 @@
     .roi-col label { font-size:10px; }
     .roi-col input { padding:6px; font-size:12px; margin-bottom:4px; }
     .roi-col-hint { font-size:9.5px; color:var(--text-muted); line-height:1.4; margin-bottom:6px; padding:4px 6px; background:rgba(56,189,248,.08); border-radius:4px; }
-    .roi-field-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; }
+    .roi-field-label { display:flex; justify-content:space-between; align-items:center; min-height:16px; margin-bottom:3px; }
     .roi-field-label label { margin-bottom:0; }
     .roi-auto-badge {
       display:inline-block; font-size:9px; font-weight:700;
@@ -2584,11 +2584,17 @@
 <div class="roi-col-title"><span class="roi-dot dot-b"></span>신규 (듀라카브)</div>
 <label>단가 (원)</label>
 <input id="roi_b_price" oninput="calcRoi()" step="1" type="number"/>
+<div class="roi-field-label">
 <label>수명 (ea/코너)</label>
+</div>
 <input id="roi_b_life" oninput="onRoiBInput('life')" step="1" type="number"/>
+<div class="roi-field-label">
 <label>코너 수</label>
+</div>
 <input id="roi_b_corner" oninput="onRoiBInput('corner')" step="1" type="number"/>
+<div class="roi-field-label">
 <label>C/T (초/ea)</label>
+</div>
 <input id="roi_b_ct" oninput="onRoiBInput('ct')" step="0.1" type="number"/>
 </div></div>
 </div>
