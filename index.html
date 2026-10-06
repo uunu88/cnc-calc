@@ -1634,7 +1634,7 @@
 <div class="brk-label">표시할 업체</div>
 <div class="dura-filter-tabs" id="grdChips"></div>
 <div id="grdBody"></div>
-<div class="brk-note">출처: Duracarb 카탈로그 2026, p.215(터닝) · p.216(밀링 · 드릴링 · 서멧). 용도가 비슷한 재종을 비교한 참고용이며 동일 성능을 보증하지 않습니다. 빈칸(–)은 카탈로그에 대응 재종이 없는 항목입니다. 서멧 표는 카탈로그에 NTK, 세람텍 열이 따로 있고 발터, 이스카 열은 없습니다. 코드를 검색하면 일치하는 업체 칸이 자동으로 함께 표시됩니다.</div>
+<div class="brk-note">출처: Duracarb 카탈로그 2026 p.217 '칩 브레이커 비교표'. 동일 성능·수명·절삭조건을 보증하는 1:1 대체표가 아니라 적용영역이 유사한 브레이커의 참고용 크로스레퍼런스입니다. 빈칸(–)은 카탈로그에 대응 코드가 없는 항목입니다. 검색하면 일치하는 업체 칸이 자동으로 함께 표시됩니다.</div>
 </div>
 </div>
 
@@ -1655,7 +1655,7 @@
 <div class="brk-label">표시할 업체</div>
 <div class="dura-filter-tabs" id="brkChips"></div>
 <div class="brk-wrap"><table class="brk-table"><thead id="brkHead"></thead><tbody id="brkBody"></tbody></table></div>
-<div class="brk-note">출처: Duracarb 카탈로그 2026, p.217 칩 브레이커 비교표. 용도가 비슷한 브레이커를 비교한 참고용이며 동일 성능을 보증하지 않습니다. 빈칸(–)은 카탈로그에 대응 코드가 없는 항목입니다. 검색하면 일치하는 업체 칸이 자동으로 함께 표시됩니다.</div>
+<div class="brk-note">출처: Duracarb 자료 + KORLOY 2025-2026, Sumitomo 2025-2026 및 제조사 공식 비교자료 교차검토. 동일 성능·수명·절삭조건을 보증하는 1:1 대체표가 아니라 적용영역이 유사한 브레이커의 참고용 크로스레퍼런스입니다. 특히 복합 적용영역은 여러 제조사 자료의 중첩 범위를 표시했습니다. 빈칸(–)은 확인 가능한 대응 코드가 없는 항목입니다. 검색하면 일치하는 업체 칸이 자동으로 함께 표시됩니다.</div>
 </div>
 </div>
 
@@ -2999,23 +2999,22 @@ const BRK_GROUPS = [
   { g: 'P-alu',   t: '포지티브 · 알루미늄용', k: 'P' }
 ];
 const BRK_ROWS = [
-  { g:'N-steel', d:'31', v:['FLP','SH','SP, SU, FE','','TS, AS, TSF, TQ','VF','QF','MP-K, LF, FN','MF2','NF3, NF4','NF, F3P'] },
-  { g:'N-steel', d:'41', v:['FG','SY','SU','HQ','TSF','VF','QF','FP','MF2','NF3','NF'] },
-  { g:'N-steel', d:'41', v:['FC','SH','LU','','TF','GF','PF','FN','','',''] },
-  { g:'N-steel', d:'43', v:['FC','SA','GE','CQ','TSF','VC','PF','FN','MF3','NS6','TF'] },
-  { g:'N-steel', d:'43', v:['PC','SH','','PS','TM','','','','','',''] },
-  { g:'N-steel', d:'86', v:['MM','MA','GU','PS','TM','HS, GS','PM, QM','P','MF5, M3','NM4','TF'] },
-  { g:'N-steel', d:'46', v:['MT','','UX, GX','HS','','HM, GM','HM, XMR','MP','','NM6','GN'] },
-  { g:'N-steel', d:'53', v:['-MG','MG-','UZ','C','MG-','B25','','MG','','MG',''] },
-  { g:'N-stain', d:'42', v:['ML','MS','EX','MU, MS','SS','HS','MM','UP','MF4','NMS','TMN'] },
-  { g:'N-stain', d:'45', v:['EM','MA','GU','HU','SM','GS','MR','RP','MF5','NR4',''] },
-  { g:'N-iron',  d:'53', v:['-MG','MG-','UZ','C','MG-','B25','','MG','','MG',''] },
+  // Duracarb 카탈로그 2026 p.217 '칩 브레이커 비교표' 원본 그대로 (한 칸에 2줄이면 쉼표로 합침)
+  { g:'N-steel', d:'31', note:'', v:['FLP','SH','SP, SU, FE','','TS, AS, TSF, TQ','VF','QF','MP-K, LF, FN','MF2','NF3, NF4','NF, F3P'] },
+  { g:'N-steel', d:'41', note:'', v:['FG, FC','SY, SH','SU, LU','HQ','TSF, TF','VF, GF','QF, PF','FP, FN','MF2','NF3','NF'] },
+  { g:'N-steel', d:'43', note:'', v:['FC, PC','SA, SH','GE','CQ, PS','TSF, TM','VC','PF','FN','MF3','NS6','TF'] },
+  { g:'N-steel', d:'86', note:'', v:['MM','MA','GU','PS','TM','HS, GS','PM, QM','P','MF5, M3','NM4','TF'] },
+  { g:'N-steel', d:'46', note:'', v:['MT','','UX, GX','HS','','HM, GM','HM, XMR','MP','','NM6','GN'] },
+  { g:'N-steel', d:'53', note:'', v:['-MG','MG-','UZ','C','MG-','B25','','MG','','MG',''] },
+  { g:'N-stain', d:'42', note:'', v:['ML','MS','EX','MU, MS','SS','HS','MM','UP','MF4','NMS','TMN'] },
+  { g:'N-stain', d:'45', note:'', v:['EM','MA','GU','HU','SM','GS','MR','RP','MF5','NR4',''] },
+  { g:'N-iron',  d:'53', note:'', v:['-MG','MG-','UZ','C','MG-','B25','','MG','','MG',''] },
   { g:'P-steel', d:'31', note:'Cermet 전용', v:['FA','FV','LU','GK, GP, DP','01, PSF','VL, FP','PF, UF','UF, 11, GM','FF1','PF4, FP4','PF'] },
   { g:'P-steel', d:'32', note:'Cermet 전용', v:['FG','LP, SV','LB, SU','GK','','HMP','UM','LF','','PS5','SM'] },
-  { g:'P-steel', d:'41', v:['FG','SQ','LU','GP','PF','HPF','PF','FP, LF','F1','PS4','SM'] },
-  { g:'P-steel', d:'51', v:['MT','MT','SU','GK','PS','HMP','PM','MP','','PF2','17'] },
-  { g:'P-steel', d:'52', v:['FM','SV','MU','HQ','PM','C25','UM','MF','F2','PM5','19'] },
-  { g:'P-alu',   d:'AU', v:['FL','AZ','AG','AH','AL','AR','AL','HP','AL','PM2','AF, AS'] }
+  { g:'P-steel', d:'41', note:'', v:['FG','SQ','LU','GP','PF','HPF','PF','FP, LF','F1','PS4','SM'] },
+  { g:'P-steel', d:'51', note:'', v:['MT','MT','SU','GK','PS','HMP','PM','MP','','PF2','17'] },
+  { g:'P-steel', d:'52', note:'', v:['FM','SV','MU','HQ','PM','C25','UM','MF','F2','PM5','19'] },
+  { g:'P-alu',   d:'AU', note:'', v:['FL','AZ','AG','AH','AL','AR','AL','HP','AL','PM2','AF, AS'] }
 ];
 let brkTab = 'all';
 const brkOn = new Set(BRK_DEFAULT_ON);
