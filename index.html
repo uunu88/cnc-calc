@@ -935,6 +935,34 @@
       background: var(--btn-sub-bg);
       transform: scale(0.96);
     }
+    .cond-reset-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 3px 9px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .cond-reset-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .cond-reset-btn:active {
+      background: var(--btn-sub-bg);
+      transform: scale(0.96);
+    }
+    .lathe-cond-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-height: 22px;
+    }
 </style>
 
 <style id="v12-consolidated">
@@ -1305,7 +1333,7 @@
 <div class="card">
 <div class="lathe-cmp-grid">
   <div class="lathe-cond">
-    <div class="lathe-cond-title">조건 1</div>
+    <div class="lathe-cond-title"><span>조건 1</span><button type="button" class="cond-reset-btn" onclick="resetCuttingCondition('lathe', 1)">초기화</button></div>
     <label>가공 직경 Φ (mm)</label>
     <input id="l_dia1" oninput="onLatheDiaChange(1)" type="number"/>
     <label>절삭속도 Vc (m/min)</label>
@@ -1346,7 +1374,7 @@
     <input id="l_chip1" placeholder="-" readonly type="text"/>
   </div>
   <div class="lathe-cond">
-    <div class="lathe-cond-title">조건 2</div>
+    <div class="lathe-cond-title"><span>조건 2</span><button type="button" class="cond-reset-btn" onclick="resetCuttingCondition('lathe', 2)">초기화</button></div>
     <div class="cond-label-row">
       <label>가공 직경 Φ (mm)</label>
       <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_dia','lathe')">조건1 복사</button>
@@ -1364,7 +1392,6 @@
     <input id="l_rpm2" oninput="onLatheRpmInput(2)" type="number"/>
     <div class="cond-label-row">
       <label>회전당 이송 f (mm/rev)</label>
-      <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_feed','lathe')">조건1 복사</button>
     </div>
     <input id="l_feed2" oninput="calcLatheBoth()" step="0.01" type="number"/>
     <div class="len-ct-row">
@@ -1414,7 +1441,7 @@
 <div class="sub-view" id="view-mct-calc">
 <div class="card">
   <div class="lathe-cond" style="margin-bottom:10px;">
-    <div class="lathe-cond-title">조건 1</div>
+    <div class="lathe-cond-title"><span>조건 1</span><button type="button" class="cond-reset-btn" onclick="resetCuttingCondition('mct', 1)">초기화</button></div>
     <div class="input-grid-2">
       <div>
         <label>직경 Φ (mm)</label>
@@ -1483,7 +1510,7 @@
   </div>
 
   <div class="lathe-cond">
-    <div class="lathe-cond-title">조건 2</div>
+    <div class="lathe-cond-title"><span>조건 2</span><button type="button" class="cond-reset-btn" onclick="resetCuttingCondition('mct', 2)">초기화</button></div>
     <div class="input-grid-2">
       <div>
         <div class="cond-label-row">
@@ -7060,6 +7087,37 @@ function onLatheDiaChange(cond) {
   else if (mode === 2 && !rpmVal && vcVal) mode = 1;
   calcLatheCondition(cond, mode);
   calcLatheCompare();
+}
+
+function resetCuttingCondition(machine, cond) {
+  const prefixes = machine === 'lathe'
+    ? ['l_dia', 'l_vc', 'l_rpm', 'l_feed', 'l_len', 'l_nr', 'l_lead_custom', 'l_rz', 'l_chip', 'l_ct']
+    : ['m_dia', 'm_teeth', 'm_rpm', 'm_vc', 'm_feed', 'm_fz', 'm_ae', 'm_ap', 'm_len', 'm_ct', 'm_leadAngleCustom'];
+
+  prefixes.forEach(prefix => {
+    const el = document.getElementById(prefix + cond);
+    if (!el) return;
+    if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+
+  if (machine === 'lathe') {
+    const lead = document.getElementById('l_lead' + cond);
+    if (lead) lead.value = '95';
+  } else {
+    const lead = document.getElementById('m_leadAngle' + cond);
+    if (lead) lead.value = '90';
+  }
+
+  if (machine === 'lathe') {
+    latheCondLastEdited[cond] = 'vc';
+    calcLatheBoth();
+  } else {
+    mctCondLastEdited[cond] = 'vc';
+    calcMctCompare();
+  }
+  debouncedSave();
+  showToast('조건 ' + cond + '을 초기화했습니다.', 'success', 1600);
 }
 
 function copyFromCond1(fieldBase, machine) {
