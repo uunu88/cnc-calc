@@ -976,6 +976,36 @@
   .data-backup-head { align-items: flex-start; flex-direction: column; gap:3px; }
   .data-backup-actions .btn-sub { font-size:10px; }
 }
+    /* ===== 업데이트 안내 팝업 ===== */
+    .update-notice {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: rgba(9, 13, 22, 0.72);
+      align-items: center; justify-content: center; padding: 20px;
+      backdrop-filter: blur(3px);
+    }
+    .update-notice.show { display: flex; }
+    .update-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+      width: 100%; max-width: 360px; padding: 22px 20px 18px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    }
+    .update-kicker { font-size: 10px; letter-spacing: .14em; font-weight: 800; color: var(--accent); margin-bottom: 4px; }
+    .update-title { font-size: 18px; font-weight: 900; line-height: 1.3; color: var(--text); margin-bottom: 14px; }
+    .update-list { list-style: none; display: grid; gap: 8px; margin: 0 0 18px; padding: 0; counter-reset: upd; }
+    .update-list li {
+      counter-increment: upd; position: relative; padding: 10px 12px 10px 38px;
+      border: 1px solid var(--border); border-radius: 10px; background: var(--surface, var(--bg));
+      font-size: 13px; font-weight: 700; line-height: 1.4; color: var(--text);
+    }
+    .update-list li::before {
+      content: counter(upd); position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff;
+      font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center;
+    }
+    .update-ok {
+      width: 100%; padding: 12px; border: 0; border-radius: 10px; cursor: pointer;
+      background: var(--primary); color: #fff; font-size: 14px; font-weight: 800;
+    }
 </style>
 </head>
 <body>
@@ -989,7 +1019,16 @@
     <input type="password" id="authInput" placeholder="PASSWORD" autocomplete="off"/>
     <button class="auth-submit" onclick="checkAuth()">확인</button>
     <div class="auth-error" id="authError"></div>
-    <div class="auth-hint">한번만 로그인 하시면 됩니다.</div>
+    <div class="auth-hint">코드가 안맞으면 관리자에게 문의하세요.</div>
+  </div>
+</div>
+<!-- 업데이트 안내 팝업 (새 업데이트가 있을 때 1회) -->
+<div class="update-notice" id="updateNotice">
+  <div class="update-card">
+    <div class="update-kicker">WHAT'S NEW</div>
+    <div class="update-title" id="updateTitle"></div>
+    <ol class="update-list" id="updateList"></ol>
+    <button class="update-ok" onclick="closeUpdateNotice()">확인</button>
   </div>
 </div>
 <div class="ocr-overlay" id="ocrOverlay">
@@ -1110,7 +1149,7 @@
   </section>
 
   <div class="home-footer-note">
-    <strong>오류 발생 시 바로 연락주세요.</strong>
+    <strong>https://uunu88.github.io/cnc-calc/</strong>
     <p>삼성 브라우저 · Chrome에서 설치 후 편하게 사용하세요.</p>
     <p>데이터 저장 · 백업이 필요하시면 상단 Duracarb 도우미 5번 클릭</p>
   </div>
@@ -2820,9 +2859,40 @@ function showAuthGate() {
   }, 120);
 }
 
+/* ===== 업데이트 안내 (새 id일 때 1회만 표시) =====
+   업데이트할 때마다 id/date/items만 바꾸면 다시 1회 표시됩니다. */
+const UPDATE_NOTICE = {
+  id: '2026-10-06',
+  date: '2026.10.06',
+  items: [
+    '선반/밀링 절삭조건 길이 입력',
+    '조건, 길이 별 Cycle Time 비교'
+  ]
+};
+const UPDATE_SEEN_KEY = 'cnc_update_seen';
+
+function showUpdateNoticeIfNeeded() {
+  const box = document.getElementById('updateNotice');
+  if (!box) return;
+  let seen = null;
+  try { seen = localStorage.getItem(UPDATE_SEEN_KEY); } catch (e) {}
+  if (seen === UPDATE_NOTICE.id) return;
+  document.getElementById('updateTitle').textContent = UPDATE_NOTICE.date + ' 업데이트된 기능';
+  document.getElementById('updateList').innerHTML = UPDATE_NOTICE.items
+    .map(t => '<li>' + String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>').join('');
+  box.classList.add('show');
+}
+
+function closeUpdateNotice() {
+  const box = document.getElementById('updateNotice');
+  if (box) box.classList.remove('show');
+  try { localStorage.setItem(UPDATE_SEEN_KEY, UPDATE_NOTICE.id); } catch (e) {}
+}
+
 function hideAuthGate() {
   const gate = document.getElementById('authGate');
   if (gate) gate.style.display = 'none';
+  showUpdateNoticeIfNeeded();
 }
 
 function authLogout() {
