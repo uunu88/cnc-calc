@@ -2859,24 +2859,29 @@ function showAuthGate() {
   }, 120);
 }
 
-/* ===== 업데이트 안내 (새 id일 때 1회만 표시) =====
-   업데이트할 때마다 id/date/items만 바꾸면 다시 1회 표시됩니다. */
+/* ===== 업데이트 안내 (showCount번 표시 후 자동 종료) =====
+   업데이트할 때마다 id/date/items를 바꾸면 다시 showCount번 표시됩니다. */
 const UPDATE_NOTICE = {
   id: '2026-10-06',
   date: '2026.10.06',
+  showCount: 3,
   items: [
     '선반/밀링 절삭조건 길이 입력',
     '조건, 길이 별 Cycle Time 비교'
   ]
 };
-const UPDATE_SEEN_KEY = 'cnc_update_seen';
+const UPDATE_SEEN_KEY = 'cnc_update_views';
 
 function showUpdateNoticeIfNeeded() {
   const box = document.getElementById('updateNotice');
   if (!box) return;
-  let seen = null;
-  try { seen = localStorage.getItem(UPDATE_SEEN_KEY); } catch (e) {}
-  if (seen === UPDATE_NOTICE.id) return;
+  let rec = { id: '', n: 0 };
+  try {
+    const raw = JSON.parse(localStorage.getItem(UPDATE_SEEN_KEY) || 'null');
+    if (raw && raw.id === UPDATE_NOTICE.id) rec = raw;
+  } catch (e) {}
+  if (rec.n >= (UPDATE_NOTICE.showCount || 1)) return;
+  try { localStorage.setItem(UPDATE_SEEN_KEY, JSON.stringify({ id: UPDATE_NOTICE.id, n: rec.n + 1 })); } catch (e) {}
   document.getElementById('updateTitle').textContent = UPDATE_NOTICE.date + ' 업데이트된 기능';
   document.getElementById('updateList').innerHTML = UPDATE_NOTICE.items
     .map(t => '<li>' + String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>').join('');
@@ -2886,7 +2891,6 @@ function showUpdateNoticeIfNeeded() {
 function closeUpdateNotice() {
   const box = document.getElementById('updateNotice');
   if (box) box.classList.remove('show');
-  try { localStorage.setItem(UPDATE_SEEN_KEY, UPDATE_NOTICE.id); } catch (e) {}
 }
 
 function hideAuthGate() {
