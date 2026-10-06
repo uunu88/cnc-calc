@@ -897,6 +897,13 @@
     .len-ct-row > div { min-width: 0; }
     .len-ct-row .cond-label-row { flex-wrap: wrap; row-gap: 2px; }
     .len-ct-row .cond-label-row > label { flex: 1 1 auto; min-width: 0; }
+    /* 선반 조건 1·2 같은 줄 높이 맞춤 (칸마다 줄 높이가 달라지는 문제 방지) */
+    @supports (grid-template-rows: subgrid) {
+      #view-lathe-calc .lathe-cmp-grid { column-gap: 8px; row-gap: 0; }
+      #view-lathe-calc .lathe-cond { display: grid; grid-row: span 18; grid-template-rows: subgrid; row-gap: 0; align-content: start; }
+      #view-lathe-calc .lathe-cond > label,
+      #view-lathe-calc .lathe-cond > .cond-label-row { align-self: end; }
+    }
     .len-ct-row input[readonly] { font-weight: 800; color: var(--accent); }
     .cond-label-row {
       display: flex;
@@ -1362,10 +1369,7 @@
     <input id="l_feed2" oninput="calcLatheBoth()" step="0.01" type="number"/>
     <div class="len-ct-row">
       <div>
-        <div class="cond-label-row">
-          <label>절삭 길이 (mm)</label>
-          <button type="button" class="copy-cond1-btn" onclick="copyFromCond1('l_len','lathe')">조건1 복사</button>
-        </div>
+        <label>절삭 길이 (mm)</label>
         <input id="l_len2" oninput="calcLatheBoth()" step="0.1" type="number"/>
       </div>
       <div>
