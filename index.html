@@ -189,7 +189,7 @@
     .btn-clear { background: #7f1d1d; color: #fff; }
     .btn-clear:active { background: #991b1b; }
     .btn-run:active, .btn-sub:active, .btn-file-load:active, .btn-player:active, .btn-copy:active, .tab-btn:active, .dura-filter-btn:active, .dura-zoom-btn:active { transform: scale(0.97); }
-    .viewport { width: 100%; height: min(280px, 42vh); border: 1px solid var(--border); border-radius: 8px; position: relative; overflow: hidden; touch-action: none; cursor: grab; }
+    .viewport { width: 100%; height: min(420px, 55vh); border: 1px solid var(--border); border-radius: 8px; position: relative; overflow: hidden; touch-action: none; cursor: grab; }
     .viewport:active { cursor: grabbing; }
     canvas { width: 100%; height: 100%; display: block; }
     .viewport-save-btn { position: absolute; top: 8px; right: 8px; z-index: 10; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(255, 255, 255, 0.35); color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; backdrop-filter: blur(4px); }
@@ -1073,6 +1073,25 @@
     .brk-empty { color: var(--text-muted); opacity: .5; }
     .brk-note { font-size: 10px; color: var(--text-muted); line-height: 1.55; margin-top: 8px; }
 </style>
+
+<style id="gcode-safety-style">
+.gcode-safety-panel{margin-top:8px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.gcode-safety-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;font-size:11px;font-weight:800}
+.gcode-safety-head .gcode-safety-badge{padding:3px 7px;border-radius:999px;font-size:10px}
+.gcode-safety-panel.ok{border-color:rgba(34,197,94,.35)}
+.gcode-safety-panel.ok .gcode-safety-badge{background:rgba(34,197,94,.12);color:#22c55e}
+.gcode-safety-panel.warn{border-color:rgba(245,158,11,.45)}
+.gcode-safety-panel.warn .gcode-safety-badge{background:rgba(245,158,11,.14);color:#f59e0b}
+.gcode-safety-panel.danger{border-color:rgba(239,68,68,.55)}
+.gcode-safety-panel.danger .gcode-safety-badge{background:rgba(239,68,68,.14);color:#ef4444}
+.gcode-safety-body{padding:0 10px 9px;font-size:10px;line-height:1.55;color:var(--text-muted);max-height:210px;overflow:auto;white-space:normal}
+.gcode-safety-item{padding:4px 0;border-top:1px dashed var(--border)}
+.gcode-safety-item strong{font-weight:800}
+.gcode-safety-item.danger strong{color:#ef4444}
+.gcode-safety-item.warn strong{color:#f59e0b}
+.gcode-safety-item.info strong{color:var(--accent)}
+.gcode-safety-empty{color:var(--text-muted);opacity:.9}
+</style>
 </head>
 <body>
 <!-- 접근 코드 게이트 -->
@@ -1272,6 +1291,11 @@
 </div>
 </div>
 </div>
+<div class="gcode-safety-panel ok" id="latheSafetyPanel">
+  <div class="gcode-safety-head"><span>G-code 문법 검사</span><span class="gcode-safety-badge">검사 전</span></div>
+  <div class="gcode-safety-body"><div class="gcode-safety-empty">[경로 생성]을 누르면 G-code 문법/숫자 형식을 검사합니다.</div></div>
+</div>
+
 <div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyLatheReport" onclick="copyReport('latheReport','copyLatheReport')">복사</button></div>
 <div class="info-box" id="latheReport">G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.</div>
 </div>
@@ -1324,6 +1348,11 @@
 </div>
 </div>
 </div>
+<div class="gcode-safety-panel ok" id="mctSafetyPanel">
+  <div class="gcode-safety-head"><span>G-code 문법 검사</span><span class="gcode-safety-badge">검사 전</span></div>
+  <div class="gcode-safety-body"><div class="gcode-safety-empty">[3D 경로 생성]을 누르면 G-code 문법/숫자 형식을 검사합니다.</div></div>
+</div>
+
 <div class="info-box-head"><span>가공 시간 및 통계</span><button class="btn-copy" id="copyMctReport" onclick="copyReport('mctReport','copyMctReport')">복사</button></div>
 <div class="info-box" id="mctReport">G코드를 넣고 3D 시뮬레이션을 실행하세요.</div>
 </div>
@@ -3206,12 +3235,11 @@ renderGradeTable();
 /* ===== 업데이트 안내 (showCount번 표시 후 자동 종료) =====
    업데이트할 때마다 id/date/items를 바꾸면 다시 showCount번 표시됩니다. */
 const UPDATE_NOTICE = {
-  id: '2026-10-07d',
-  date: '2026.10.07',
+  id: '2026-10-08d',
+  date: '2026.10.08',
   showCount: 3,
   items: [
-    '선반/밀링 절삭조건 길이 입력 기능',
-    '조건, 길이 별 C/T 비교 기능',
+    'G코드 문법 검사', 
     '칩 브레이커 대응표 (듀라카브 vs 경쟁사)',
     '시뮬레이션 화면 설정 테마 추가',  
   ]
@@ -3228,7 +3256,7 @@ function showUpdateNoticeIfNeeded() {
   } catch (e) {}
   if (rec.n >= (UPDATE_NOTICE.showCount || 1)) return;
   try { localStorage.setItem(UPDATE_SEEN_KEY, JSON.stringify({ id: UPDATE_NOTICE.id, n: rec.n + 1 })); } catch (e) {}
-  document.getElementById('updateTitle').textContent = UPDATE_NOTICE.date + ' 업데이트된 기능';
+  document.getElementById('updateTitle').textContent = UPDATE_NOTICE.date + ' 업데이트';
   document.getElementById('updateList').innerHTML = UPDATE_NOTICE.items
     .map(t => '<li>' + String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</li>').join('');
   box.classList.add('show');
@@ -6067,7 +6095,7 @@ function generateLatheArc(z1, r1, z2, r2, R, I, K, isG03) {
 }
 function getUnsupportedCodes(line, machine) {
   const supported = machine === 'lathe'
-    ? new Set(['G00','G01','G02','G03','G04','G28','G50','G71','G76','G96','G97','G99'])
+    ? new Set(['G00','G01','G02','G03','G04','G28','G50','G70','G71','G72','G73','G74','G75','G76','G90','G92','G94','G96','G97','G99'])
     : new Set(['G00','G01','G02','G03','G04','G28','G80','G81','G82','G83','G84','G85','G86','G87','G88','G89','G90','G91','G94','G98','G99']);
   const ignored = new Set(['G17','G18','G19','G20','G21','G40','G41','G42','G43','G49','G54','G55','G56','G57','G58','G59']);
   const found = (line.match(/G\d{1,2}/g) || []).map(g => 'G' + String(parseInt(g.slice(1),10)).padStart(2,'0'));
@@ -6077,17 +6105,235 @@ function showSimulationSafetyNotice(machine, warnings) {
   const head = machine === 'lathe' ? '선반' : 'MCT';
   const reportId = machine === 'lathe' ? 'latheReport' : 'mctReport';
   const box = document.getElementById(reportId);
-  let note = `\n\n[주의] ${head} 경로·시간은 참고용 추정치입니다.\n실제 가공 전 제어기 형식, 좌표계, 공구 길이/보정, 원점복귀, 간섭, 회전수 제한을 반드시 확인하세요.`;
+  let note = `
+
+[주의] ${head} 경로·시간은 참고용 추정치입니다.
+실제 가공 전 제어기 형식, 좌표계, 공구 길이/보정, 원점복귀, 간섭, 회전수 제한을 반드시 확인하세요.`;
   if (warnings.length) {
-    note += `\n시뮬레이션에 반영되지 않은 코드(참고용): ${warnings.join(', ')}`;
-    note += `\n※ G70/G72/G73/G74/G75/G92 등 일부 사이클은 경로 시뮬레이션 대상이 아닙니다. 시간 통계에만 일부 반영됩니다.`;
+    note += `
+시뮬레이션에 반영되지 않은 코드(참고용): ${warnings.join(', ')}`;
+    note += `
+※ G70/G72/G73/G74/G75/G92 등 일부 사이클은 경로 시뮬레이션 대상이 아닙니다. 시간 통계에만 일부 반영됩니다.`;
   }
   box.innerText += note;
+}
+
+
+/* ================================================================
+   G-code 문법 검사
+   - X50. / X50 / X50.0 은 모두 정상적인 숫자 표기로 취급
+   - 실제 충돌을 보장하는 기능이 아니라, 프로그램 단계의 위험 신호를 조기 표시
+   ================================================================ */
+function runGcodeSafetyCheck(machine, gcode) {
+  // 이 검사는 "문법/형식"만 검사합니다.
+  // 정상적인 현장 G-code를 과도하게 경고하지 않도록 좌표 크기,
+  // 좌표계(G90/G91), 단위계(G21/G20) 등 의미 검사는 하지 않습니다.
+  // X50 / X50.0 / X50. 모두 정상적인 숫자 표기로 인정합니다.
+  const result = { errors: [], warnings: [], infos: [], lines: 0 };
+  const push = (kind, lineNo, code, msg) => result[kind].push({line:lineNo, code:code || '', msg});
+  const numberRe = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
+  const lines = String(gcode || '').split(/\r?\n/);
+  result.lines = lines.length;
+
+  lines.forEach((raw, i) => {
+    const lineNo = i + 1;
+    let line = raw.toUpperCase().trim();
+    if (!line) return;
+    if (line.startsWith('%')) line = line.slice(1).trim();
+    if (!line) return;
+
+    // 괄호 주석과 세미콜론 주석은 문법 검사 대상에서 제외합니다.
+    line = line.replace(/\(.*?\)/g, '').replace(/;.*$/, '').trim();
+    if (!line || line === '/') return;
+
+    // 블록 스킵(/)은 앞에 붙을 수 있습니다.
+    line = line.replace(/^\/+/, '').trim();
+    if (!line) return;
+
+    // G00X50Z-2처럼 공백이 없는 일반적인 CNC 블록도 정상 처리합니다.
+    // 주소 문자 뒤의 값 전체를 하나의 토큰으로 읽은 뒤 숫자 형식만 검사합니다.
+    const words = [];
+    const re = /([A-Z])([^A-Z\s()]*)/g;
+    let m;
+    let consumed = '';
+    while ((m = re.exec(line)) !== null) {
+      words.push({letter:m[1], value:m[2], raw:m[0]});
+      consumed += m[0];
+    }
+
+    // 숫자/주소로 해석되지 않은 문자가 남아 있으면 문법 오류입니다.
+    const stripped = line.replace(/[A-Z][^A-Z\s()]*/g, '').replace(/[\s\/]/g, '');
+    if (stripped) {
+      push('errors', lineNo, line, `해석할 수 없는 문자/기호: ${stripped}`);
+    }
+
+    for (const w of words) {
+      if (!w.value) {
+        push('errors', lineNo, w.letter, `${w.letter} 뒤에 숫자값이 없습니다.`);
+      } else if (!numberRe.test(w.value)) {
+        push('errors', lineNo, w.raw, `숫자 형식 오류: ${w.raw}`);
+      }
+    }
+  });
+
+  if (!result.errors.length) {
+    result.infos.push({
+      line:0,
+      code:'OK',
+      msg:`문법 검사 완료 · ${result.lines}개 블록에서 숫자/주소 형식 오류가 발견되지 않았습니다.`
+    });
+  }
+  result.level = result.errors.length ? 'danger' : 'ok';
+  return result;
+}
+
+function renderGcodeSafetyPanel(machine, result) {
+  const id = machine === 'lathe' ? 'latheSafetyPanel' : 'mctSafetyPanel';
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = `gcode-safety-panel ${result.level}`;
+  const total = result.errors.length + result.warnings.length;
+  const badge = result.errors.length ? `위험 ${result.errors.length}건` : result.warnings.length ? `주의 ${result.warnings.length}건` : '이상 없음';
+  const items = [
+    ...result.errors.map(x=>({type:'danger', icon:'⛔', ...x})),
+    ...result.warnings.map(x=>({type:'warn', icon:'⚠️', ...x})),
+    ...result.infos.map(x=>({type:'info', icon:'✓', ...x}))
+  ];
+  const body = items.map(x=>`<div class="gcode-safety-item ${x.type}"><strong>${x.icon} ${x.line ? `${x.line}번 줄 · ` : ''}${escapeHtml(x.code || '')}</strong> ${escapeHtml(x.msg)}</div>`).join('');
+  el.innerHTML = `<div class="gcode-safety-head"><span>G-code 문법 검사</span><span class="gcode-safety-badge">${badge}</span></div><div class="gcode-safety-body">${body || `<div class="gcode-safety-empty">검사 결과가 없습니다.</div>`}<div style="margin-top:6px;opacity:.8">※ 문법 검사는 프로그램의 실행 결과나 실제 기계 충돌 여부를 판단하지 않습니다.</div></div>`;
+}
+
+function escapeHtml(v) {
+  return String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ================================================================
+   선반 다중 반복/나사/홈 사이클 시뮬레이션 보조
+   - FANUC System A/B 계열의 대표적인 2블록 형식을 기준으로
+     "경로를 시각화"하기 위한 근사 모델입니다.
+   - 실제 장비의 파라미터/제어기 옵션에 따른 세부 동작까지 보장하지 않습니다.
+   ================================================================ */
+function latheLineClean(raw) {
+  return String(raw || '').replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
+}
+function latheProfileFromPQ(rawLines, startIdx, pNum, qNum) {
+  const blocks=[]; let inRange=false, qIdx=startIdx;
+  for (let k=startIdx+1;k<rawLines.length;k++) {
+    const lk=latheLineClean(rawLines[k]);
+    const nm=lk.match(/N(\d+)/);
+    if(nm){
+      const n=+nm[1];
+      if(n===pNum) inRange=true;
+      if(inRange) blocks.push({line:lk,idx:k});
+      if(n===qNum){qIdx=k;break;}
+    } else if(inRange) blocks.push({line:lk,idx:k});
+  }
+  const profile=[]; let x=null,z=null;
+  for(const b of blocks){
+    const xm=b.line.match(/X([+\-]?\d+(?:\.\d*)?|[+\-]?\.\d+)/);
+    const zm=b.line.match(/Z([+\-]?\d+(?:\.\d*)?|[+\-]?\.\d+)/);
+    if(xm)x=parseFloat(xm[1]); if(zm)z=parseFloat(zm[1]);
+    if(x!==null&&z!==null) profile.push({x,z,idx:b.idx});
+  }
+  return {profile,qIdx};
+}
+function latheAddSeg(z1,r1,z2,r2,type,lineIdx,duration,bkt,cut=false){
+  latheSegments.push({z1,r1,z2,r2,type,pts:null,lineIdx,duration});
+  if(bkt){bkt.time+=duration; if(cut){bkt.cutTime+=duration;bkt.dist+=Math.hypot(z2-z1,r2-r1);}else bkt.rapidTime+=duration;}
+}
+function latheRapid(z1,r1,z2,r2,lineIdx,bkt){
+  const sec=calcMoveTimeSec(Math.hypot(z2-z1,r2-r1),0,true);
+  latheAddSeg(z1,r1,z2,r2,'G00',lineIdx,sec,bkt,false);
+}
+function latheCut(z1,r1,z2,r2,lineIdx,bkt,feed,rpm,type){
+  const dia=Math.max(5,Math.abs(r1+r2));
+  const rr=Math.max(1,rpm||100);
+  const sec=calcMoveTimeSec(Math.hypot(z2-z1,r2-r1),Math.max(0.001,feed*rr),false);
+  latheAddSeg(z1,r1,z2,r2,type||'CYCLE-CUT',lineIdx,sec,bkt,true);
+}
+function latheRpm(isG96,vc,rpm,maxRpm,dia){
+  const v=isG96?(1000*vc)/(Math.PI*Math.max(5,Math.abs(dia))):rpm;
+  return Math.max(1,Math.min(maxRpm||999999,v||100));
+}
+function simulateLatheFinish(profile,lineIdx,getBucket,curTool,curFeed,curVc,curRpm,maxRpm,isG96){
+  const b=getBucket(curTool); for(let i=0;i<profile.length-1;i++){
+    const a=profile[i],c=profile[i+1],r1=a.x/2,r2=c.x/2;
+    const rr=latheRpm(isG96,curVc,curRpm,maxRpm,(a.x+c.x)/2);
+    latheCut(a.z,r1,c.z,r2,lineIdx,b,curFeed,rr,'G70-FINISH');
+  }
+}
+function simulateLatheRoughTurning(profile,lineIdx,getBucket,curTool,stepR,isG96,curVc,curRpm,maxRpm,curFeed){
+  if(profile.length<2)return;
+  const b=getBucket(curTool), minX=Math.min(...profile.map(p=>p.x)), maxX=Math.max(...profile.map(p=>p.x));
+  const z1=profile[0].z,z2=profile[profile.length-1].z, stockX=maxX+4, step=Math.max(0.05,Math.abs(stepR));
+  for(let x=stockX;x>minX;x-=step){
+    const r=x/2,rr=latheRpm(isG96,curVc,curRpm,maxRpm,x);
+    latheRapid(z1,(stockX/2),z1,r,lineIdx,b);
+    latheCut(z1,r,z2,r,lineIdx,b,curFeed,rr,'G71-ROUGH');
+    latheRapid(z2,r,z2,stockX/2,lineIdx,b);
+  }
+}
+function simulateLatheFaceRough(profile,lineIdx,getBucket,curTool,stepZ,isG96,curVc,curRpm,maxRpm,curFeed){
+  if(profile.length<2)return;
+  const b=getBucket(curTool), minZ=Math.min(...profile.map(p=>p.z)), maxZ=Math.max(...profile.map(p=>p.z));
+  const outer=Math.max(...profile.map(p=>p.x))/2+2, inner=Math.min(...profile.map(p=>p.x))/2, step=Math.max(0.05,Math.abs(stepZ));
+  const startZ=maxZ;
+  for(let z=startZ;z>=minZ-step*0.25;z-=step){
+    const rr=latheRpm(isG96,curVc,curRpm,maxRpm,outer*2);
+    latheRapid(z,outer,z,inner,lineIdx,b);
+    latheCut(z,inner,z,outer,lineIdx,b,curFeed,rr,'G72-ROUGH');
+  }
+}
+function simulateLathePattern(profile,lineIdx,getBucket,curTool,u,w,isG96,curVc,curRpm,maxRpm,curFeed){
+  if(profile.length<2)return;
+  const b=getBucket(curTool), n=Math.max(1,Math.ceil(Math.abs(u||1))), zOff=Math.abs(w||0);
+  const outer=Math.max(...profile.map(p=>p.x))/2+2;
+  for(let pass=1;pass<=n;pass++){
+    const ox=pass*(Math.abs(u)||0.5)/2, oz=pass*zOff;
+    for(let i=0;i<profile.length-1;i++){
+      const a=profile[i],c=profile[i+1],r1=Math.max(0.1,a.x/2-ox),r2=Math.max(0.1,c.x/2-ox),rr=latheRpm(isG96,curVc,curRpm,maxRpm,(a.x+c.x)/2);
+      latheCut(a.z-oz,r1,c.z-oz,r2,lineIdx,b,curFeed,rr,'G73-ROUGH');
+    }
+  }
+}
+function simulateLatheFacePeck(lineIdx,getBucket,curTool,curX,curZ,targetX,targetZ,peck,retract,feed,isG96,vc,rpm,maxRpm){
+  const b=getBucket(curTool), r0=curX/2, rt=targetX/2, z0=curZ, ze=targetZ;
+  const step=Math.max(0.01,Math.abs(peck||1)); let z=z0;
+  let guard=0;
+  while(((ze<z0)?z>ze:z<ze)&&guard++<1000){
+    const nz=ze<z0?Math.max(ze,z-step):Math.min(ze,z+step);
+    const rr=latheRpm(isG96,vc,rpm,maxRpm,targetX);
+    latheCut(z,r0,nz,r0,lineIdx,b,feed,rr,'G74-PECK');
+    if(Math.abs(nz-ze)>1e-9) latheRapid(nz,r0,nz+((ze<z0)?Math.abs(retract||0.2):-Math.abs(retract||0.2)),r0,lineIdx,b);
+    z=nz;
+  }
+}
+function simulateLatheGroove(lineIdx,getBucket,curTool,curX,curZ,targetX,targetZ,peck,retract,feed,isG96,vc,rpm,maxRpm){
+  const b=getBucket(curTool), startR=curX/2, endR=targetX/2, zEnd=targetZ;
+  const step=Math.max(0.01,Math.abs(peck||1)); let r=startR, guard=0;
+  while(Math.abs(r-endR)>1e-7 && guard++<1000){
+    const nr=endR<r?Math.max(endR,r-step):Math.min(endR,r+step);
+    const rr=latheRpm(isG96,vc,rpm,maxRpm,Math.max(5,nr*2));
+    latheCut(curZ,r,curZ,nr,lineIdx,b,feed,rr,'G75-GROOVE');
+    if(Math.abs(nr-endR)>1e-7) latheRapid(curZ,nr,curZ,nr+((endR<r)?Math.abs(retract||0.2):-Math.abs(retract||0.2)),lineIdx,b);
+    r=nr;
+  }
+  if(Math.abs(zEnd-curZ)>1e-7) latheCut(curZ,endR,zEnd,endR,lineIdx,b,feed,latheRpm(isG96,vc,rpm,maxRpm,targetX),'G75-GROOVE');
+}
+function simulateLatheThread(lineIdx,getBucket,curTool,curX,curZ,targetX,targetZ,pitch,feed,isG96,vc,rpm,maxRpm,type){
+  const b=getBucket(curTool), height=Math.max(0.2,Math.abs(curX-targetX)/2), passes=Math.max(3,Math.min(20,Math.ceil(height/0.15)));
+  const startR=curX/2, finalR=targetX/2;
+  for(let i=1;i<=passes;i++){
+    const r=startR-(startR-finalR)*(i/passes),rr=latheRpm(isG96,vc,rpm,maxRpm,r*2);
+    latheCut(curZ,r,targetZ,r,lineIdx,b,pitch,rr,type||'G92-THREAD');
+  }
 }
 
 function parseAndDrawLathe() {
   const gcode = document.getElementById('latheGcode').value.trim();
   if (!gcode) { alert('G코드를 먼저 입력하세요.'); return; }
+  const safetyResult = runGcodeSafetyCheck('lathe', gcode);
+  renderGcodeSafetyPanel('lathe', safetyResult);
   resizeLathe();
   stopLathePlay();
   const rawLines = gcode.split('\n');
@@ -6103,8 +6349,14 @@ function parseAndDrawLathe() {
     if (!toolStats[t]) toolStats[t] = { time: 0, cutTime: 0, rapidTime: 0, dist: 0 };
     return toolStats[t];
   }
+  let g70First = null;
   let g71First = null;
+  let g72First = null;
+  let g73First = null;
+  let g74First = null;
+  let g75First = null;
   let g76First = null;
+  let g92Mode = false;
   for (let idx = 0; idx < rawLines.length; idx++) {
     let raw = rawLines[idx];
     let line = raw.replace(/\(.*?\)/g, '').replace(/[\u3000\t]+/g, ' ').toUpperCase().trim();
@@ -6139,6 +6391,44 @@ function parseAndDrawLathe() {
     }
     const fM = line.match(/F([\d\.]+)/);
     if (fM && !line.includes('G76') && !line.includes('G92')) curFeed = Math.max(0.001, parseFloat(fM[1]));
+
+    /* G70: 지정 P~Q 형상을 그대로 마무리 가공 */
+    const g70m = line.match(/G70\s*P(\d+)\s*Q(\d+)/);
+    if (g70m) {
+      const pr=latheProfileFromPQ(rawLines,idx,+g70m[1],+g70m[2]);
+      if(pr.profile.length>=2){
+        simulateLatheFinish(pr.profile,idx,getBucket,curTool,curFeed,curVc,curRpm,maxRpm,isG96);
+        const lp=pr.profile[pr.profile.length-1]; curX=lp.x; curZ=lp.z;
+      }
+      idx=pr.qIdx; continue;
+    }
+    /* G72: 단면 황삭 */
+    const g72a=line.match(/G72\s*W([\-\d\.]+)\s*R([\-\d\.]+)/);
+    if(g72a){ g72First={W:parseFloat(g72a[1]),R:parseFloat(g72a[2])}; continue; }
+    const g72b=line.match(/G72\s*P(\d+)\s*Q(\d+)(?:\s*U([\-\d\.]+))?(?:\s*W([\-\d\.]+))?/);
+    if(g72b&&g72First){
+      const pr=latheProfileFromPQ(rawLines,idx,+g72b[1],+g72b[2]);
+      if(pr.profile.length>=2){ simulateLatheFaceRough(pr.profile,idx,getBucket,curTool,g72First.W,isG96,curVc,curRpm,maxRpm,curFeed); const lp=pr.profile[pr.profile.length-1];curX=lp.x;curZ=lp.z; }
+      g72First=null; idx=pr.qIdx; continue;
+    }
+    /* G73: 패턴 반복 황삭 */
+    const g73a=line.match(/G73\s*U([\-\d\.]+)\s*W([\-\d\.]+)\s*R([\-\d\.]+)/);
+    if(g73a){g73First={U:parseFloat(g73a[1]),W:parseFloat(g73a[2]),R:parseFloat(g73a[3])};continue;}
+    const g73b=line.match(/G73\s*P(\d+)\s*Q(\d+)(?:\s*U([\-\d\.]+))?(?:\s*W([\-\d\.]+))?/);
+    if(g73b&&g73First){const pr=latheProfileFromPQ(rawLines,idx,+g73b[1],+g73b[2]); if(pr.profile.length>=2){simulateLathePattern(pr.profile,idx,getBucket,curTool,g73First.U,g73First.W,isG96,curVc,curRpm,maxRpm,curFeed);const lp=pr.profile[pr.profile.length-1];curX=lp.x;curZ=lp.z;}g73First=null;idx=pr.qIdx;continue;}
+    /* G74: 단면 펙/심공 드릴 근사 */
+    const g74a=line.match(/G74\s*R([\-\d\.]+)/);
+    if(g74a){g74First={R:parseFloat(g74a[1])};continue;}
+    const g74b=line.match(/G74\s*X([\-\d\.]+)\s*Z([\-\d\.]+)\s*P([\-\d\.]+)\s*Q([\-\d\.]+)(?:\s*R([\-\d\.]+))?\s*F([\d\.]+)/);
+    if(g74b){simulateLatheFacePeck(idx,getBucket,curTool,curX,curZ,parseFloat(g74b[1]),parseFloat(g74b[2]),parseFloat(g74b[3])/1000,parseFloat(g74b[5]||((g74First&&g74First.R)||0.2)),parseFloat(g74b[6]),isG96,curVc,curRpm,maxRpm);curX=parseFloat(g74b[1]);curZ=parseFloat(g74b[2]);g74First=null;continue;}
+    /* G75: 외경/내경 홈 펙 */
+    const g75a=line.match(/G75\s*R([\-\d\.]+)/);
+    if(g75a){g75First={R:parseFloat(g75a[1])};continue;}
+    const g75b=line.match(/G75\s*X([\-\d\.]+)(?:\s*Z([\-\d\.]+))?\s*P([\-\d\.]+)(?:\s*Q([\-\d\.]+))?(?:\s*R([\-\d\.]+))?\s*F([\d\.]+)/);
+    if(g75b){simulateLatheGroove(idx,getBucket,curTool,curX,curZ,parseFloat(g75b[1]),g75b[2]!==undefined?parseFloat(g75b[2]):curZ,parseFloat(g75b[3])/1000,parseFloat(g75b[5]||((g75First&&g75First.R)||0.2)),parseFloat(g75b[6]),isG96,curVc,curRpm,maxRpm);curX=parseFloat(g75b[1]);if(g75b[2]!==undefined)curZ=parseFloat(g75b[2]);g75First=null;continue;}
+    /* G92: 단일 블록 나사 절삭을 반복 경로로 시각화 */
+    const g92m=line.match(/G92\s*X([\-\d\.]+)\s*Z([\-\d\.]+)(?:\s*R([\-\d\.]+))?\s*F([\d\.]+)/);
+    if(g92m){const tx=parseFloat(g92m[1]),tz=parseFloat(g92m[2]),pitch=parseFloat(g92m[4]);simulateLatheThread(idx,getBucket,curTool,curX,curZ,tx,tz,pitch,curFeed,isG96,curVc,curRpm,maxRpm,'G92-THREAD');curX=tx;curZ=tz;continue;}
 
     const g71a = line.match(/G71\s*U([\-\d\.]+)\s*R([\-\d\.]+)/);
     if (g71a) {
@@ -6748,6 +7038,8 @@ function project3D(x, y, z) {
 function parseAndDrawMCT() {
   const gcode = document.getElementById('mctGcode').value.trim();
   if (!gcode) { alert('MCT G코드를 입력하세요.'); return; }
+  const safetyResult = runGcodeSafetyCheck('mct', gcode);
+  renderGcodeSafetyPanel('mct', safetyResult);
   resizeMCT();
   stopMctPlay();
   const lines = gcode.split('\n');
@@ -7159,6 +7451,7 @@ function clearGcode(textareaId, machine) {
     document.getElementById('latheSeek').value = 100;
     drawLatheScreen();
     document.getElementById('latheReport').innerText = 'G코드를 넣고 [경로 생성] 버튼을 누르면 통계가 산출됩니다.';
+    renderGcodeSafetyPanel('lathe', {level:'ok',mode:'G90',units:'G21',errors:[],warnings:[],infos:[{line:0,code:'검사 전',msg:'[경로 생성]을 누르면 문법 검사가 실행됩니다.'}]});
   } else {
     pauseMctPlay();
     mctMoves = [];
@@ -7166,6 +7459,7 @@ function clearGcode(textareaId, machine) {
     document.getElementById('mctSeek').value = 100;
     drawMctScreen();
     document.getElementById('mctReport').innerText = 'G코드를 넣고 3D 시뮬레이션을 실행하세요.';
+    renderGcodeSafetyPanel('mct', {level:'ok',mode:'G90',units:'G21',errors:[],warnings:[],infos:[{line:0,code:'검사 전',msg:'[3D 경로 생성]을 누르면 문법 검사가 실행됩니다.'}]});
   }
 }
 
