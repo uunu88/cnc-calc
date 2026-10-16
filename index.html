@@ -3084,8 +3084,7 @@ const BRK_GROUPS = [
   { g: 'N-steel', t: '네거티브 · 강 (P)', k: 'N' },
   { g: 'N-stain', t: '네거티브 · 스테인리스강 (M)', k: 'N' },
   { g: 'N-iron',  t: '네거티브 · 주철 (K)', k: 'N' },
-  { g: 'P-cermet',t: '포지티브 · 서멧 전용', k: 'P' },
-  { g: 'P-steel', t: '포지티브 · 강 · 스테인리스 (P·M)', k: 'P' },
+  { g: 'P-pos',   t: '포지티브', k: 'P' },
   { g: 'P-alu',   t: '포지티브 · 알루미늄 · 비철 (N)', k: 'P' }
 ];
 /* 듀라카브 카탈로그(칩 브레이커 특징) 기준 정삭·준정삭·중삭·황삭 세분화 및 겸용 매칭*/
@@ -3110,14 +3109,13 @@ const BRK_ROWS = [
   { g:'N-iron',  d:'53',         note:'중 · 황삭',       v:['UC','RT, KT','MK, GK','UX, UZ, GZ','ZS, KG','CM','MK, B25','KM, KR, XM','UN, RP','M5, MR4','RK5, NM5, MK5','GN','GR'] },
   { g:'N-iron',  d:'56',         note:'강황삭 · 단속',   v:['UR','MA, RT','RK, MA','MA','GC, KH, MA','CH','RK, MA','KR, KRR, XMR','MR, S-20, MA','MR7, R4','RK7, MA','NR, MA','GX'] },
 
-  // POSITIVE · Cermet-only breakers
-  { g:'P-cermet',d:'31',         note:'초정삭 (서멧)',   v:['UF','FA, FX','SMG, FV, SV','FC, FB','XP, DP, GP','01, PSF, PF','FP, VL','PF, XF, UF','11, UF','FF1, F1','FP4','PF, F3P','-'] },
-  { g:'P-cermet',d:'32',         note:'정삭·준정삭(서멧)',v:['UF, UG','FG, FM','FP, LP, SV','LU, LB, FP, FK','PP, GQ, XQ, HQ','PF, PSS, PS','VF, HMP','UF, PM, XM','UF, LF, FP','F1, MF2','FK6, FM2, MP4','F3P, 14, SM','-'] },
+  // POSITIVE (서멧 전용 31·32 + 강·스테인리스·주철 41·51·52)
+  { g:'P-pos',d:'31',         note:'초정삭 (서멧)',   v:['UF','FA, FX','SMG, FV, SV','FC, FB','XP, DP, GP','01, PSF, PF','FP, VL','PF, XF, UF','11, UF','FF1, F1','FP4','PF, F3P','-'] },
+  { g:'P-pos',d:'32',         note:'정삭·준정삭(서멧)',v:['UF, UG','FG, FM','FP, LP, SV','LU, LB, FP, FK','PP, GQ, XQ, HQ','PF, PSS, PS','VF, HMP','UF, PM, XM','UF, LF, FP','F1, MF2','FK6, FM2, MP4','F3P, 14, SM','-'] },
 
-  // POSITIVE · P/M steel & stainless (+ 52 cast iron)
-  { g:'P-steel', d:'41',         note:'정삭 · 준정삭',   v:['UF','FA, FX, FG','FV, SV, FP, SMG','FC, FB, LU, FP, FK','XP, PP, GP, GQ','01, PSF, PF','FP, VL, VF','PF, XF, UF, MF','11, UF','FF1, F1','FP4, FK6, FM2','PF, F3P','TF, PY'] },
-  { g:'P-steel', d:'51',         note:'준정삭 · 중삭',   v:['UG','FG, FM, PC','LP, MV','LB, NF, NGU, SU, SC','XQ, HQ, MQ','PSS, PS','HMP, MP, MM','PM, XM, MM, UM, PMC','LF, FP','F2, MF2, M3','MP4, FM4, FP6, MM4','14, SM, F3M','TM, PY'] },
-  { g:'P-steel', d:'52',         note:'중·황삭 (강·주철)',v:['UG','MT, PC','MP, MK','MU','HQ, GK','PM, CM','C25, MP','PR, UR, XR, MR, KF, KM, KR','MP, MF, GM, T-20','M5, M3','RP4, RM4, RM6, MK4, RK4, RK6','19, 17','TM'] },
+  { g:'P-pos', d:'41',         note:'정삭 · 준정삭',   v:['UF','FA, FX, FG','FV, SV, FP, SMG','FC, FB, LU, FP, FK','XP, PP, GP, GQ','01, PSF, PF','FP, VL, VF','PF, XF, UF, MF','11, UF','FF1, F1','FP4, FK6, FM2','PF, F3P','TF, PY'] },
+  { g:'P-pos', d:'51',         note:'준정삭 · 중삭',   v:['UG','FG, FM, PC','LP, MV','LB, NF, NGU, SU, SC','XQ, HQ, MQ','PSS, PS','HMP, MP, MM','PM, XM, MM, UM, PMC','LF, FP','F2, MF2, M3','MP4, FM4, FP6, MM4','14, SM, F3M','TM, PY'] },
+  { g:'P-pos', d:'52',         note:'중·황삭',v:['UG','MT, PC','MP, MK','MU','HQ, GK','PM, CM','C25, MP','PR, UR, XR, MR, KF, KM, KR','MP, MF, GM, T-20','M5, M3','RP4, RM4, RM6, MK4, RK4, RK6','19, 17','TM'] },
 
   // POSITIVE · N aluminium / non-ferrous
   { g:'P-alu',   d:'AU',         note:'정삭·중삭 (비철)',v:['AL','FL, ML','AZ, FS, MJ','AW, AG, AY, AX','AH','AL','AK, AR, HA','AL','HP, LF, GP, MS','AL, MF1','PM2, FN2, PF2, MN2','AS, AF, NF, PP','AK'] }
