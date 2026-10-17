@@ -2467,17 +2467,22 @@
 <input id="discountBasePrice" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 10000" step="1" type="number"/>
 <div class="input-grid-2">
 <div><label>할인배율 (정가 대비)</label><input id="dealerDiscountRatio" max="1" min="0" oninput="syncDiscountFromRatio()" placeholder="예: 0.7" step="0.01" type="number"/></div>
-<div><label>유저 납품가 (원)</label><input id="userDeliveryPrice" min="0" oninput="syncDiscountFromDelivery()" placeholder="예: 7000" step="1" type="number"/><div class="discount-rounded" id="userDeliveryRounded">1의 자리 반올림: -</div></div>
+<div><label>할인가 (원)</label><input id="discountPrice" min="0" oninput="syncDiscountFromDelivery()" placeholder="예: 7000" step="1" type="number"/><div class="discount-rounded" id="discountRounded">1의 자리 반올림: -</div></div>
 </div>
-<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">정가 × 할인배율 = 유저 납품가 (납품가를 직접 입력하면 할인배율이 역산됩니다)</div>
+<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">정가 × 할인배율 = 할인가 (할인가를 직접 입력하면 할인배율이 역산됩니다)</div>
 <div class="btn-row"><button class="btn-sub" onclick="resetDiscountCalc()" style="flex: 1;">초기화</button></div>
 </div>
 <div class="card">
 <div class="input-grid-2">
+<div><label>유저 납품가 가산율 (%)</label><input id="userMarkupPercent" oninput="calculateUserDelivery()" placeholder="예: 10" step="0.01" type="number"/></div>
+<div><label>유저 납품가 (원)</label><input id="userDeliveryPrice" min="0" oninput="calculateMarkupFromDelivery()" placeholder="예: 7700" step="1" type="number"/><div class="discount-rounded" id="userDeliveryRounded">1의 자리 반올림: -</div></div>
+</div>
+<div style="font-size:11px;color:var(--text-muted);margin-top:2px;margin-bottom:10px;">유저 납품가 = 할인가 × (1 + 가산율). 유저 납품가를 직접 입력하면 가산율이 역산됩니다.</div>
+<div class="input-grid-2">
 <div><label>대리점 매입가율 · 마진 (%)</label><input id="dealerMarginPercent" oninput="calculateDealerPurchase()" placeholder="예: 10" step="0.01" type="number"/></div>
 <div><label>대리점 매입가 (원)</label><input id="dealerPurchasePrice" min="0" oninput="calculateMarginFromPurchase()" placeholder="예: 6364" step="1" type="number"/><div class="discount-rounded" id="dealerPurchaseRounded">1의 자리 반올림: -</div></div>
 </div>
-<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">대리점 매입가 = 유저 납품가 ÷ (1 + 마진율). 마진율을 넣으면 매입가가, 매입가를 직접 넣으면 마진율이 역산됩니다.</div>
+<div style="font-size:11px;color:var(--text-muted);margin-top:8px;">대리점 매입가 = 할인가 ÷ (1 + 마진율). 마진율을 넣으면 매입가가, 매입가를 직접 넣으면 마진율이 역산됩니다.</div>
 </div>
 <div class="card">
 <div class="card-head-row">
@@ -2488,7 +2493,7 @@
 <table class="data-table">
 <thead><tr><th>마진율</th><th>대리점 매입가</th><th>1의 자리 반올림</th></tr></thead>
 <tbody id="dealerPurchaseRows">
-<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">유저 납품가와 마진율을 입력하면 계산표가 표시됩니다.</td></tr>
+<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">할인가와 마진율을 입력하면 계산표가 표시됩니다.</td></tr>
 </tbody>
 </table>
 </div>
@@ -3090,35 +3095,35 @@ const BRK_GROUPS = [
 /* 듀라카브 카탈로그(칩 브레이커 특징) 기준 정삭·준정삭·중삭·황삭 세분화 및 겸용 매칭*/
 const BRK_ROWS = [
   // NEGATIVE · P steel
-  { g:'N-steel', d:'31',         note:'정삭 (저이송)',   v:['UF','FA, FG','PK, FY, SY','FA, FL','DP, GP, XP','TF, ZF','VL, VF','QF, PF, XF','FF, FV, UF','FF1, F1','NF3','SF, PF','GF'] },
-  { g:'N-steel', d:'31, 41',     note:'정삭',           v:['UF, UL','FG, SF','FH, FS, FP, LP','FB, FE, LU','PP, XQ, PQ, HQ','NS, TSF, TS','VF, VB, LP','PF, PMC, LC','FN, LF','FF2, MF2','NF4, FP5','NF, F3P','GF, GQ'] },
-  { g:'N-steel', d:'41, 43',     note:'준정삭',         v:['UL, UM','FC, MC, SF','SH, SA, MV, LP','SU, SE, SX, LU','CQ, CJ, HQ, GS','AS, SS, ZM, AM, TQ','VC, CP, VM','61, HM, QM, PMC','K, CT, FN','MF2, MF5','NS6, MP3','SM, TF','GQ, GM'] },
-  { g:'N-steel', d:'43, 86, 46', note:'중삭',           v:['UM, UG','MP, MT, MC, PC','MA, MH, MP, MV','GU, UG, GE, UX','PS, HS, HK, PG','TM, DM, TQ, NM','HM, MP, VM','PM, QM, SM','MP, MN','M3, MF5','NM4, NP5, MP5','M3P, PP, TF','GM, GT'] },
+  { g:'N-steel', d:'31',         note:'정삭 (저이송)',   v:['UF','FA, FG','PK, FY, SY','FA, FL','DP, GP, XP, PP, XF','TF, ZF','VL, VF','QF, PF, XF','FF, FV, UF','FF1, F1','NF3','SF, PF','GF'] },
+  { g:'N-steel', d:'31, 41',     note:'정삭',           v:['UF, UL','FG, SF','FH, FS, FP, LP','FB, FE, LU','PP, XQ, PQ, HQ, GP, DP, VF','NS, TSF, TS','VF, VB, LP','PF, PMC, LC','FN, LF','FF2, MF2','NF4, FP5','NF, F3P','GF, GQ'] },
+  { g:'N-steel', d:'41, 43',     note:'준정삭',         v:['UL, UM','FC, MC, SF','SH, SA, MV, LP','SU, SE, SX, LU','CQ, CJ, HQ, GS, PQ, VC, VF, XQ','AS, SS, ZM, AM, TQ','VC, CP, VM','61, HM, QM, PMC','K, CT, FN','MF2, MF5','NS6, MP3','SM, TF','GQ, GM'] },
+  { g:'N-steel', d:'43, 86, 46', note:'중삭',           v:['UM, UG','MP, MT, MC, PC','MA, MH, MP, MV','GU, UG, GE, UX','PS, HS, HK, PG, PMG, GS, XS','TM, DM, TQ, NM','HM, MP, VM','PM, QM, SM','MP, MN','M3, MF5','NM4, NP5, MP5','M3P, PP, TF','GM, GT'] },
   { g:'N-steel', d:'86, 53',     note:'준황삭 · 황삭',   v:['UG, UR, UC','RT, MT, PC, HB, HT','GH, RP, GM','MU, ME, MX','PT, GT, HT, PH','TH, THS','GR, B25','PR, WR, XM','RP, MR, RN','M5, MR5, MR6','RP5, NM9','GN, R3P','GR, GZ'] },
   { g:'N-steel', d:'56',         note:'강황삭 · 단속',   v:['UR','RH, RX, HZ, EH','HZ, HX, HV','HG, MP, HP, HU, HW','PX, PH','CH, TRS','GH, VH, VT','QR, HR, XMR','RH, RM, MM','MR4, MR7, R4, R5, R6, R7','RP7, NR4, NRF, NRR, NR8','NR, HT, HR, T3P','GX'] },
-  { g:'N-steel', d:'42, 45',     note:'연강 · 저탄소강 · 중삭',v:['UF, MF','FG, EA','FY, SY, SH','FL, SU','XP, XQ, GU','ZF, NS, SS','VL, VP2','XF, LC','FF, FP','FF1, MF1','NF3, FM5','SF, VL','GM'] },
-  { g:'N-steel', d:'-',          note:'와이퍼 (고이송)', v:['','WA, WG, WT','SW, MW','LUW, GUW','WQ, WP','FW, SW','VW, HW','WF, WM, WR','FW, MW','W-FF1, W-MF2, W-M3','MW5','WG, WM','-'] },
+  { g:'N-steel', d:'42, 45',     note:'연강 · 저탄소강 · 중삭',v:['UF, MF','FG, EA','FY, SY, SH','FL, SU','XP, XQ, GU, XS','ZF, NS, SS','VL, VP2','XF, LC','FF, FP','FF1, MF1','NF3, FM5','SF, VL','GM'] },
+  { g:'N-steel', d:'-',          note:'와이퍼 (고이송)', v:['','WA, WG, WT','SW, MW','LUW, GUW','WQ, WP, WF, WE','FW, SW','VW, HW','WF, WM, WR','FW, MW','W-FF1, W-MF2, W-M3','MW5','WG, WM','-'] },
 
   // NEGATIVE · M stainless
-  { g:'N-stain', d:'41',         note:'정삭 · 준정삭',   v:['MF','EA, SF','SH, LM, FS','SU, EF','MQ, GU, SK','SS, SF','VP2, VF','MF, XF','FP, FF','FF1, MF1','NF4, FM5','SF, VL, F3M','BF, PY'] },
-  { g:'N-stain', d:'42, 45',     note:'중삭',           v:['MM, MF','MP, EM','MS, GM, MM','EX, EG, GU','TK, MS, HU','SA, SM','MP, MM','MM, XM, QM, MMC','MP, UP, MS','MF3, MF4','NM4, NR4','PP, TF, M3M','BM, MP, GT'] },
-  { g:'N-stain', d:'45, 53',     note:'중 · 황삭',       v:['MR','ET','ES, MA, GH','EM, HM, MU','MU','S, SH','RM','MR, XMR, MRR','RP, P','MF5, M5, MR3','RM5, NRS, NR4','MR, R3M','BR'] },
+  { g:'N-stain', d:'41',         note:'정삭 · 준정삭',   v:['MF','EA, SF','SH, LM, FS','SU, EF','MQ, GU, SK, SQ','SS, SF','VP2, VF','MF, XF','FP, FF','FF1, MF1','NF4, FM5','SF, VL, F3M','BF, PY'] },
+  { g:'N-stain', d:'42, 45',     note:'중삭',           v:['MM, MF','MP, EM','MS, GM, MM','EX, EG, GU','TK, MS, HU, MU, SG, SX','SA, SM','MP, MM','MM, XM, QM, MMC','MP, UP, MS','MF3, MF4','NM4, NR4','PP, TF, M3M','BM, MP, GT'] },
+  { g:'N-stain', d:'45, 53',     note:'중 · 황삭',       v:['MR','ET','ES, MA, GH','EM, HM, MU','MU, SG, SX','S, SH','RM','MR, XMR, MRR','RP, P','MF5, M5, MR3','RM5, NRS, NR4','MR, R3M','BR'] },
 
   // NEGATIVE · K cast iron
-  { g:'N-iron',  d:'46',         note:'정삭 · 중삭',     v:['UM','KT, MT','LK, MA','GZ, UZ','C, KQ, ZS','CF, CM','MP','KF, KM','FN, T-20','M4','MK5, NM4','TF','GQ'] },
-  { g:'N-iron',  d:'53',         note:'중 · 황삭',       v:['UC','RT, KT','MK, GK','UX, UZ, GZ','ZS, KG','CM','MK, B25','KM, KR, XM','UN, RP','M5, MR4','RK5, NM5, MK5','GN','GR'] },
-  { g:'N-iron',  d:'56',         note:'강황삭 · 단속',   v:['UR','MA, RT','RK, MA','MA','GC, KH, MA','CH','RK, MA','KR, KRR, XMR','MR, S-20, MA','MR7, R4','RK7, MA','NR, MA','GX'] },
+  { g:'N-iron',  d:'46',         note:'정삭 · 중삭',     v:['UM','KT, MT','LK, MA','GZ, UZ','C, KQ, ZS, KG','CF, CM','MP','KF, KM','FN, T-20','M4','MK5, NM4','TF','GQ'] },
+  { g:'N-iron',  d:'53',         note:'중 · 황삭',       v:['UC','RT, KT','MK, GK','UX, UZ, GZ','ZS, KG, KQ, C','CM','MK, B25','KM, KR, XM','UN, RP','M5, MR4','RK5, NM5, MK5','GN','GR'] },
+  { g:'N-iron',  d:'56',         note:'강황삭 · 단속',   v:['UR','MA, RT','RK, MA','MA','GC, KH, MA, ZS','CH','RK, MA','KR, KRR, XMR','MR, S-20, MA','MR7, R4','RK7, MA','NR, MA','GX'] },
 
   // POSITIVE (서멧 전용 31·32 + 강·스테인리스·주철 41·51·52)
-  { g:'P-pos',d:'31',         note:'초정삭 (서멧)',   v:['UF','FA, FX','SMG, FV, SV','FC, FB','XP, DP, GP','01, PSF, PF','FP, VL','PF, XF, UF','11, UF','FF1, F1','FP4','PF, F3P','-'] },
-  { g:'P-pos',d:'32',         note:'정삭·준정삭(서멧)',v:['UF, UG','FG, FM','FP, LP, SV','LU, LB, FP, FK','PP, GQ, XQ, HQ','PF, PSS, PS','VF, HMP','UF, PM, XM','UF, LF, FP','F1, MF2','FK6, FM2, MP4','F3P, 14, SM','-'] },
+  { g:'P-pos',d:'31',         note:'초정삭 (서멧)',   v:['UF','FA, FX','SMG, FV, SV','FC, FB','XP, DP, GP, CF, PF','01, PSF, PF','FP, VL','PF, XF, UF','11, UF','FF1, F1','FP4','PF, F3P','-'] },
+  { g:'P-pos',d:'32',         note:'정삭·준정삭(서멧)',v:['UF, UG','FG, FM','FP, LP, SV','LU, LB, FP, FK','PP, GQ, XQ, HQ, VF','PF, PSS, PS','VF, HMP','UF, PM, XM','UF, LF, FP','F1, MF2','FK6, FM2, MP4','F3P, 14, SM','-'] },
 
-  { g:'P-pos', d:'41',         note:'정삭 · 준정삭',   v:['UF','FA, FX, FG','FV, SV, FP, SMG','FC, FB, LU, FP, FK','XP, PP, GP, GQ','01, PSF, PF','FP, VL, VF','PF, XF, UF, MF','11, UF','FF1, F1','FP4, FK6, FM2','PF, F3P','TF, PY'] },
-  { g:'P-pos', d:'51',         note:'준정삭 · 중삭',   v:['UG','FG, FM, PC','LP, MV','LB, NF, NGU, SU, SC','XQ, HQ, MQ','PSS, PS','HMP, MP, MM','PM, XM, MM, UM, PMC','LF, FP','F2, MF2, M3','MP4, FM4, FP6, MM4','14, SM, F3M','TM, PY'] },
-  { g:'P-pos', d:'52',         note:'중·황삭',v:['UG','MT, PC','MP, MK','MU','HQ, GK','PM, CM','C25, MP','PR, UR, XR, MR, KF, KM, KR','MP, MF, GM, T-20','M5, M3','RP4, RM4, RM6, MK4, RK4, RK6','19, 17','TM'] },
+  { g:'P-pos', d:'41',         note:'정삭 · 준정삭',   v:['UF','FA, FX, FG','FV, SV, FP, SMG','FC, FB, LU, FP, FK','XP, PP, GP, GQ, PF, DP, VF, WP, CK, GF, SK, SKS','01, PSF, PF','FP, VL, VF','PF, XF, UF, MF','11, UF','FF1, F1','FP4, FK6, FM2','PF, F3P','TF, PY'] },
+  { g:'P-pos', d:'51',         note:'준정삭 · 중삭',   v:['UG','FG, FM, PC','LP, MV','LB, NF, NGU, SU, SC','XQ, HQ, MQ, GK','PSS, PS','HMP, MP, MM','PM, XM, MM, UM, PMC','LF, FP','F2, MF2, M3','MP4, FM4, FP6, MM4','14, SM, F3M','TM, PY'] },
+  { g:'P-pos', d:'52',         note:'중·황삭 (강·주철)',v:['UG','MT, PC','MP, MK','MU','HQ, GK','PM, CM','C25, MP','PR, UR, XR, MR, KF, KM, KR','MP, MF, GM, T-20','M5, M3','RP4, RM4, RM6, MK4, RK4, RK6','19, 17','TM'] },
 
   // POSITIVE · N aluminium / non-ferrous
-  { g:'P-alu',   d:'AU',         note:'정삭·중삭 (비철)',v:['AL','FL, ML','AZ, FS, MJ','AW, AG, AY, AX','AH','AL','AK, AR, HA','AL','HP, LF, GP, MS','AL, MF1','PM2, FN2, PF2, MN2','AS, AF, NF, PP','AK'] }
+  { g:'P-alu',   d:'AU',         note:'정삭·중삭 (비철)',v:['AL','FL, ML','AZ, FS, MJ','AW, AG, AY, AX','AH, AP','AL','AK, AR, HA','AL','HP, LF, GP, MS','AL, MF1','PM2, FN2, PF2, MN2','AS, AF, NF, PP','AK'] }
 ];
 let brkTab = 'all';
 const brkOn = new Set(BRK_DEFAULT_ON);
@@ -4015,23 +4020,23 @@ window.addEventListener('DOMContentLoaded', () => {
    ================================================================ */
 function formatWon(value) { return Math.round(value).toLocaleString('ko-KR') + '원'; }
 function syncDiscountFromRatio() {
-  // 정가 × 할인배율 → 유저 납품가
+  // 정가 × 할인배율 → 할인가
   const baseInput = document.getElementById('discountBasePrice').value;
   const ratioInput = document.getElementById('dealerDiscountRatio').value;
   const base = Number(baseInput);
   const ratio = Number(ratioInput);
-  const delivery = document.getElementById('userDeliveryPrice');
+  const delivery = document.getElementById('discountPrice');
   if (baseInput !== '' && ratioInput !== '' && Number.isFinite(base) && base > 0 && Number.isFinite(ratio) && ratio >= 0 && ratio <= 1) {
     delivery.value = Math.round(base * ratio);
   } else if (baseInput === '' || ratioInput === '') {
     delivery.value = '';
   }
-  calculateDealerPurchase();
+  calculateUserDelivery();
 }
 function syncDiscountFromDelivery() {
-  // 유저 납품가 직접 입력 → 할인배율 역산
+  // 할인가 직접 입력 → 할인배율 역산
   const baseInput = document.getElementById('discountBasePrice').value;
-  const deliveryInput = document.getElementById('userDeliveryPrice').value;
+  const deliveryInput = document.getElementById('discountPrice').value;
   const base = Number(baseInput);
   const delivery = Number(deliveryInput);
   const ratio = document.getElementById('dealerDiscountRatio');
@@ -4040,12 +4045,44 @@ function syncDiscountFromDelivery() {
   } else if (deliveryInput === '') {
     ratio.value = '';
   }
+  calculateUserDelivery();
+}
+function calculateUserDelivery() {
+  // 유저 납품가 = 할인가 × (1 + 가산율)  (가산율 비우면 0%)
+  const dIn = document.getElementById('discountPrice').value;
+  const mIn = document.getElementById('userMarkupPercent').value;
+  const disc = Number(dIn);
+  const mk = mIn === '' ? 0 : Number(mIn);
+  const out = document.getElementById('userDeliveryPrice');
+  if (dIn === '' || !Number.isFinite(disc) || !Number.isFinite(mk) || mk <= -100) {
+    if (dIn === '') out.value = '';
+  } else {
+    out.value = Math.round(disc * (1 + mk / 100));
+  }
+  calculateDealerPurchase();
+}
+function calculateMarkupFromDelivery() {
+  // 유저 납품가 직접 입력 → 가산율 역산 = (납품가 ÷ 할인가 − 1) × 100
+  const dIn = document.getElementById('discountPrice').value;
+  const vIn = document.getElementById('userDeliveryPrice').value;
+  const disc = Number(dIn);
+  const v = Number(vIn);
+  const mk = document.getElementById('userMarkupPercent');
+  if (vIn === '') mk.value = '';
+  else if (dIn !== '' && Number.isFinite(disc) && disc > 0 && Number.isFinite(v) && v >= 0) {
+    mk.value = parseFloat(((v / disc - 1) * 100).toFixed(2));
+  }
   calculateDealerPurchase();
 }
 function formatRoundedWon(value) { return (Math.round(value / 10) * 10).toLocaleString('ko-KR') + '원'; }
 function updateRoundedDisplays() {
   const deliveryInput = document.getElementById('userDeliveryPrice').value;
   const purchaseInput = document.getElementById('dealerPurchasePrice').value;
+  const discInput = document.getElementById('discountPrice').value;
+  document.getElementById('discountRounded').textContent =
+    discInput !== '' && Number.isFinite(Number(discInput))
+      ? '1의 자리 반올림: ' + formatRoundedWon(Number(discInput))
+      : '1의 자리 반올림: -';
   document.getElementById('userDeliveryRounded').textContent =
     deliveryInput !== '' && Number.isFinite(Number(deliveryInput))
       ? '1의 자리 반올림: ' + formatRoundedWon(Number(deliveryInput))
@@ -4068,11 +4105,11 @@ function renderDealerTable(delivery, margin) {
   rows.innerHTML = html;
 }
 function clearDealerTable() {
-  document.getElementById('dealerPurchaseRows').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">유저 납품가와 마진율을 입력하면 계산표가 표시됩니다.</td></tr>';
+  document.getElementById('dealerPurchaseRows').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">할인가와 마진율을 입력하면 계산표가 표시됩니다.</td></tr>';
 }
 function calculateDealerPurchase() {
-  // 마진율 → 대리점 매입가 = 유저 납품가 ÷ (1 + 마진율)
-  const deliveryInput = document.getElementById('userDeliveryPrice').value;
+  // 마진율 → 대리점 매입가 = 할인가 ÷ (1 + 마진율)
+  const deliveryInput = document.getElementById('discountPrice').value;
   const marginInput = document.getElementById('dealerMarginPercent').value;
   const delivery = Number(deliveryInput);
   const margin = Number(marginInput);
@@ -4088,8 +4125,8 @@ function calculateDealerPurchase() {
   renderDealerTable(delivery, margin);
 }
 function calculateMarginFromPurchase() {
-  // 대리점 매입가 직접 입력 → 마진율 역산 = (유저 납품가 ÷ 매입가 − 1) × 100
-  const deliveryInput = document.getElementById('userDeliveryPrice').value;
+  // 대리점 매입가 직접 입력 → 마진율 역산 = (할인가 ÷ 매입가 − 1) × 100
+  const deliveryInput = document.getElementById('discountPrice').value;
   const purchaseInput = document.getElementById('dealerPurchasePrice').value;
   const delivery = Number(deliveryInput);
   const purchase = Number(purchaseInput);
@@ -4104,12 +4141,12 @@ function calculateMarginFromPurchase() {
   renderDealerTable(delivery, margin);
 }
 function resetDiscountCalc() {
-  ['discountBasePrice', 'dealerDiscountRatio', 'userDeliveryPrice', 'dealerMarginPercent', 'dealerPurchasePrice'].forEach(id => {
+  ['discountBasePrice', 'dealerDiscountRatio', 'discountPrice', 'userMarkupPercent', 'userDeliveryPrice', 'dealerMarginPercent', 'dealerPurchasePrice'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
   updateRoundedDisplays();
-  document.getElementById('dealerPurchaseRows').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">유저 납품가와 마진율을 입력하면 계산표가 표시됩니다.</td></tr>';
+  document.getElementById('dealerPurchaseRows').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);">할인가와 마진율을 입력하면 계산표가 표시됩니다.</td></tr>';
 }
 
 /* ================================================================
