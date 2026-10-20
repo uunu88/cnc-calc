@@ -11,90 +11,6 @@
 <meta content="yes" name="mobile-web-app-capable"/>
 <meta content="#ffffff" name="theme-color"/>
 <style>
-    /* ===== 접근 코드 게이트 ===== */
-    .auth-gate {
-      display: none;
-      position: fixed; inset: 0; z-index: 9999;
-      background: linear-gradient(135deg, #090d16, #131b2e);
-      align-items: center; justify-content: center;
-      padding: 20px;
-      flex-direction: column;
-    }
-    [data-theme="light"] .auth-gate { background: linear-gradient(135deg, #eef2f7, #dbeafe); }
-    [data-theme="sepia"] .auth-gate { background: linear-gradient(135deg, #f0e6d2, #e8d4a8); }
-
-    .auth-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 28px 24px 24px;
-      width: 100%; max-width: 380px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,.35);
-    }
-    .auth-brand {
-      font-size: 22px; font-weight: 900;
-      color: var(--accent);
-      letter-spacing: -0.5px;
-    }
-    .auth-brand span { color: var(--text); }
-    .auth-kicker {
-      font-size: 9px; font-weight: 900;
-      color: var(--accent); letter-spacing: .18em;
-      margin-top: 8px;
-    }
-    .auth-card h2 {
-      font-size: 16px; color: var(--text);
-      margin-top: 20px; margin-bottom: 6px;
-    }
-    .auth-card p {
-      font-size: 11px; color: var(--text-muted);
-      margin-bottom: 20px; line-height: 1.5;
-    }
-    .auth-card input[type="password"] {
-      text-align: center;
-      font-size: 15px;
-      letter-spacing: 0.2em;
-      padding: 12px;
-      margin-bottom: 10px;
-    }
-    .auth-submit {
-      width: 100%;
-      background: var(--primary);
-      color: #fff; border: none;
-      border-radius: 8px;
-      padding: 12px; font-size: 13px; font-weight: 700;
-      cursor: pointer;
-      transition: background .15s, transform .1s;
-    }
-    .auth-submit:active { background: var(--primary-hover); transform: scale(.98); }
-    .auth-error {
-      font-size: 11px; color: #ef4444;
-      margin-top: 10px; min-height: 14px;
-      font-weight: 700;
-    }
-    .auth-hint {
-      font-size: 10px; color: var(--text-muted);
-      margin-top: 20px; padding-top: 14px;
-      border-top: 1px dashed var(--border);
-      line-height: 1.5;
-    }
-    .auth-logout-row {
-      display: flex; justify-content: flex-end;
-      margin-top: 8px;
-    }
-    .auth-logout-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 10px; font-weight: 700;
-      cursor: pointer;
-      transition: all .15s;
-    }
-    .auth-logout-btn:active { background: var(--btn-sub-bg); }
-
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
@@ -1079,6 +995,9 @@
     .brk-hit { background: rgba(250, 204, 21, 0.3); font-weight: 800; }
     .brk-empty { color: var(--text-muted); opacity: .5; }
     .brk-note { font-size: 10px; color: var(--text-muted); line-height: 1.55; margin-top: 8px; }
+    .mill-table td.mill-ins { white-space: normal; min-width: 96px; }
+    .mill-table td.mill-num { white-space: nowrap; }
+    .mill-table td.mill-fz0 { font-weight: 800; color: var(--accent); }
 </style>
 
 <style id="gcode-safety-style">
@@ -1101,19 +1020,6 @@
 </style>
 </head>
 <body>
-<!-- 접근 코드 게이트 -->
-<div class="auth-gate" id="authGate">
-  <div class="auth-card">
-    <div class="auth-brand">DURACARB <span>도우미</span></div>
-    <div class="auth-kicker">RESTRICTED ACCESS</div>
-    <h2>코드 입력</h2>
-    <p>'duracarb@2026' 입력하세요.</p>
-    <input type="password" id="authInput" placeholder="PASSWORD" autocomplete="off"/>
-    <button class="auth-submit" onclick="checkAuth()">확인</button>
-    <div class="auth-error" id="authError"></div>
-    <div class="auth-hint">코드가 안맞으면 관리자에게 문의하세요.</div>
-  </div>
-</div>
 <!-- 업데이트 안내 팝업 (새 업데이트가 있을 때 1회) -->
 <div class="update-notice" id="updateNotice">
   <div class="update-card">
@@ -1194,7 +1100,7 @@
   </div>
   <div class="catalog-shortcuts">
   <button class="catalog-shortcut" type="button"
-    title="Duracarb 경쟁사 브레이커 · 재종 대응표 열기"
+    title="Duracarb 경쟁사 브레이커 · 재종 · 커터 대응표 열기"
     onclick="openView('breaker-compare')">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -1202,7 +1108,7 @@
       <line x1="3" y1="15" x2="21" y2="15"/>
       <line x1="9" y1="3" x2="9" y2="21"/>
     </svg>
-    Duracarb 경쟁사 브레이커&amp;재종 대응표 바로가기
+    Duracarb 경쟁사 브레이커 · 재종 · 커터 대응표 바로가기
   </button>
   </div>
 </div>
@@ -1671,6 +1577,7 @@
 <div class="dura-filter-tabs brk-switch">
 <button class="dura-filter-btn" onclick="swapCompareView('breaker-compare')">칩 브레이커 대응표</button>
 <button class="dura-filter-btn active" onclick="swapCompareView('grade-compare')">재종 대응표</button>
+<button class="dura-filter-btn" onclick="swapCompareView('cutter-compare')">커터 대응표</button>
 </div>
 <div class="brk-intro">듀라카브 재종 기준 · 경쟁사 대응 (터닝 · 밀링 · 컷그립 · 서멧)</div>
 <div class="dura-filter-tabs" id="grdTabs">
@@ -1693,6 +1600,7 @@
 <div class="dura-filter-tabs brk-switch">
 <button class="dura-filter-btn active" onclick="swapCompareView('breaker-compare')">칩 브레이커 대응표</button>
 <button class="dura-filter-btn" onclick="swapCompareView('grade-compare')">재종 대응표</button>
+<button class="dura-filter-btn" onclick="swapCompareView('cutter-compare')">커터 대응표</button>
 </div>
 <div class="brk-intro">듀라카브 칩 브레이커 기준 · 경쟁사 대응 비교</div>
 <div class="dura-filter-tabs" id="brkTabs">
@@ -1745,6 +1653,30 @@
 • AU (경사각 28°)
   - 알루미늄·비철금속 가공 전용 · 저저항형 · 칩분절 탁월</div>
 </details>
+</div>
+</div>
+
+<!-- 커터 대응표 -->
+<div class="sub-view" id="view-cutter-compare">
+<div class="card">
+<div class="dura-filter-tabs brk-switch">
+<button class="dura-filter-btn" onclick="swapCompareView('breaker-compare')">칩 브레이커 대응표</button>
+<button class="dura-filter-btn" onclick="swapCompareView('grade-compare')">재종 대응표</button>
+<button class="dura-filter-btn active" onclick="swapCompareView('cutter-compare')">커터 대응표</button>
+</div>
+<div class="brk-intro">듀라카브 밀링 커터 기준 · 시리즈 · 인서트 · 추천 조건 (경쟁사 대응은 추후 추가)</div>
+<div class="dura-filter-tabs" id="millTabs">
+<button class="dura-filter-btn active" onclick="setMillTab('all', this)">전체</button>
+<button class="dura-filter-btn" onclick="setMillTab('iso', this)">ISO 밀링</button>
+<button class="dura-filter-btn" onclick="setMillTab('f90', this)">90° 페이스밀</button>
+<button class="dura-filter-btn" onclick="setMillTab('e90', this)">90° 엔드밀</button>
+<button class="dura-filter-btn" onclick="setMillTab('a75', this)">75°</button>
+<button class="dura-filter-btn" onclick="setMillTab('a45', this)">45° · 43°</button>
+<button class="dura-filter-btn" onclick="setMillTab('hf', this)">하이피드</button>
+</div>
+<input id="millSearch" type="search" placeholder="시리즈·인서트 검색 (예: SPKN, WN07, APMT, ON07)" oninput="renderMillTable()" autocomplete="off"/>
+<div class="brk-wrap"><table class="brk-table mill-table"><thead id="millHead"></thead><tbody id="millBody"></tbody></table></div>
+<div class="brk-note">※ 듀라카브 카탈로그 2026 밀링 커터와 인서트 사양표 기준입니다. 직경·날수는 시리즈 내 최소~최대, ap는 인서트 최대 절입 깊이입니다. 시작 fz는 추천 범위 안의 안내값이며, 실제 조건은 피삭재·강성·돌출 길이에 맞게 조정하세요.</div>
 </div>
 </div>
 
@@ -3024,63 +2956,6 @@
 </div>
 
 <script>
-/* ================================================================
-   접근 제어 (Access Control)
-   ================================================================ */
-// ▼▼▼ 여기만 수정하시면 됩니다 ▼▼▼
-// btoa() 안의 문자열이 실제 접근 코드입니다.
-// 현재 코드: "duracarb@2026"
-const AUTH_PW_B64 = 'ZHVyYWNhcmJAMjAyNg==';
-// ▲▲▲ 여기만 수정하시면 됩니다 ▲▲▲
-
-const AUTH_SESSION_DAYS = 30;
-const AUTH_STORAGE_KEY = 'cnc_auth_session';
-
-function isAuthed() {
-  try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (!data || !data.expires) return false;
-    if (Date.now() > data.expires) {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      return false;
-    }
-    return true;
-  } catch (e) { return false; }
-}
-
-function checkAuth() {
-  const input = document.getElementById('authInput');
-  const err = document.getElementById('authError');
-  const entered = (input.value || '').trim();
-  let expected = '';
-  try { expected = atob(AUTH_PW_B64); } catch (e) { expected = ''; }
-
-  if (entered && entered === expected) {
-    const expires = Date.now() + AUTH_SESSION_DAYS * 24 * 60 * 60 * 1000;
-    try {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ expires, at: Date.now() }));
-    } catch (e) {}
-    hideAuthGate();
-    if (typeof showToast === 'function') showToast('환영합니다!', 'success');
-  } else {
-    err.textContent = '코드가 올바르지 않습니다.';
-    input.value = '';
-    input.focus();
-  }
-}
-
-function showAuthGate() {
-  const gate = document.getElementById('authGate');
-  if (!gate) return;
-  gate.style.display = 'flex';
-  setTimeout(() => {
-    const inp = document.getElementById('authInput');
-    if (inp) inp.focus();
-  }, 120);
-}
-
 /* ===== 칩 브레이커 대응표 =====
    v 배열 순서 = BRK_COMPANIES 순서. */
 const BRK_COMPANIES = ['YG-1','대구텍','미쓰비시','스미토모','교세라','탕가로이','한국야금(KORLOY)','샌드빅','케나메탈','세코','발터','이스카','하드스톤(HUAREAL)'];
@@ -3314,16 +3189,110 @@ function renderGradeTable() {
 }
 renderGradeTable();
 
+/* ===== 커터 대응표 (Duracarb 카탈로그 2026 p.127~166, 인서트 사양표 p.109~126) =====
+   MILL_ROWS 열 순서: [그룹, 시리즈, 구분, 인서트, 직경D, 날수, ap(최대), 추천 fz, 시작 fz, 추천 절삭깊이, 카탈로그 쪽]
+   경쟁사 열은 추후 MILL_COMPANIES / 행 끝 배열로 확장 */
+const MILL_GROUPS = [
+  { g:'iso', t:'ISO 밀링 · ISO 규격 인서트 (90° / 75° / 45°)' },
+  { g:'f90', t:'90° 페이스밀' },
+  { g:'e90', t:'90° 엔드밀' },
+  { g:'a75', t:'75° 페이스밀' },
+  { g:'a45', t:'45° · 43° 페이스밀 / 엔드밀' },
+  { g:'hf',  t:'하이피드' }
+];
+const MILL_ROWS = [
+  ["iso", "90F…TP22", "90° 페이스밀", "TPKN/TPKR 2204", "80~315", "4~14", "16 (HPN) / 18 (EM)", "0.10~0.25", "0.15", "0.15~13.0", 144],
+  ["iso", "DMFN90…TE22", "90° · DMFN", "TEKN 2204 PESR-EM", "80", "4", "18", "0.10~0.25", "0.15", "0.15~13.0", 145],
+  ["iso", "75F…SP12", "75° 페이스밀", "SPKN/SPKR 1203", "80~315", "5~20", "9~9.5", "0.10~0.25", "0.15", "1.5~7.0", 146],
+  ["iso", "DMFN75…SP12/15", "75° · DMFN", "SPKN 1203 · 1504 EDR-HPN", "63~80", "3~4", "9 / 11.5", "0.10~0.25", "0.15", "1.5~7.0 / 1.5~10.0", 147],
+  ["iso", "75F…SP15", "75° 페이스밀", "SPKN/SPKR 1504", "80~315", "5~20", "11.5~12.5", "0.10~0.25", "0.15", "1.5~10.0", 148],
+  ["iso", "45F…SD12", "45° 페이스밀", "SDKN 1203 MT-H", "80~250", "4~12", "6.5", "0.10~0.25", "0.15", "1.5~6.0", 156],
+  ["iso", "45F…SD15", "45° 페이스밀", "SDKN 1504 MT-H", "80~250", "4~12", "8.5", "0.10~0.25", "0.15", "1.5~8.0", 157],
+  ["iso", "45F…SE12", "45° 페이스밀", "SEKN/SEKR 1203 AFSN", "80~315", "4~14", "6.5 (SEKR 6)", "0.10~0.25", "0.15", "1.5~6.0", 158],
+  ["iso", "45F…SE15", "45° 페이스밀", "SEKN/SEKR 1504 AFSN", "80~250", "4~12", "9 (SEKR 8.5)", "0.10~0.25", "0.15", "1.5~8.0", 159],
+  ["iso", "DMFN45…SE12", "45° · DMFN", "SEKN 1203 AFSN-EM", "63", "3", "6.5", "0.10~0.25", "0.15", "1.5~6.0", 160],
+  ["f90", "90F…WN07", "페이스밀", "WNKU 0704", "40~125", "4~14", "6", "0.08~0.15", "0.10", "1.5~5.0", 131],
+  ["f90", "90F…WN10", "페이스밀", "WNKU 1006", "50~125", "4~12", "8", "0.10~0.25", "0.15", "1.5~8.0", 132],
+  ["f90", "90F…SN10", "페이스밀", "SNMU 100508-M", "40~63", "4~6", "4", "0.10~0.25", "0.15", "1.0~4.0", 135],
+  ["f90", "90F…SO12", "페이스밀", "SOMX 120508PEER-DM", "50~125", "4~10", "7", "0.10~0.30", "0.15", "1.0~6.0", 136],
+  ["f90", "90F…APM11", "페이스밀", "APMT 1135", "50~80", "4~6", "9.5", "0.07~0.14", "0.10", "3.5~9.5", 138],
+  ["f90", "90F…APM16", "페이스밀", "APMT 1604", "40~100", "4~8", "13", "0.09~0.17", "0.12", "4.5~13.0", 140],
+  ["f90", "90F…AP16", "페이스밀", "APKT 1604", "40~100", "3~6", "13", "0.09~0.17", "0.12", "4.5~13.0", 142],
+  ["e90", "90E…WN07", "엔드밀", "WNKU 0704", "25~40", "2~4", "6", "0.08~0.15", "0.10", "1.5~5.0", 133],
+  ["e90", "90E…M…WN07", "모듈러 엔드밀", "WNKU 0704", "25~40", "2~4", "6", "0.08~0.15", "0.10", "1.5~5.0", 134],
+  ["e90", "90E…TO10", "엔드밀", "TOMX 100408", "20~40", "2~4", "6", "0.05~0.12", "0.08", "2.0~6.0", 137],
+  ["e90", "90E…APM11", "엔드밀", "APMT 1135", "16~40", "2~3", "9.5", "0.07~0.14", "0.10", "3.5~9.5", 139],
+  ["e90", "90E…APM16", "엔드밀", "APMT 1604", "25~40", "2~4", "13", "0.09~0.17", "0.12", "4.5~13.0", 141],
+  ["e90", "90E…AP16", "엔드밀", "APKT 1604", "20~40", "1~3", "13", "0.09~0.17", "0.12", "4.5~13.0", 143],
+  ["a75", "75F…SN12-N", "페이스밀", "SNKU 1205 XTN", "40~315", "4~22", "9", "0.01~0.25", "0.15", "1.0~9.0", 149],
+  ["a75", "75F…SN12", "페이스밀", "SNKR 1204 XTN-EM", "80~250", "6~22", "9.3", "0.10~0.15", "0.12", "1.0~8.3", 150],
+  ["a45", "45F…SN12-N", "45° 페이스밀", "SNGU 1205 XTN", "50~250", "4~26", "6", "0.01~0.25", "0.15", "1.0~6.0", 151],
+  ["a45", "45F…SN12", "45° 페이스밀", "SNKR 1204 XTN-EM", "80~100", "6~8", "6.2", "0.10~0.30", "0.15", "1.0~5.2", 152],
+  ["a45", "45F…SD13", "45° 페이스밀", "SDKT 1305 XTR-M", "50~125", "4~12", "4", "0.10~0.30", "0.15", "1.5~4.0", 155],
+  ["a45", "45FW…ON05", "45° 페이스밀", "ONMU 050508-M", "40~125", "3~15", "2.5", "0.10~0.25", "0.15", "1.0~2.5", 153],
+  ["a45", "45EW…ON05", "45° 엔드밀", "ONMU 050508-M", "25~40", "3~4", "2.5", "0.10~0.25", "0.15", "1.0~2.5", 154],
+  ["a45", "43FW…ON07", "43° 페이스밀", "ONMU 070608-M/-ML", "63~160", "5~15", "4", "0.10~0.20", "0.12", "1.0~4.0", 161],
+  ["a45", "43F…OFS05", "43° 페이스밀", "OFCT 05T3 DN-AU / DN-EM, OFMT 05T3 DN-ML", "63~125", "6~9", "3.5", "AU 0.1~0.5 / EM 0.08~0.1 / ML 0.06~0.12", "AU 0.2 / EM 0.08 / ML 0.08", "1.0~3.0", 162],
+  ["a45", "43F…OF07", "43° 페이스밀", "OFCN/OFCR 0704", "63~200", "4~12", "5", "0.08~0.15", "0.10", "1.5~4.0", 163],
+  ["hf", "12E…SD06", "엔드밀", "SDMT 0603-DM", "16~33", "2~5", "0.8", "0.2~2.0", "0.4", "0.1~0.8", 127],
+  ["hf", "10F…SD10", "페이스밀", "SDMT 1004-DM", "40~63", "4~6", "1.2", "0.2~2.0", "0.5", "0.1~1.2", 128],
+  ["hf", "10E…SD10", "엔드밀", "SDMT 1004-DM", "25~40", "2~4", "1.2", "0.2~2.0", "0.5", "0.1~1.2", 129],
+  ["hf", "10F…WL12", "페이스밀", "WLMT 1205R-M/-MM", "50~100", "3~6", "2.0", "4.50-0.40", "0.5", "0.5~2.0", 130]
+];
+let millTab = 'all';
+
+function setMillTab(tab, btn) {
+  millTab = tab;
+  document.querySelectorAll('#millTabs .dura-filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+  renderMillTable();
+}
+function millHit(text, q) {
+  return !!q && String(text).toLowerCase().includes(q);
+}
+function renderMillTable() {
+  const headEl = document.getElementById('millHead');
+  const bodyEl = document.getElementById('millBody');
+  const qEl = document.getElementById('millSearch');
+  if (!headEl || !bodyEl) return;
+  const q = (qEl ? qEl.value : '').trim().toLowerCase();
+  headEl.innerHTML = '<tr><th>시리즈</th><th>인서트</th><th>직경 D</th><th>날수</th><th>ap</th><th>추천 fz</th><th>시작 fz</th><th>추천 절삭깊이</th></tr>';
+
+  let html = '';
+  MILL_GROUPS.forEach(g => {
+    if (millTab !== 'all' && millTab !== g.g) return;
+    const list = MILL_ROWS.filter(r => r[0] === g.g && (!q || r.slice(1, 10).some(x => millHit(x, q))));
+    if (!list.length) return;
+    html += '<tr class="brk-group"><td colspan="8">' + g.t + '</td></tr>';
+    list.forEach(r => {
+      const hit = (x) => millHit(x, q) ? ' brk-hit' : '';
+      html += '<tr>' +
+        '<td class="brk-d' + hit(r[1]) + '">' + r[1] + '<small>' + r[2] + '</small></td>' +
+        '<td class="mill-ins' + hit(r[3]) + '">' + r[3] + '</td>' +
+        '<td class="mill-num' + hit(r[4]) + '">' + r[4] + '</td>' +
+        '<td class="mill-num' + hit(r[5]) + '">' + r[5] + '</td>' +
+        '<td class="mill-num' + hit(r[6]) + '">' + r[6] + '</td>' +
+        '<td class="mill-ins' + hit(r[7]) + '">' + r[7] + '</td>' +
+        '<td class="mill-ins mill-fz0' + hit(r[8]) + '">' + r[8] + '</td>' +
+        '<td class="mill-ins' + hit(r[9]) + '">' + r[9] + '</td>' +
+        '</tr>';
+    });
+  });
+  if (!html) html = '<tr><td colspan="8" style="padding:18px;color:var(--text-muted);">일치하는 커터가 없습니다.</td></tr>';
+  bodyEl.innerHTML = html;
+}
+renderMillTable();
+
 /* ===== 업데이트 안내 (showCount번 표시 후 자동 종료) =====
    업데이트할 때마다 id/date/items를 바꾸면 다시 showCount번 표시됩니다. */
 const UPDATE_NOTICE = {
-  id: '2026-10-16a',
+  id: '2026-10-16b',
   date: '2026.10.16',
   showCount: 3,
   items: [
     '할인율 계산기 업데이트',
     '선반 · 밀링 절삭 조건 업데이트',
     '브레이커 대응표 업데이트',
+    '커터 대응표 업데이트 중',
   ]
 };
 const UPDATE_SEEN_KEY = 'cnc_update_views';
@@ -3349,30 +3318,8 @@ function closeUpdateNotice() {
   if (box) box.classList.remove('show');
 }
 
-function hideAuthGate() {
-  const gate = document.getElementById('authGate');
-  if (gate) gate.style.display = 'none';
-  showUpdateNoticeIfNeeded();
-}
-
-function authLogout() {
-  if (!confirm('로그아웃하시겠습니까?\n다시 이용하려면 접근 코드가 필요합니다.')) return;
-  try { localStorage.removeItem(AUTH_STORAGE_KEY); } catch (e) {}
-  location.reload();
-}
-
 window.addEventListener('DOMContentLoaded', () => {
-  const inp = document.getElementById('authInput');
-  if (inp) {
-    inp.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') checkAuth();
-    });
-  }
-  if (!isAuthed()) {
-    showAuthGate();
-  } else {
-    hideAuthGate();
-  }
+  showUpdateNoticeIfNeeded();
 });
 
 /* ================================================================
@@ -3389,6 +3336,7 @@ const VIEW_TITLES = {
   'duracarb-2026': 'Duracarb 재종표',
   'breaker-compare': '칩 브레이커 대응표',
   'grade-compare': '재종 대응표',
+  'cutter-compare': '커터 대응표',
   'ref-tools': '참고 자료',
   'insert-diag': '인서트 손상 판별',
   'mat-calc': '재질별 추천 절삭조건',
@@ -4332,8 +4280,7 @@ function installDataTools() {
       <button type="button" class="btn-sub" onclick="document.getElementById('appBackupInput').click()">JSON 복원</button>
       <button type="button" class="btn-sub btn-clear" onclick="resetAppData()">전체 초기화</button>
       <input id="appBackupInput" type="file" accept="application/json,.json" style="display:none" onchange="restoreAppBackup(event)">
-    </div>
-    <div class="auth-logout-row"><button type="button" class="auth-logout-btn" onclick="authLogout()">로그아웃</button></div>`;
+    </div>`;
   home.insertBefore(box, footer);
 
   const trigger = home.querySelector('.home-hero h2');
