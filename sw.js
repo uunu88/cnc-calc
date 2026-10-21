@@ -1,4 +1,4 @@
-const CACHE_NAME = 'duracarb-v0';  // ← 업데이트할 때마다 v2, v3로 올리기
+const CACHE_NAME = 'duracarb-v1';  // ← 업데이트할 때마다 v2, v3로 올리기
 
 const urlsToCache = [
   './',
